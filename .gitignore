@@ -1,4 +1,4 @@
-secret_token.txt
+*secret_token.txt
 *.idea
 
 # Byte-compiled / optimized / DLL files
