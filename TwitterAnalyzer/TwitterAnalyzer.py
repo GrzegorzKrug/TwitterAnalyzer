@@ -11,14 +11,22 @@ class TwitterAnalyzer:
     def __init__(self, autologin=True):
         self._loged_in = False
         self.api = None
-        
+        self.following = None
+
         if autologin:
             self._loged_in, self.api = self._login_from_file()
 
             if self._loged_in:
                 user_data = self.api.VerifyCredentials()
-                for key, value in list(user_data.items()):
-                    print((str(key) + ':').ljust(40) + str(value))
+                print('Logged in as {}'.format(user_data['screen_name']))
+
+                self.following = self._get_following()
+
+        for user in self.following:
+            print("Currently following: {}".format(user['screen_name']))
+
+    def _get_following(self):
+        return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
 
     def _login_from_file(self):
         with open('secret_token.txt', 'rt') as token_file:
