@@ -26,6 +26,7 @@ class TwitterAnalyzer:
             print("Currently following: {}".format(user['screen_name']))
 
     def _get_following(self):
+        print(self.api.base_url)
         return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
 
     def _login_from_file(self):
@@ -62,10 +63,20 @@ class TwitterAnalyzer:
 
         return True, api
 
+    def CollectHome(self, count=200):
+        home = self.api.GetHomeTimeline(count=count)
+        return home
+
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
-            
+    home_twetts = app.CollectHome(200)
+    for i, tweet in enumerate(home_twetts):
+        for s in tweet.items():
+            pass #print(s)
+        print('\n#', i, tweet)
+
+
 
 
 
