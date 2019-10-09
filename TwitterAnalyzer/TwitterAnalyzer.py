@@ -6,7 +6,7 @@ import time
 import os
 import pandas as pd
 from TwitterApi import TwitterApi
-
+import datetime
 
 class TwitterAnalyzer(TwitterApi):
     def __init__(self, autologin=True):
@@ -22,7 +22,9 @@ class TwitterAnalyzer(TwitterApi):
 
 
 
-    def export_tweet_to_database(self, tweet, filename='default_name'):
+    def export_tweet_to_database(self, tweet, filename='default'):
+        if type(filename) != str:
+            raise TypeError('File name is not string!')
         file_path = self._data_dir + '\\' + filename + '.csv'
         head = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                 'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
@@ -68,9 +70,7 @@ class TwitterAnalyzer(TwitterApi):
                 new_query = query
 
             out[new_query] = tweet[query]
-
         out = {}
-
         add_data('text')
         add_data('lang')
         add_data('created_at')
@@ -95,17 +95,30 @@ class TwitterAnalyzer(TwitterApi):
 
         return out
 
-    def collect_new_tweets(self, count=20):
+    def collect_new_tweets(self, count=20, interval=120, filename=None):
         home_twetts = app.CollectHome(count)
+
+        if filename == None:
+            now = datetime.datetime.now()
+            filename = "tweets_{y}{mon}{d}_{h}-{m}_{interval}sec_{count}".format(y=now.year, mon=now.month, d=now.day,
+                                                                                h=now.hour, m=now.minute,
+                                                                                interval=interval, count=count)
         for i, tweet in enumerate(home_twetts):
             app.add_timestamp(tweet)
-            app.export_tweet_to_database(tweet)
+            app.export_tweet_to_database(tweet, filename)
+
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
-    for x in range(100):
-        app.collect_new_tweets(100)
-        time.sleep(30)
+    N = 100
+    for x in range(1, N+1):
+        print('Current download:', x)
+        try:
+            app.collect_new_tweets(100, interval=60)
+        except twitter.error.TwitterError:
+            print('Twitter rate limit exceeded!')
+            pass
+        time.sleep(60)
 
 
 
