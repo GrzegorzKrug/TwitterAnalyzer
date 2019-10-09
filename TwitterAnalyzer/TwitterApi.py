@@ -1,13 +1,14 @@
 import requests
 import json
 import twitter
-from LibOverrider import overrider
-
-overrider()  # Override and show what was overrided
+# from LibOverrider import overrider
+#
+# overrider()  # Override and show what was overrided
 
 
 class TwitterApi(twitter.Api):
     def __init__(self, autologin=True):
+        self.overrider()
         twitter.Api.__init__(self)
         self.logged_in = False
         self.api = None
@@ -58,6 +59,38 @@ class TwitterApi(twitter.Api):
         home = self.api.GetHomeTimeline(count=count)
         return home
 
+    @staticmethod
+    def overrider(display=True):
+        text = []
+        def add_items_method(self):
+            return self.__dict__.items()
+
+        def __getitem__(cls, x, missing=None):
+            return getattr(cls, x, missing)
+
+        # @classmethod
+        # def __getitem_class__(cls, x):
+        #     return getattr(cls, x)
+
+        twitter.User.items = add_items_method
+        text += ["New Method twitter.User.items"]
+
+        twitter.User.__getitem__ = __getitem__
+        text += ["User is subscriptable twitter.User.__getitem__"]
+
+        twitter.Status.items = add_items_method
+        text += ["New Method twitter.Status.items"]
+
+        twitter.Status.__getitem__ = __getitem__
+        text += ["Status is subscriptable twitter.Status.__getitem__"]
+
+        twitter.Status.get = __getitem__
+        text += ["New Method twitter.Status.get"]
+
+        if display:
+            for comment in text:
+                print('\t', comment)
+        print('#' * 20, 'End of overloading.', '#' * 20, '\n')
 
 if __name__ == "__main__":
     app = TwitterApi()
