@@ -1,20 +1,29 @@
 import requests
 import json
 import twitter
+from LibOverrider import overrider
+
+overrider()  # Override and show what was overrided
+
 
 class TwitterApi(twitter.Api):
     def __init__(self, autologin=True):
         twitter.Api.__init__(self)
-
         self.logged_in = False
+        self.api = None
+        self.following = None
+
         if autologin:
-            self.logged_in = self._login_from_file()
+            self.logged_in, self.api = self._login_from_file()
+
             if self.logged_in:
                 print("Logged in succesfuly!")
 
+    def _get_following(self):
+        return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
+
     def _login_from_file(self):
         with open('secret_token.txt', 'rt') as token_file:
-
             try:
                 data = json.load(token_file)
                 consumer_key = data['consumer_key']
@@ -22,10 +31,11 @@ class TwitterApi(twitter.Api):
                 access_token_key = data['access_token_key']
                 access_token_secret = data['access_token_secret']
 
-                self.login_to_twitter(consumer_key=consumer_key,
+                api = twitter.Api(consumer_key=consumer_key,
                                   consumer_secret=consumer_secret,
                                   access_token_key=access_token_key,
                                   access_token_secret=access_token_secret)
+                api.VerifyCredentials()
 
             except json.decoder.JSONDecodeError as e:
                 print("secret_token.txt is not in json format!")
@@ -42,23 +52,12 @@ class TwitterApi(twitter.Api):
             except twitter.error.TwitterError:
                 print("Invalid or expired token!")
                 return False
+        return True, api
 
-        return True
+    def CollectHome(self, count=200):
+        home = self.api.GetHomeTimeline(count=count)
+        return home
 
-    @staticmethod
-    def login_to_twitter(consumer_key=None,
-                         consumer_secret=None,
-                         access_token_key=None,
-                         access_token_secret=None):
-
-        creditals = {'consumer_key':consumer_key,
-                     'consumer_secret':consumer_secret,
-                     'access_token_key':access_token_key,
-                     'access_token_secret': access_token_secret}
-
-        for key, value in creditals.items():
-            if None == value:
-                raise ValueError("Missing token = {}".format(key))
 
 
 

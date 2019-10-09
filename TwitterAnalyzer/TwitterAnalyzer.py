@@ -3,75 +3,23 @@
 import twitter
 import json
 from time import time
-from LibOverrider import overrider
+
 import os
 import pandas as pd
-# from TwitterApi import TwitterApi
-
-overrider()  # Override and show what was overrided
+from TwitterApi import TwitterApi
 
 
-class TwitterAnalyzer:
+class TwitterAnalyzer(TwitterApi):
     def __init__(self, autologin=True):
-        self._loged_in = False
-        self.api = None
-        self.following = None
+        TwitterApi.__init__(self, autologin=autologin)
+
         self._data_dir = 'tweets'
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
-        if autologin:
-            self._loged_in, self.api = self._login_from_file()
+        if self.logged_in:
+            user_data = self.api.VerifyCredentials()
+            print('Logged in as {}.'.format(user_data['screen_name']))
 
-            if self._loged_in:
-                user_data = self.api.VerifyCredentials()
-                print('Logged in as {}'.format(user_data['screen_name']))
-
-                self.following = self._get_following()
-
-        # for user in self.following:
-        #     print("Currently following: {}".format(user['screen_name']))
-
-    def _get_following(self):
-        print(self.api.base_url)
-        return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
-
-    def _login_from_file(self):
-        with open('secret_token.txt', 'rt') as token_file:
-        
-            try:
-                data = json.load(token_file)
-                consumer_key = data['consumer_key'] 
-                consumer_secret = data['consumer_secret']
-                access_token_key = data['access_token_key']
-                access_token_secret = data['access_token_secret']
-
-                api = twitter.Api(consumer_key=consumer_key,
-                              consumer_secret=consumer_secret,
-                              access_token_key=access_token_key,
-                              access_token_secret=access_token_secret)
-                api.VerifyCredentials()
-                
-            except json.decoder.JSONDecodeError as e:
-                print("secret_token.txt is not in json format!")
-                return False
-            
-            except KeyError as e:
-                print("secret_token.txt is missing some keys!")
-                return False
-            
-            except FileNotFoundError:
-                print("secret_token.txt is missing!")
-                return False
-            
-            except twitter.error.TwitterError:
-                print("Invalid or expired token!")
-                return False
-
-        return True, api
-
-    def CollectHome(self, count=200):
-        home = self.api.GetHomeTimeline(count=count)
-        return home
 
     def export_tweet_to_database(self, tweet, filename='last_data'):
         head = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
@@ -138,15 +86,11 @@ if __name__ == "__main__":
     home_twetts = app.CollectHome(10)
     for i, tweet in enumerate(home_twetts):
         stripped_tweet = app.tweet_strip(tweet)
-        # print(tweet)
+
         app.add_timestamp(stripped_tweet)
         app.export_tweet_to_database(stripped_tweet)
 
 
-        # for s in tweet.items():
-        #     if s[0] == 'param_defaults' or s[0] == '_json':
-        #         continue
-        #     print('\t', s)
 
 
 

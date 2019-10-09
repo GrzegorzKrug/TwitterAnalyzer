@@ -31,4 +31,4 @@ def overrider(display=True):
         print("Status is subscriptable twitter.Status.__getitem__")
 
 
-    print('#' * 20, 'End of overloading.', '#' * 20)
+    print('#' * 20, 'End of overloading.', '#' * 20, '\n')
