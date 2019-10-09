@@ -2,8 +2,7 @@
 # Grzegorz Krug
 import twitter
 import json
-from time import time
-
+import time
 import os
 import pandas as pd
 from TwitterApi import TwitterApi
@@ -14,6 +13,7 @@ class TwitterAnalyzer(TwitterApi):
         TwitterApi.__init__(self, autologin=autologin)
 
         self._data_dir = 'tweets'
+        self.tweet_file_name = 'last_file'
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
         if self.logged_in:
@@ -21,7 +21,9 @@ class TwitterAnalyzer(TwitterApi):
             print('Logged in as {}.'.format(user_data['screen_name']))
 
 
-    def export_tweet_to_database(self, tweet, filename='last_data'):
+
+    def export_tweet_to_database(self, tweet, filename='default_name'):
+        file_path = self._data_dir + '\\' + filename + '.csv'
         head = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                 'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
                 'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
@@ -32,19 +34,32 @@ class TwitterAnalyzer(TwitterApi):
                 'withheld_scope', 'tweet_mode']
 
         # df = pd.DataFrame.from_dict(tweet)
+        if not os.path.isfile(file_path):
+            with open(file_path, 'wt') as file:
+                for h in head:
+                    file.write(h)
+                    file.write(';')
+                file.write('\n')
 
-        with open(self._data_dir + '\\' + filename + '.csv', 'at') as file:
+        with open(file_path, 'at') as file:
             for key in head:
-                file.write(str(tweet.get(key, 'n/a')))
+                try:
+                    text = str(tweet.get(key, 'n/a'))
+                    for char in ['\n', ';', '\r']:
+                        text = text.replace(char, '')
+                    file.write(text)
+                except UnicodeEncodeError:
+                    file.write('UnicodeEncodeError')
+
                 file.write(';')
             file.write('\n')
 
     def add_timestamp(self, tweet):
         try:
-            setattr(tweet, 'timestamp', round(time()))
+            setattr(tweet, 'timestamp', round(time.time()))
 
         except AttributeError:
-            tweet['timestamp'] = round(time())
+            tweet['timestamp'] = round(time.time())
 
     @staticmethod
     def tweet_strip(tweet):
@@ -80,15 +95,17 @@ class TwitterAnalyzer(TwitterApi):
 
         return out
 
+    def collect_new_tweets(self, count=20):
+        home_twetts = app.CollectHome(count)
+        for i, tweet in enumerate(home_twetts):
+            app.add_timestamp(tweet)
+            app.export_tweet_to_database(tweet)
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
-    home_twetts = app.CollectHome(10)
-    for i, tweet in enumerate(home_twetts):
-        stripped_tweet = app.tweet_strip(tweet)
-
-        app.add_timestamp(stripped_tweet)
-        app.export_tweet_to_database(stripped_tweet)
+    for x in range(100):
+        app.collect_new_tweets(100)
+        time.sleep(30)
 
 
 

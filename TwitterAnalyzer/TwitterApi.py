@@ -59,7 +59,5 @@ class TwitterApi(twitter.Api):
         return home
 
 
-
-
 if __name__ == "__main__":
     app = TwitterApi()
