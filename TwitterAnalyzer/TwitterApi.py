@@ -1,8 +1,11 @@
 import requests
 import json
+import twitter
 
-class TwitterApi:
+class TwitterApi(twitter.Api):
     def __init__(self, autologin=True):
+        twitter.Api.__init__(self)
+
         self.logged_in = False
         if autologin:
             self.logged_in = self._login_from_file()

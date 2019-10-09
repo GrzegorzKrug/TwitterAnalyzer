@@ -26,3 +26,9 @@ def overrider(display=True):
     if display:
         print("New Method twitter.Status.items")
     
+    twitter.Status.__getitem__ = __getitem__
+    if display:
+        print("Status is subscriptable twitter.Status.__getitem__")
+
+
+    print('#' * 20, 'End of overloading.', '#' * 20)
