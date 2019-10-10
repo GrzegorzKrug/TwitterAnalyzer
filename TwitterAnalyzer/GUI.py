@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'app.ui'
+# Form implementation generated from reading ui file 'GUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -16,7 +17,8 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(220, 340, 75, 23))
+        self.pushButton.setGeometry(QtCore.QRect(140, 110, 75, 23))
+        self.pushButton.setStyleSheet("background-color: rgb(213, 213, 213)")
         self.pushButton.setObjectName("pushButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
