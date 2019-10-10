@@ -118,8 +118,8 @@ class TwitterAnalyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
-    app.collect_new_tweets(N=20, chunk_count=100, interval=60)
-
+    app.collect_new_tweets(N=1000, chunk_count=100, interval=60)
+    input('End....')
 
 
 
