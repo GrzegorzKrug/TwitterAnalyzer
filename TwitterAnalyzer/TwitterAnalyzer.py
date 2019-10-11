@@ -18,7 +18,6 @@ class TwitterAnalyzer(TwitterApi):
 
 
 
-
     def export_tweet_to_database(self, tweet, filename='default'):
         if type(filename) != str:
             raise TypeError('File name is not string!')
@@ -92,25 +91,27 @@ class TwitterAnalyzer(TwitterApi):
 
         return out
 
-    def collect_new_tweets(self, N=20, chunk_count=20, interval=120, filename=None):
-        if filename == None:
-            now = datetime.datetime.now()
-            filename = "tweets_{y}{mon}{d}_{h}-{m}_{interval}sec_{count}".format(y=now.year, mon=now.month, d=now.day,
-                                                                                h=now.hour, m=now.minute,
-                                                                                interval=interval, count=chunk_count)
-        print('Collecting tweets -> {}'.format(filename + '.csv'))
-        for x in range(1, N + 1):
-            print('Current tweet chunk: {} / {}'.format(x, N))
-            try:
-                home_twetts = app.CollectHome(chunk_count)
-                for i, tweet in enumerate(home_twetts):
-                    app.add_timestamp(tweet)
-                    app.export_tweet_to_database(tweet, filename)
+    def collect_new_tweets(self, N=20, chunk_count=50, interval=60, filename=None):
+        try:
+            if filename == None:
+                now = datetime.datetime.now()
+                filename = "tweets_{y}{mon}{d}_{h}-{m}_{interval}sec_{count}".format(y=now.year, mon=now.month, d=now.day,
+                                                                                    h=now.hour, m=now.minute,
+                                                                                    interval=interval, count=chunk_count)
+            print('Collecting tweets -> {}'.format(filename + '.csv'))
+            for x in range(1, N + 1):
+                print('Current tweet chunk: {} / {}'.format(x, N))
+                try:
+                    home_twetts = app.CollectHome(chunk_count)
+                    for i, tweet in enumerate(home_twetts):
+                        app.add_timestamp(tweet)
+                        app.export_tweet_to_database(tweet, filename)
 
-            except twitter.error.TwitterError:
-                print('Twitter rate limit exceeded!')
-            time.sleep(interval)
-        print('Collecting finished -> {}'.format(filename+'.csv'))
+                except twitter.error.TwitterError:
+                    print('Twitter rate limit exceeded!')
+                time.sleep(interval)
+        finally:
+            print('Collecting is finished -> {}'.format(filename+'.csv'))
 
 
 if __name__ == "__main__":
