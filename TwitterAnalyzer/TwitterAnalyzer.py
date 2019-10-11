@@ -13,10 +13,7 @@ class TwitterAnalyzer(TwitterApi):
         TwitterApi.__init__(self, autologin=autologin)
 
         self._data_dir = 'tweets'
-        self.tweet_file_name = 'last_file'
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
-
-
 
     def export_tweet_to_database(self, tweet, filename='default'):
         if type(filename) != str:
