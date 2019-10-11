@@ -22,7 +22,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
     def init_wrappers(self):
         pass
-        # self._login_procedure = self.run_next_method(lambda: self._login_procedure)
+        self._login_procedure = self.post_action(lambda: self._login_procedure)
         # self.testing = self.post_action(None, lambda: self.afk(10))  # this is ok
 
     def fork_method(self, method_to_fork):
@@ -67,6 +67,7 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = TwitterAnalyzerGUI(MainWindow)
     # ui.setupUi(MainWindow)
+    error_dialog = QtWidgets.QErrorMessage()
     MainWindow.show()
     sys.exit(app.exec_())
     
