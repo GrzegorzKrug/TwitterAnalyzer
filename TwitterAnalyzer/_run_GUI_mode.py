@@ -23,7 +23,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
     def init_wrappers(self):
         pass
-        self._login_procedure = self.post_action(lambda: self._login_procedure)
+        self._login_procedure = self.post_action(self._login_procedure, self.update_status)
         # self.testing = self.post_action(None, lambda: self.afk(10))  # this is ok
 
     def fork_method(self, method_to_fork):
@@ -54,7 +54,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         def wrapper(*args, **kwargs):
             out = None
             if method != None:
-                out = method(args, kwargs)
+                out = method(*args, **kwargs)
             if next_method != None:
                 next_method()
             return out
