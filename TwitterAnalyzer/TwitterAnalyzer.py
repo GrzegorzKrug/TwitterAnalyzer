@@ -16,9 +16,6 @@ class TwitterAnalyzer(TwitterApi):
         self.tweet_file_name = 'last_file'
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
-        if self.logged_in:
-            user_data = self.api.VerifyCredentials()
-            print('Logged in as {}.'.format(user_data['screen_name']))
 
 
 
@@ -118,7 +115,8 @@ class TwitterAnalyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
-    app.collect_new_tweets(N=1000, chunk_count=100, interval=60)
+    for i in range(10):
+        app.collect_new_tweets(N=100, chunk_count=100, interval=60)
     input('End....')
 
 

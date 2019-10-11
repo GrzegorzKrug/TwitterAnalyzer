@@ -1,29 +1,30 @@
 import requests
 import json
 import twitter
-# from LibOverrider import overrider
-#
-# overrider()  # Override and show what was overrided
 
 
 class TwitterApi(twitter.Api):
     def __init__(self, autologin=True):
-        self.overrider()
+        self.overrider(False)
         twitter.Api.__init__(self)
         self.logged_in = False
         self.api = None
         self.following = None
+        self.me = None
 
         if autologin:
-            self.logged_in, self.api = self._login_from_file()
-
-            if self.logged_in:
-                print("Logged in succesfuly!")
+            self._login_procedure()
 
     def _get_following(self):
         return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
 
-    def _login_from_file(self):
+    def _login_procedure(self):
+        self.logged_in, self.api = self._autologin_from_file()
+        if self.logged_in:
+            self.me= self.api.VerifyCredentials()
+            print('Logged in succesfuly as {}.'.format(self.me['screen_name']))
+
+    def _autologin_from_file(self):
         with open('secret_token.txt', 'rt') as token_file:
             try:
                 data = json.load(token_file)
@@ -90,7 +91,7 @@ class TwitterApi(twitter.Api):
         if display:
             for comment in text:
                 print('\t', comment)
-        print('#' * 20, 'End of overloading.', '#' * 20, '\n')
+            print('#' * 20, 'End of overloading.', '#' * 20, '\n')
 
 if __name__ == "__main__":
     app = TwitterApi()
