@@ -4,6 +4,7 @@ from GUI import Ui_MainWindow
 import random
 import time
 import threading
+import traceback, sys
 
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def __init__(self, mainWindow):        
@@ -59,6 +60,11 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             return out
         return wrapper
 
+if QtCore.QT_VERSION >= 0x50501:
+    def excepthook(type_, value, traceback_):
+        traceback.print_exception(type_, value, traceback_)
+        QtCore.qFatal('')
+sys.excepthook = excepthook
 
 
 if __name__ == "__main__":
