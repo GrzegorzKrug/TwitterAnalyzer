@@ -22,7 +22,6 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.pushButton_fork.clicked.connect(lambda: self.fork_method(self.afk))
 
     def init_wrappers(self):
-        pass
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
         # self.testing = self.post_action(None, lambda: self.afk(10))  # this is ok
 
