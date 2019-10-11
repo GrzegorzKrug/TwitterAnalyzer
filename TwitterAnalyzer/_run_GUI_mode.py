@@ -21,6 +21,17 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.label_login_status.mousePressEvent  = self.update_status
 
     def update_status(self, event):
+    def fork_method(self, method_to_fork):
+        subprocess = threading.Thread(target=method_to_fork)
+        subprocess.start()
+        return subprocess
+
+    def afk(self, *args):
+        print("AFK: ", args)
+        for x in range(10):
+            print('x :', x)
+            time.sleep(0.5)
+
         if self.logged_in:
             self.label_login_status.setText('True')
             self.label_login_status.setStyleSheet("background-color: rgb(30, 255, 180);")
@@ -31,6 +42,14 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
     def refresh_gui(self):
         self.update_status(None)
+
+    @staticmethod
+    def run_next_method(method, next_method):
+        def wrapper(*args, **kwargs):
+            out = method(*args, **kwargs)
+            next_method()
+            return out
+        return wrapper
 
     def clicker(self, button):
         print('Console Clicked')
