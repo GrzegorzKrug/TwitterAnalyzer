@@ -21,7 +21,7 @@ class TwitterApi(twitter.Api):
     def _login_procedure(self):
         self.logged_in, self.api = self._autologin_from_file()
         if self.logged_in:
-            self.me= self.api.VerifyCredentials()
+            self.me = self.api.VerifyCredentials()
             print('Logged in succesfuly as {}.'.format(self.me['screen_name']))
 
     def _autologin_from_file(self):
