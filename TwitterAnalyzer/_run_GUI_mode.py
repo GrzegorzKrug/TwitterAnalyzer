@@ -22,17 +22,17 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def init_triggers(self):
         self.actionLogin.triggered.connect(lambda: self._login_procedure())
         self.label_login_status.mousePressEvent  = self.update_status
-        self.pushButton_collectTweets.clicked.connect(lambda: self.fork_method(self.collect_new_tweets))
+        self.pushButton_collectTweets.clicked.connect(self.collect_new_tweets_fork)
         self.pushButton_find_csv.clicked.connect(lambda: self.find_local_tweets())
 
     def init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
 
     def collect_new_tweets_fork(self):
-
+        self.fork_method(self.collect_new_tweets)
 
     def fork_method(self, method_to_fork):
-        subprocess = threading.Thread(target=lambda: method_to_fork())
+        subprocess = threading.Thread(target=method_to_fork)
         subprocess.start()
         return subprocess
 
