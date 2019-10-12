@@ -23,7 +23,6 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
     def init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
-        # self.testing = self.post_action(None, lambda: self.afk(10))  # this is ok
 
     def fork_method(self, method_to_fork):
         subprocess = threading.Thread(target=method_to_fork)
@@ -59,7 +58,8 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             return out
         return wrapper
 
-if QtCore.QT_VERSION >= 0x50501:
+
+if QtCore.QT_VERSION >= 0x50501:  # Showint traceback from crashes
     def excepthook(type_, value, traceback_):
         traceback.print_exception(type_, value, traceback_)
         QtCore.qFatal('')
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = TwitterAnalyzerGUI(MainWindow)
-    # ui.setupUi(MainWindow)
+    # ui.setupUi(MainWindow)  # moved to class init
     error_dialog = QtWidgets.QErrorMessage()
     MainWindow.show()
     sys.exit(app.exec_())
