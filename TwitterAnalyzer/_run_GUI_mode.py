@@ -4,7 +4,10 @@ from GUI import Ui_MainWindow
 import random
 import time
 import threading
-import traceback, sys
+import traceback
+import sys
+import os
+import glob
 
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def __init__(self, mainWindow):        
@@ -19,13 +22,17 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def init_triggers(self):
         self.actionLogin.triggered.connect(lambda: self._login_procedure())
         self.label_login_status.mousePressEvent  = self.update_status
-        self.pushButton_fork.clicked.connect(lambda: self.fork_method(self.afk))
+        self.pushButton_collectTweets.clicked.connect(lambda: self.fork_method(self.collect_new_tweets))
+        self.pushButton_find_csv.clicked.connect(lambda: self.find_local_tweets())
 
     def init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
 
+    def collect_new_tweets_fork(self):
+
+
     def fork_method(self, method_to_fork):
-        subprocess = threading.Thread(target=method_to_fork)
+        subprocess = threading.Thread(target=lambda: method_to_fork())
         subprocess.start()
         return subprocess
 
@@ -46,6 +53,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
     def refresh_gui(self):
         self.update_status()
+        self.show_tree()
 
     @staticmethod
     def post_action(method, next_method=None):
@@ -58,6 +66,26 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             return out
         return wrapper
 
+    def find_local_tweets(self, path=None):
+        if path == None:
+            path = self._data_dir
+        else:
+            path = os.path.abspath(path)
+
+        files = glob.glob(path + '\\*.csv')
+        print(files)
+        return files
+
+    def load_files_info(self, files):
+        if type(files) != list:
+            files = [files]
+
+        pass
+
+    def show_tree(self):
+        model = QtWidgets.QFileSystemModel()
+        model.setRootPath(os.path.dirname(__file__))
+        self.treeView.setModel(model)
 
 if QtCore.QT_VERSION >= 0x50501:  # Showint traceback from crashes
     def excepthook(type_, value, traceback_):

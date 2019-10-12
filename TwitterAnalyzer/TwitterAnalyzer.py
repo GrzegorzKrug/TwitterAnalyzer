@@ -99,10 +99,10 @@ class TwitterAnalyzer(TwitterApi):
             for x in range(1, N + 1):
                 print('Current tweet chunk: {} / {}'.format(x, N))
                 try:
-                    home_twetts = app.CollectHome(chunk_count)
+                    home_twetts = self.CollectHome(chunk_count)
                     for i, tweet in enumerate(home_twetts):
-                        app.add_timestamp(tweet)
-                        app.export_tweet_to_database(tweet, filename)
+                        self.add_timestamp(tweet)
+                        self.export_tweet_to_database(tweet, filename)
 
                 except twitter.error.TwitterError:
                     print('Twitter rate limit exceeded!')
