@@ -46,6 +46,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         if self.logged_in:
             self.label_login_status.setText('True')
             self.label_login_status.setStyleSheet("background-color: rgb(30, 255, 180);")
+            self.show_user_info(self.me)
         else:
             self.label_login_status.setText('False')
             self.label_login_status.setStyleSheet("background-color: rgb(255, 149, 151);\n"
@@ -88,6 +89,15 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         model.setRootPath((QtCore.QDir.rootPath()))
         self.treeView.setModel(model)
         self.treeView.setRootIndex(model.index(path))
+
+    def show_user_info(self, user_data):
+        text = ''
+        for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count']:
+            text += str(key + ':').ljust(20)  + str(user_data[key]) + '\n'
+
+        self.plainTextEdit_selected_user.setPlainText(text)
+
+
 
 
 if QtCore.QT_VERSION >= 0x50501:  # Showint traceback from crashes

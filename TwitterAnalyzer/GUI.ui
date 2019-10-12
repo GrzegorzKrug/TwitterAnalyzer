@@ -17,8 +17,8 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>30</y>
+      <x>540</x>
+      <y>10</y>
       <width>361</width>
       <height>241</height>
      </rect>
@@ -112,27 +112,6 @@ color: rgb(255, 255, 255);</string>
      <string>Current user info:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_selected_user">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>201</width>
-      <height>261</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(220, 220, 220);
-
-</string>
-    </property>
-    <property name="text">
-     <string>ABC</string>
-    </property>
-   </widget>
    <widget class="QTreeView" name="treeView">
     <property name="geometry">
      <rect>
@@ -187,14 +166,33 @@ p, li { white-space: pre-wrap; }
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.25pt;&quot;&gt;Custom Path&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="plainTextEdit">
+   <widget class="QPlainTextEdit" name="plainTextEdit_selected_user">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>280</y>
-      <width>104</width>
-      <height>71</height>
+      <x>10</x>
+      <y>60</y>
+      <width>256</width>
+      <height>192</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Lucida Console</family>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(220, 220, 220);
+
+</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Plain</enum>
+    </property>
+    <property name="plainText">
+     <string>None</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="textEdit_2">

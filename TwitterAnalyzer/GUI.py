@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(280, 30, 361, 241))
+        self.tabWidget.setGeometry(QtCore.QRect(540, 10, 361, 241))
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
@@ -44,13 +44,6 @@ class Ui_MainWindow(object):
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(10, 40, 91, 16))
         self.label_2.setObjectName("label_2")
-        self.label_selected_user = QtWidgets.QLabel(self.centralwidget)
-        self.label_selected_user.setGeometry(QtCore.QRect(10, 60, 201, 261))
-        self.label_selected_user.setAutoFillBackground(False)
-        self.label_selected_user.setStyleSheet("background-color: rgb(220, 220, 220);\n"
-"\n"
-"")
-        self.label_selected_user.setObjectName("label_selected_user")
         self.treeView = QtWidgets.QTreeView(self.centralwidget)
         self.treeView.setGeometry(QtCore.QRect(10, 360, 501, 351))
         self.treeView.setObjectName("treeView")
@@ -69,9 +62,17 @@ class Ui_MainWindow(object):
         self.textEdit.setFont(font)
         self.textEdit.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.textEdit.setObjectName("textEdit")
-        self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
-        self.plainTextEdit.setGeometry(QtCore.QRect(320, 280, 104, 71))
-        self.plainTextEdit.setObjectName("plainTextEdit")
+        self.plainTextEdit_selected_user = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.plainTextEdit_selected_user.setGeometry(QtCore.QRect(10, 60, 256, 192))
+        font = QtGui.QFont()
+        font.setFamily("Lucida Console")
+        self.plainTextEdit_selected_user.setFont(font)
+        self.plainTextEdit_selected_user.setStyleSheet("background-color: rgb(220, 220, 220);\n"
+"\n"
+"")
+        self.plainTextEdit_selected_user.setFrameShape(QtWidgets.QFrame.Panel)
+        self.plainTextEdit_selected_user.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.plainTextEdit_selected_user.setObjectName("plainTextEdit_selected_user")
         self.textEdit_2 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_2.setGeometry(QtCore.QRect(530, 320, 104, 51))
         self.textEdit_2.setObjectName("textEdit_2")
@@ -117,13 +118,13 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Logged in:"))
         self.label_login_status.setText(_translate("MainWindow", "Not logged in"))
         self.label_2.setText(_translate("MainWindow", "Current user info:"))
-        self.label_selected_user.setText(_translate("MainWindow", "ABC"))
         self.pushButton_find_csv.setText(_translate("MainWindow", "Find CSV"))
         self.textEdit.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:6pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8.25pt;\">Custom Path</span></p></body></html>"))
+        self.plainTextEdit_selected_user.setPlainText(_translate("MainWindow", "None"))
         self.menuAcc.setTitle(_translate("MainWindow", "Start"))
         self.menuAbout.setTitle(_translate("MainWindow", "About"))
         self.menuAnalyze.setTitle(_translate("MainWindow", "Analyze"))
