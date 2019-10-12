@@ -21,9 +21,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
-        self.pushButton_2 = QtWidgets.QPushButton(self.tab)
-        self.pushButton_2.setGeometry(QtCore.QRect(10, 40, 75, 23))
-        self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_collectTweets = QtWidgets.QPushButton(self.tab)
         self.pushButton_collectTweets.setGeometry(QtCore.QRect(10, 10, 111, 23))
         self.pushButton_collectTweets.setObjectName("pushButton_collectTweets")
@@ -48,7 +45,7 @@ class Ui_MainWindow(object):
         self.treeView.setGeometry(QtCore.QRect(10, 360, 501, 351))
         self.treeView.setObjectName("treeView")
         self.pushButton_find_csv = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_find_csv.setGeometry(QtCore.QRect(10, 330, 75, 23))
+        self.pushButton_find_csv.setGeometry(QtCore.QRect(520, 360, 81, 23))
         self.pushButton_find_csv.setObjectName("pushButton_find_csv")
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(100, 330, 161, 21))
@@ -72,10 +69,17 @@ class Ui_MainWindow(object):
 "")
         self.plainTextEdit_selected_user.setFrameShape(QtWidgets.QFrame.Panel)
         self.plainTextEdit_selected_user.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.plainTextEdit_selected_user.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
         self.plainTextEdit_selected_user.setObjectName("plainTextEdit_selected_user")
-        self.textEdit_2 = QtWidgets.QTextEdit(self.centralwidget)
-        self.textEdit_2.setGeometry(QtCore.QRect(530, 320, 104, 51))
-        self.textEdit_2.setObjectName("textEdit_2")
+        self.textEdit_log = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEdit_log.setGeometry(QtCore.QRect(520, 540, 381, 171))
+        self.textEdit_log.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.textEdit_log.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+        self.textEdit_log.setLineWrapColumnOrWidth(0)
+        self.textEdit_log.setObjectName("textEdit_log")
+        self.pushButton_load_csv = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_load_csv.setGeometry(QtCore.QRect(520, 410, 81, 23))
+        self.pushButton_load_csv.setObjectName("pushButton_load_csv")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 915, 21))
@@ -111,7 +115,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton_2.setText(_translate("MainWindow", "PushButton"))
         self.pushButton_collectTweets.setText(_translate("MainWindow", "Collect new tweets!"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Menu 1"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Menu 2"))
@@ -125,6 +128,12 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:6pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8.25pt;\">Custom Path</span></p></body></html>"))
         self.plainTextEdit_selected_user.setPlainText(_translate("MainWindow", "None"))
+        self.textEdit_log.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Log:</p></body></html>"))
+        self.pushButton_load_csv.setText(_translate("MainWindow", "Load selected"))
         self.menuAcc.setTitle(_translate("MainWindow", "Start"))
         self.menuAbout.setTitle(_translate("MainWindow", "About"))
         self.menuAnalyze.setTitle(_translate("MainWindow", "Analyze"))
