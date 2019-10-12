@@ -61,8 +61,7 @@ class TwitterApi(twitter.Api):
             home = self.api.GetHomeTimeline(count=count)
             return home
         except AttributeError:
-            print("Error! Login status: {}".format(self.logged_in))
-            return None
+            raise TwitterLoginFailed("Error! Login status: {}".format(self.logged_in))
 
     @staticmethod
     def overrider(display=True):
@@ -96,6 +95,14 @@ class TwitterApi(twitter.Api):
             for comment in text:
                 print('\t', comment)
             print('#' * 20, 'End of overloading.', '#' * 20, '\n')
+
+class TwitterLoginFailed(Exception):
+    """Base class for Twitter errors"""
+
+    @property
+    def message(self):
+        '''Returns the first argument used to construct this error.'''
+        return self.args[0]
 
 if __name__ == "__main__":
     app = TwitterApi()
