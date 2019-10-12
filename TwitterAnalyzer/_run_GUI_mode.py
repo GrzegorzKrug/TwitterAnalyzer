@@ -9,8 +9,8 @@ import traceback, sys
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def __init__(self, mainWindow):        
         Ui_MainWindow.__init__(self)
-        self.setupUi(mainWindow)
         TwitterAnalyzer.__init__(self, autologin=False)
+        self.setupUi(mainWindow)
 
         self.init_wrappers()
         self.init_triggers()
