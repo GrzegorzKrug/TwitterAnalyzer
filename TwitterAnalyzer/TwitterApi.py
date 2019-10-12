@@ -57,8 +57,12 @@ class TwitterApi(twitter.Api):
         return True, api
 
     def CollectHome(self, count=200):
-        home = self.api.GetHomeTimeline(count=count)
-        return home
+        try:
+            home = self.api.GetHomeTimeline(count=count)
+            return home
+        except AttributeError:
+            print("Error! Login status: {}".format(self.logged_in))
+            return None
 
     @staticmethod
     def overrider(display=True):

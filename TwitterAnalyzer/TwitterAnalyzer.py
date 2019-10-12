@@ -88,33 +88,40 @@ class TwitterAnalyzer(TwitterApi):
 
         return out
 
-    def collect_new_tweets(self, N=20, chunk_count=50, interval=60, filename=None):
+    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None):
         try:
             if filename == None:
                 now = datetime.datetime.now()
-                filename = "tweets_{y}{mon}{d}_{h}-{m}_{interval}sec_{count}".format(y=now.year, mon=now.month, d=now.day,
-                                                                                    h=now.hour, m=now.minute,
-                                                                                    interval=interval, count=chunk_count)
-            print('Collecting tweets -> {}'.format(filename + '.csv'))
+                filename = "tweets_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".format(y=now.year, mon=now.month,
+                                                                                           d=now.day, h=now.hour,
+                                                                                           m=now.minute, sec=now.second,
+                                                                                    interval=interval, count=chunk_size)
+            print('\tCollecting tweets -> {}'.format(filename + '.csv'))
             for x in range(1, N + 1):
                 print('Current tweet chunk: {} / {}'.format(x, N))
                 try:
-                    home_twetts = self.CollectHome(chunk_count)
-                    for i, tweet in enumerate(home_twetts):
-                        self.add_timestamp(tweet)
-                        self.export_tweet_to_database(tweet, filename)
-
+                    home_twetts = self.CollectHome(chunk_size)
+                    if home_twetts != None:
+                        for i, tweet in enumerate(home_twetts):
+                            self.add_timestamp(tweet)
+                            self.export_tweet_to_database(tweet, filename)
+                    else:
+                        print("No tweets, None object received.")
                 except twitter.error.TwitterError:
                     print('Twitter rate limit exceeded!')
-                time.sleep(interval)
+
+                if x == N:
+                    break
+                if interval > 0:
+                    time.sleep(interval)
         finally:
-            print('Collecting is finished -> {}'.format(filename+'.csv'))
+            print('\tCollecting is finished -> {}'.format(filename+'.csv'))
 
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
     for i in range(10):
-        app.collect_new_tweets(N=100, chunk_count=100, interval=60)
+        app.collect_new_tweets(N=100, chunk_size=100, interval=60)
     input('End....')
 
 
