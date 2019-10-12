@@ -21,7 +21,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.refresh_gui()
 
     def _init_triggers(self):
-        self.actionLogin.triggered.connect(lambda: self._login_procedure())
+        self.actionLogin.triggered.connect(lambda: self.login_to_twitter_ui())
         self.label_login_status.mousePressEvent  = self.update_status
         self.pushButton_collectTweets.clicked.connect(lambda: self.collect_tweets_ui())
         self.pushButton_find_csv.clicked.connect(lambda: self.find_local_tweets())
@@ -74,6 +74,10 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
         text = self.add_timestamp_to_text(text)
         self.textEdit_log.setPlainText(text)
+
+    def login_to_twitter_ui(self):
+        valid, message = self._login_procedure()
+        self.log_ui(message)
 
     @staticmethod
     def post_action(method, next_method=None):

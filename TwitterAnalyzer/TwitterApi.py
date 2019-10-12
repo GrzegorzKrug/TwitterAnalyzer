@@ -22,7 +22,11 @@ class TwitterApi(twitter.Api):
         self.logged_in, self.api = self._autologin_from_file()
         if self.logged_in:
             self.me = self.api.VerifyCredentials()
-            print('Logged in succesfuly as {}.'.format(self.me['screen_name']))
+            text = 'Logged in succesfuly as {}.'.format(self.me['screen_name'])
+            print(text)
+            return True, text
+        else:
+            return False, None
 
     def _autologin_from_file(self):
         with open('secret_token.txt', 'rt') as token_file:
