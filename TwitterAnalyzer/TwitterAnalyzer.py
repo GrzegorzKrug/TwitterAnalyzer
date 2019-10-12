@@ -98,7 +98,7 @@ class TwitterAnalyzer(TwitterApi):
                                                                                     interval=interval, count=chunk_size)
             print('\tCollecting tweets -> {}'.format(filename + '.csv'))
             for x in range(1, N + 1):
-                print('Current tweet chunk: {} / {}'.format(x, N))
+                print('\tCurrent tweet chunk: {} / {}'.format(x, N))
                 try:
                     home_twetts = self.CollectHome(chunk_size)
                     if home_twetts != None:
@@ -106,7 +106,7 @@ class TwitterAnalyzer(TwitterApi):
                             self.add_timestamp(tweet)
                             self.export_tweet_to_database(tweet, filename)
                     else:
-                        print("No tweets, None object received.")
+                        pass  # print("No tweets, None object received.")
                 except twitter.error.TwitterError:
                     print('Twitter rate limit exceeded!')
 
@@ -115,7 +115,7 @@ class TwitterAnalyzer(TwitterApi):
                 if interval > 0:
                     time.sleep(interval)
         finally:
-            print('\tCollecting is finished -> {}'.format(filename+'.csv'))
+            print('Collecting is finished -> {}'.format(filename+'.csv'))
 
 
 if __name__ == "__main__":

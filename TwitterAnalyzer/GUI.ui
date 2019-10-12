@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>915</width>
+    <height>760</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -138,8 +138,8 @@ color: rgb(255, 255, 255);</string>
      <rect>
       <x>10</x>
       <y>360</y>
-      <width>256</width>
-      <height>192</height>
+      <width>501</width>
+      <height>351</height>
      </rect>
     </property>
    </widget>
@@ -190,8 +190,8 @@ p, li { white-space: pre-wrap; }
    <widget class="QPlainTextEdit" name="plainTextEdit">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>380</y>
+      <x>320</x>
+      <y>280</y>
       <width>104</width>
       <height>71</height>
      </rect>
@@ -213,7 +213,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>915</width>
      <height>21</height>
     </rect>
    </property>

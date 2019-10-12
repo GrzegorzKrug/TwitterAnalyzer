@@ -83,9 +83,12 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         pass
 
     def show_tree(self):
+        path = os.path.dirname(__file__)  + '\\' + self._data_dir
         model = QtWidgets.QFileSystemModel()
-        model.setRootPath(os.path.dirname(__file__))
+        model.setRootPath((QtCore.QDir.rootPath()))
         self.treeView.setModel(model)
+        self.treeView.setRootIndex(model.index(path))
+
 
 if QtCore.QT_VERSION >= 0x50501:  # Showint traceback from crashes
     def excepthook(type_, value, traceback_):
