@@ -5,7 +5,7 @@ import twitter
 
 class TwitterApi(twitter.Api):
     def __init__(self, autologin=True):
-        self.overrider(False)
+        self._overrider(False)
         twitter.Api.__init__(self)
         self.logged_in = False
         self.api = None
@@ -64,7 +64,7 @@ class TwitterApi(twitter.Api):
             raise TwitterLoginFailed("Error! Login status: {}".format(self.logged_in))
 
     @staticmethod
-    def overrider(display=True):
+    def _overrider(display=True):
         text = []
         def add_items_method(self):
             return self.__dict__.items()

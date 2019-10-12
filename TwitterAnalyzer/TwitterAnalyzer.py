@@ -5,8 +5,9 @@ import json
 import time
 import os
 import pandas as pd
-from TwitterApi import TwitterApi
+from TwitterApi import TwitterApi, TwitterLoginFailed
 import datetime
+import glob
 
 class TwitterAnalyzer(TwitterApi):
     def __init__(self, autologin=True):
@@ -14,6 +15,50 @@ class TwitterAnalyzer(TwitterApi):
 
         self._data_dir = 'tweets'
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
+
+    def add_timestamp_attr(self, tweet):
+        try:
+            setattr(tweet, 'timestamp', round(time.time()))
+
+        except AttributeError:
+            tweet['timestamp'] = round(time.time())
+
+    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None):
+        try:
+            if filename == None:
+                now = datetime.datetime.now()
+                filename = "tweets_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".format(y=now.year, mon=now.month,
+                                                                                           d=now.day, h=now.hour,
+                                                                                           m=now.minute, sec=now.second,
+                                                                                    interval=interval, count=chunk_size)
+            print('\tCollecting tweets -> {}'.format(filename + '.csv'))
+            for x in range(1, N + 1):
+                print('\tCurrent tweet chunk: {} / {}'.format(x, N))
+                try:
+                    home_twetts = self.CollectHome(chunk_size)
+                    if home_twetts != None:
+                        for i, tweet in enumerate(home_twetts):
+                            self.add_timestamp_attr(tweet)
+                            self.export_tweet_to_database(tweet, filename)
+                    else:
+                        pass  # print("No tweets, None object received.")
+                except twitter.error.TwitterError as e:
+                    print(e)
+
+                except TwitterLoginFailed as e:
+                    print(e)
+                    return (False, str(e))
+
+                if x == N:
+                    break
+                if interval > 0:
+                    time.sleep(interval)
+            text = 'Finished -> {}'.format(filename + '.csv')
+            return True, text
+        finally:
+            text = 'Finished -> {}'.format(filename + '.csv')
+            print(text)
+
 
     def export_tweet_to_database(self, tweet, filename='default'):
         if type(filename) != str:
@@ -49,74 +94,6 @@ class TwitterAnalyzer(TwitterApi):
                 file.write(';')
             file.write('\n')
 
-    def add_timestamp(self, tweet):
-        try:
-            setattr(tweet, 'timestamp', round(time.time()))
-
-        except AttributeError:
-            tweet['timestamp'] = round(time.time())
-
-    @staticmethod
-    def tweet_strip(tweet):
-        def add_data(query, new_query=None):
-            if new_query == None:
-                new_query = query
-
-            out[new_query] = tweet[query]
-        out = {}
-        add_data('text')
-        add_data('lang')
-        add_data('created_at')
-
-        add_data('id')
-        add_data('user')
-        add_data('urls')
-
-        add_data('user_mentions')
-        add_data('hashtags')
-        add_data('media')
-
-        add_data('retweet_count')
-        add_data('favorite_count')
-        # add_data comments  # <-- ??
-
-        add_data('in_reply_to_screen_name')
-        add_data('in_reply_to_status_id')
-        add_data('in_reply_to_user_id')
-        add_data('quoted_status')
-        add_data('quoted_status_id', 'quoted_status_id')
-
-        return out
-
-    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None):
-        try:
-            if filename == None:
-                now = datetime.datetime.now()
-                filename = "tweets_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".format(y=now.year, mon=now.month,
-                                                                                           d=now.day, h=now.hour,
-                                                                                           m=now.minute, sec=now.second,
-                                                                                    interval=interval, count=chunk_size)
-            print('\tCollecting tweets -> {}'.format(filename + '.csv'))
-            for x in range(1, N + 1):
-                print('\tCurrent tweet chunk: {} / {}'.format(x, N))
-                try:
-                    home_twetts = self.CollectHome(chunk_size)
-                    if home_twetts != None:
-                        for i, tweet in enumerate(home_twetts):
-                            self.add_timestamp(tweet)
-                            self.export_tweet_to_database(tweet, filename)
-                    else:
-                        pass  # print("No tweets, None object received.")
-                except twitter.error.TwitterError:
-                    print('Twitter rate limit exceeded!')
-
-                if x == N:
-                    break
-                if interval > 0:
-                    time.sleep(interval)
-        finally:
-            print('Collecting is finished -> {}'.format(filename+'.csv'))
-
     def find_local_tweets(self, path=None):
         if path == None:
             path = self._data_dir
@@ -133,6 +110,35 @@ class TwitterAnalyzer(TwitterApi):
             df = pd.read_csv()
 
         return df
+
+    @staticmethod
+    def tweet_strip(tweet):
+        def add_data(query, new_query=None):
+            if new_query == None:
+                new_query = query
+
+            out[new_query] = tweet[query]
+        out = {}
+        add_data('text')
+        add_data('lang')
+        add_data('created_at')
+        add_data('id')
+        add_data('user')
+        add_data('urls')
+        add_data('user_mentions')
+        add_data('hashtags')
+        add_data('media')
+        add_data('retweet_count')
+        add_data('favorite_count')
+        # add_data comments  # <-- ??
+        add_data('in_reply_to_screen_name')
+        add_data('in_reply_to_status_id')
+        add_data('in_reply_to_user_id')
+        add_data('quoted_status')
+        add_data('quoted_status_id', 'quoted_status_id')
+
+        return out
+
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()

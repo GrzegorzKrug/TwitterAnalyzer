@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>915</width>
+    <width>955</width>
     <height>760</height>
    </rect>
   </property>
@@ -17,10 +17,10 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>10</y>
-      <width>361</width>
-      <height>241</height>
+      <x>10</x>
+      <y>260</y>
+      <width>371</width>
+      <height>271</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -102,8 +102,8 @@ color: rgb(255, 255, 255);</string>
    <widget class="QTreeView" name="treeView">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>360</y>
+      <x>440</x>
+      <y>10</y>
       <width>501</width>
       <height>351</height>
      </rect>
@@ -112,8 +112,8 @@ color: rgb(255, 255, 255);</string>
    <widget class="QPushButton" name="pushButton_find_csv">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>360</y>
+      <x>350</x>
+      <y>10</y>
       <width>81</width>
       <height>23</height>
      </rect>
@@ -125,8 +125,8 @@ color: rgb(255, 255, 255);</string>
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>330</y>
+      <x>490</x>
+      <y>390</y>
       <width>161</width>
       <height>21</height>
      </rect>
@@ -150,7 +150,7 @@ color: rgb(255, 255, 255);</string>
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:6pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.25pt;&quot;&gt;Custom Path&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.25pt;&quot;&gt;useless for now&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="plainTextEdit_selected_user">
@@ -188,9 +188,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextEdit" name="textEdit_log">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>10</x>
       <y>540</y>
-      <width>381</width>
+      <width>431</width>
       <height>171</height>
      </rect>
     </property>
@@ -208,14 +208,14 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Log:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_load_csv">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>410</y>
+      <x>350</x>
+      <y>40</y>
       <width>81</width>
       <height>23</height>
      </rect>
@@ -224,13 +224,29 @@ p, li { white-space: pre-wrap; }
      <string>Load selected</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_clear_log">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>690</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0, y2:0.028, stop:0 rgba(255, 255, 255, 255), stop:1 rgba(255, 144, 144, 255));</string>
+    </property>
+    <property name="text">
+     <string>Clear Log</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>915</width>
+     <width>955</width>
      <height>21</height>
     </rect>
    </property>
