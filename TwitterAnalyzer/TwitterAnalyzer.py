@@ -117,6 +117,22 @@ class TwitterAnalyzer(TwitterApi):
         finally:
             print('Collecting is finished -> {}'.format(filename+'.csv'))
 
+    def find_local_tweets(self, path=None):
+        if path == None:
+            path = self._data_dir
+        else:
+            path = os.path.abspath(path)
+
+        files = glob.glob(path + '\\tweets*.csv')
+        print(files)
+        return files
+
+    def load_csv(self, file_path):
+        df = None
+        with open(file_path) as f:
+            df = pd.read_csv()
+
+        return df
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()

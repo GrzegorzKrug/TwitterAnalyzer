@@ -67,16 +67,6 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             return out
         return wrapper
 
-    def find_local_tweets(self, path=None):
-        if path == None:
-            path = self._data_dir
-        else:
-            path = os.path.abspath(path)
-
-        files = glob.glob(path + '\\*.csv')
-        print(files)
-        return files
-
     def load_files_info(self, files):
         if type(files) != list:
             files = [files]
@@ -100,7 +90,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
 
 
-if QtCore.QT_VERSION >= 0x50501:  # Showint traceback from crashes
+if QtCore.QT_VERSION >= 0x50501:  # Showing traceback from crashes
     def excepthook(type_, value, traceback_):
         traceback.print_exception(type_, value, traceback_)
         QtCore.qFatal('')
