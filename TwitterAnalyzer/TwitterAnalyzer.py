@@ -21,9 +21,11 @@ class TwitterAnalyzer(TwitterApi):
             setattr(tweet, 'timestamp', round(time.time()))
 
         except AttributeError:
+            print('Attribute error')
             tweet['timestamp'] = round(time.time())
 
     def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None, logUI=None):
+        chunk_size += 1
         try:
             if filename == None:
                 now = datetime.datetime.now()
@@ -36,6 +38,11 @@ class TwitterAnalyzer(TwitterApi):
             for x in range(1, N + 1):
                 try:
                     home_twetts = self.CollectHome(chunk_size)
+                    if len(home_twetts) != chunk_size - 1:
+                        self.print_log('Missing Tweets! Got {}, expected {}'.
+                                       format(len(home_twetts), str(chunk_size-1)),
+                                       logUI)
+
                     if x == 1:
                         text = '\tNew tweets -> {}'.format(filename + '.csv')
                         self.print_log(text, logUI)
@@ -56,7 +63,7 @@ class TwitterAnalyzer(TwitterApi):
                 text = ('\tTweets chunk saved: {} / {}'.format(x, N))
                 self.print_log(text, logUI)
 
-                if x == N:
+                if x == N + 1:
                     break
 
                 if interval > 0:
@@ -88,15 +95,16 @@ class TwitterAnalyzer(TwitterApi):
         # df = pd.DataFrame.from_dict(tweet)
         if not os.path.isfile(file_path):
             with open(file_path, 'wt') as file:
-                for h in head:
+                for i,h in enumerate(head):
                     file.write(h)
-                    file.write(';')
+                    if i < len(head)-1:
+                        file.write(';')
                 file.write('\n')
 
         while True:
             try:
                 with open(file_path, 'at') as file:
-                    for key in head:
+                    for i, key in enumerate(head):
                         try:
                             text = str(tweet.get(key, 'n/a'))
                             for char in ['\n', ';', '\r']:
@@ -104,8 +112,8 @@ class TwitterAnalyzer(TwitterApi):
                             file.write(text)
                         except UnicodeEncodeError:
                             file.write('UnicodeEncodeError')
-
-                        file.write(';')
+                        if i < len(head)-1:
+                            file.write(';')
                     file.write('\n')
                 break
             except PermissionError:
