@@ -8,7 +8,7 @@ import threading
 import traceback
 import sys
 import os
-
+import pandas as pd
 
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def __init__(self, mainWindow):        
@@ -90,7 +90,8 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def load_files(self):
         files = self.current_tree_selection()
         for file in files:
-            pd.read_csv(self._data_dir + '\\' + file)
+            with open(self._data_dir + '\\' + file) as f:
+                df = pd.read_csv(f)
 
     def load_files_info(self, files):
         if type(files) != list:

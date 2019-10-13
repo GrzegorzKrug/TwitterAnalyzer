@@ -83,7 +83,7 @@ class TwitterAnalyzer(TwitterApi):
         if type(filename) != str:
             raise TypeError('File name is not string!')
         file_path = self._data_dir + '\\' + filename + '.csv'
-        head = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
+        header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                 'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
                 'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
                 'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
@@ -95,16 +95,16 @@ class TwitterAnalyzer(TwitterApi):
         # df = pd.DataFrame.from_dict(tweet)
         if not os.path.isfile(file_path):
             with open(file_path, 'wt') as file:
-                for i,h in enumerate(head):
+                for i,h in enumerate(header):
                     file.write(h)
-                    if i < len(head)-1:
+                    if i < len(header)-1:
                         file.write(';')
                 file.write('\n')
 
         while True:
             try:
                 with open(file_path, 'at') as file:
-                    for i, key in enumerate(head):
+                    for i, key in enumerate(header):
                         try:
                             text = str(tweet.get(key, 'n/a'))
                             for char in ['\n', ';', '\r']:
@@ -112,7 +112,7 @@ class TwitterAnalyzer(TwitterApi):
                             file.write(text)
                         except UnicodeEncodeError:
                             file.write('UnicodeEncodeError')
-                        if i < len(head)-1:
+                        if i < len(header)-1:
                             file.write(';')
                     file.write('\n')
                 break
