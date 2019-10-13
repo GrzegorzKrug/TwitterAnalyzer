@@ -108,6 +108,9 @@ color: rgb(255, 255, 255);</string>
       <height>351</height>
      </rect>
     </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::MultiSelection</enum>
+    </property>
    </widget>
    <widget class="QPushButton" name="pushButton_find_csv">
     <property name="geometry">
@@ -122,11 +125,14 @@ color: rgb(255, 255, 255);</string>
      <string>Find CSV</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="textEdit_input_name">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>390</y>
+      <x>470</x>
+      <y>370</y>
       <width>161</width>
       <height>21</height>
      </rect>
