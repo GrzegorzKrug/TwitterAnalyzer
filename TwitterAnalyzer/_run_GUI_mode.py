@@ -20,13 +20,19 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self._init_triggers()
         self.refresh_gui()
 
+        self.treeMultiSelecion = []
+
     def _init_triggers(self):
         self.actionLogin.triggered.connect(lambda: self.login_to_twitter_ui())
-        self.label_login_status.mousePressEvent  = self.update_status
-        self.pushButton_collectTweets.clicked.connect(lambda: self.collect_tweets_ui())
-        self.pushButton_find_csv.clicked.connect(lambda: self.find_local_tweets())
-        self.pushButton_load_csv.clicked.connect(lambda: self.load_selected())
-        self.pushButton_clear_log.clicked.connect(lambda: self.clear_log())
+
+        self.label_login_status.mousePressEvent  = lambda f: self.update_status()
+
+        self.pushButton_collectTweets.clicked.connect(lambda f: self.collect_tweets_ui())
+        self.pushButton_find_csv.clicked.connect(lambda f: self.find_local_tweets())
+        self.pushButton_load_csv.clicked.connect(lambda f: self.load_selected_file_from_tree())
+        self.pushButton_clear_log.clicked.connect(lambda f: self.clear_log())
+
+        self.textEdit_input_name.mousePressEvent = lambda f: self.afk()
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
@@ -67,8 +73,16 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             files = [files]
         pass
 
-    def load_selected(self):
-        print('Loading')
+    def load_selected_file_from_tree(self, override_file_name=False):
+        '''Loads currently selected csv file from tree'''
+        file = str(self.treeView.currentIndex().data())
+        if file[-4:] == '.csv':
+            if file[:7] == 'tweets_' and not override_file_name:
+                self.logUI('Loading {}'.format(file))
+            else:
+                self.logUI("Invalid file name, missing 'tweets_': {}".format(file))
+        else:
+            self.logUI("Invalid extension, not CSV: {}".format(file))
 
     def logUI(self, text_line):
         text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
@@ -98,9 +112,16 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def show_tree(self):
         path = os.path.dirname(__file__)  + '\\' + self._data_dir
         model = QtWidgets.QFileSystemModel()
-        model.setRootPath((QtCore.QDir.rootPath()))
+        model.setRootPath(path)
         self.treeView.setModel(model)
         self.treeView.setRootIndex(model.index(path))
+        self.treeView.setColumnWidth(0, 40*8)
+        self.treeView.setColumnWidth(1, 10*8)
+        self.treeView.setColumnWidth(2, 10*8)
+        self.treeView.setColumnWidth(3, 15*8)
+
+        # self.treeWidget.setModel(model)
+        # self.treeWidget.setRootIndex(model.index(path))
 
     def show_user_info(self, user_data):
         text = ''
@@ -109,7 +130,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             text += str(key + ':').ljust(20)  + str(user_data[key]) + '\n'
         self.plainTextEdit_selected_user.setPlainText(text)
 
-    def update_status(self, event=None):
+    def update_status(self):
         if self.logged_in:
             self.label_login_status.setText('True')
             self.label_login_status.setStyleSheet("background-color: rgb(30, 255, 180);")
