@@ -19,18 +19,19 @@ class TwitterApi(twitter.Api):
         return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
 
     def _login_procedure(self):
-        self.logged_in, self.api = self._autologin_from_file()
+        self.logged_in, self.api, message = self._autologin_from_file()
         if self.logged_in:
             self.me = self.api.VerifyCredentials()
             text = 'Logged in succesfuly as {}.'.format(self.me['screen_name'])
             print(text)
             return True, text
         else:
-            return False, None
+            return False, message
 
     def _autologin_from_file(self):
-        with open('secret_token.txt', 'rt') as token_file:
-            try:
+        api = None
+        try:
+            with open('secret_token.txt', 'rt') as token_file:
                 data = json.load(token_file)
                 consumer_key = data['consumer_key']
                 consumer_secret = data['consumer_secret']
@@ -42,23 +43,25 @@ class TwitterApi(twitter.Api):
                                   access_token_key=access_token_key,
                                   access_token_secret=access_token_secret)
                 api.VerifyCredentials()
+                message = 'Logged in succesfuly'
 
-            except json.decoder.JSONDecodeError as e:
-                print("secret_token.txt is not in json format!")
-                return False
+        except json.decoder.JSONDecodeError as e:
+            print("secret_token.txt is not in json format!")
+            return False, api, "secret_token.txt is not in json format!"
 
-            except KeyError as e:
-                print("secret_token.txt is missing some keys!")
-                return False
+        except KeyError as e:
+            print("secret_token.txt is missing some keys!")
+            return False, api, "secret_token.txt is missing some keys!"
 
-            except FileNotFoundError:
-                print("secret_token.txt is missing!")
-                return False
+        except FileNotFoundError:
+            print("secret_token.txt is missing!")
+            return False, api, "secret_token.txt is missing!"
 
-            except twitter.error.TwitterError:
-                print("Invalid or expired token!")
-                return False
-        return True, api
+        except twitter.error.TwitterError:
+            print("Invalid or expired token!")
+            return False, api, "Invalid or expired token!"
+
+        return True, api, message
 
     def CollectHome(self, count=200):
         try:
