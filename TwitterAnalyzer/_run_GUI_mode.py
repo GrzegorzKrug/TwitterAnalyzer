@@ -29,7 +29,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
         self.pushButton_collectTweets.clicked.connect(lambda f: self.collect_tweets_ui())
         self.pushButton_find_csv.clicked.connect(lambda f: self.find_local_tweets())
-        self.pushButton_load_csv.clicked.connect(lambda f: self.load_selected_file_from_tree())
+        self.pushButton_load_csv.clicked.connect(lambda f: self.load_files())
         self.pushButton_clear_log.clicked.connect(lambda f: self.clear_log())
 
         self.textEdit_input_name.mousePressEvent = lambda f: self.afk()
@@ -63,26 +63,39 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def clear_log(self):
         self.textEdit_log.setPlainText('')
 
+    def current_tree_selection(self, override_file_name=False):
+        '''Loads currently selected csv file from tree'''
+        files_list = []  # = str(self.treeView.currentIndex().data())
+        selected_list = self.treeView.selectedIndexes()
+
+        for i,item in enumerate(selected_list):
+            if item.column() == 0:
+                files_list += [item.data()]
+
+        for file in files_list:
+            if file[-4:] == '.csv':
+                if file[:7] == 'tweets_' and not override_file_name:
+                    self.logUI('Loading {}'.format(file))
+                else:
+                    self.logUI("Invalid file name, missing 'tweets_': {}".format(file))
+            else:
+                self.logUI("Invalid extension, not CSV: {}".format(file))
+        return files_list
+
     def fork_method(self, method_to_fork):
         subprocess = threading.Thread(target=method_to_fork)
         subprocess.start()
         return subprocess
 
+    def load_files(self):
+        files = self.current_tree_selection()
+        for file in files:
+            pd.read_csv(self._data_dir + '\\' + file)
+
     def load_files_info(self, files):
         if type(files) != list:
             files = [files]
         pass
-
-    def load_selected_file_from_tree(self, override_file_name=False):
-        '''Loads currently selected csv file from tree'''
-        file = str(self.treeView.currentIndex().data())
-        if file[-4:] == '.csv':
-            if file[:7] == 'tweets_' and not override_file_name:
-                self.logUI('Loading {}'.format(file))
-            else:
-                self.logUI("Invalid file name, missing 'tweets_': {}".format(file))
-        else:
-            self.logUI("Invalid extension, not CSV: {}".format(file))
 
     def logUI(self, text_line):
         text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
@@ -119,9 +132,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.treeView.setColumnWidth(1, 10*8)
         self.treeView.setColumnWidth(2, 10*8)
         self.treeView.setColumnWidth(3, 15*8)
-
-        # self.treeWidget.setModel(model)
-        # self.treeWidget.setRootIndex(model.index(path))
+        # self.treeView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)  # its defined in GUI.py
 
     def show_user_info(self, user_data):
         text = ''

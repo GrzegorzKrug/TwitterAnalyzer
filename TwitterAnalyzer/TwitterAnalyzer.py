@@ -23,24 +23,22 @@ class TwitterAnalyzer(TwitterApi):
         except AttributeError:
             tweet['timestamp'] = round(time.time())
 
-    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None, logUi=None):
+    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None, logUI=None):
         try:
             if filename == None:
                 now = datetime.datetime.now()
-                filename = "tweets_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".format(y=now.year, mon=now.month,
-                                                                                           d=now.day, h=now.hour,
-                                                                                           m=now.minute, sec=now.second,
-                                                                                    interval=interval, count=chunk_size)
+                filename = "tweets_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".\
+                    format(y=str(now.year).rjust(4, '0'), mon=str(now.month).rjust(2, '0'),
+                           d=str(now.day).rjust(2, '0'), h=str(now.hour).rjust(2, '0'),
+                           m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
+                           interval=str(interval).rjust(3, '0'), count=chunk_size)
 
             for x in range(1, N + 1):
                 try:
                     home_twetts = self.CollectHome(chunk_size)
                     if x == 1:
                         text = '\tNew tweets -> {}'.format(filename + '.csv')
-                        self.print_log(text, logUi)
-
-                    text = ('\tCurrent tweet chunk: {} / {}'.format(x, N))
-                    self.print_log(text, logUi)
+                        self.print_log(text, logUI)
 
                     if home_twetts != None:
                         for i, tweet in enumerate(home_twetts):
@@ -49,18 +47,23 @@ class TwitterAnalyzer(TwitterApi):
                     else:
                         pass  # print("No tweets, None object received.")
                 except twitter.error.TwitterError as e:
-                    print(e)
+                    self.print_log(e, logUI)
 
                 except TwitterLoginFailed as e:
-                    self.print_log(str(e), logUi)
+                    self.print_log(str(e), logUI)
                     return False
+
+                text = ('\tTweets chunk saved: {} / {}'.format(x, N))
+                self.print_log(text, logUI)
 
                 if x == N:
                     break
+
                 if interval > 0:
+                    self.print_log('\t\tSleeping {}s'.format(interval), logUI)
                     time.sleep(interval)
             text = 'Finished -> {}'.format(filename + '.csv')
-            self.print_log(text, logUi)
+            self.print_log(text, logUI)
 
             return True
         finally:
@@ -90,18 +93,26 @@ class TwitterAnalyzer(TwitterApi):
                     file.write(';')
                 file.write('\n')
 
-        with open(file_path, 'at') as file:
-            for key in head:
-                try:
-                    text = str(tweet.get(key, 'n/a'))
-                    for char in ['\n', ';', '\r']:
-                        text = text.replace(char, '')
-                    file.write(text)
-                except UnicodeEncodeError:
-                    file.write('UnicodeEncodeError')
+        while True:
+            try:
+                with open(file_path, 'at') as file:
+                    for key in head:
+                        try:
+                            text = str(tweet.get(key, 'n/a'))
+                            for char in ['\n', ';', '\r']:
+                                text = text.replace(char, '')
+                            file.write(text)
+                        except UnicodeEncodeError:
+                            file.write('UnicodeEncodeError')
 
-                file.write(';')
-            file.write('\n')
+                        file.write(';')
+                    file.write('\n')
+                break
+            except PermissionError:
+                print('PermissionError, waiting for file.')
+                time.sleep(10)
+
+
 
     def find_local_tweets(self, path=None):
         if path == None:
@@ -121,10 +132,10 @@ class TwitterAnalyzer(TwitterApi):
         return df
 
     @staticmethod
-    def print_log(text, logUi):
+    def print_log(text, logUI):
         print(text)
-        if logUi:
-            logUi(text)
+        if logUI:
+            logUI(text)
 
     @staticmethod
     def tweet_strip(tweet):
