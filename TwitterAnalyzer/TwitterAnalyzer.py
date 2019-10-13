@@ -23,7 +23,7 @@ class TwitterAnalyzer(TwitterApi):
         except AttributeError:
             tweet['timestamp'] = round(time.time())
 
-    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None):
+    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None, logUi=None):
         try:
             if filename == None:
                 now = datetime.datetime.now()
@@ -31,11 +31,17 @@ class TwitterAnalyzer(TwitterApi):
                                                                                            d=now.day, h=now.hour,
                                                                                            m=now.minute, sec=now.second,
                                                                                     interval=interval, count=chunk_size)
-            print('\tCollecting tweets -> {}'.format(filename + '.csv'))
+
             for x in range(1, N + 1):
-                print('\tCurrent tweet chunk: {} / {}'.format(x, N))
                 try:
                     home_twetts = self.CollectHome(chunk_size)
+                    if x == 1:
+                        text = '\tNew tweets -> {}'.format(filename + '.csv')
+                        self.print_log(text, logUi)
+
+                    text = ('\tCurrent tweet chunk: {} / {}'.format(x, N))
+                    self.print_log(text, logUi)
+
                     if home_twetts != None:
                         for i, tweet in enumerate(home_twetts):
                             self.add_timestamp_attr(tweet)
@@ -46,18 +52,21 @@ class TwitterAnalyzer(TwitterApi):
                     print(e)
 
                 except TwitterLoginFailed as e:
-                    print(e)
-                    return (False, str(e))
+                    self.print_log(str(e), logUi)
+                    return False
 
                 if x == N:
                     break
                 if interval > 0:
                     time.sleep(interval)
             text = 'Finished -> {}'.format(filename + '.csv')
-            return True, text
+            self.print_log(text, logUi)
+
+            return True
         finally:
-            text = 'Finished -> {}'.format(filename + '.csv')
-            print(text)
+            pass
+            # text = 'Finished -> {}'.format(filename + '.csv')
+            # print(text)
 
 
     def export_tweet_to_database(self, tweet, filename='default'):
@@ -110,6 +119,12 @@ class TwitterAnalyzer(TwitterApi):
             df = pd.read_csv()
 
         return df
+
+    @staticmethod
+    def print_log(text, logUi):
+        print(text)
+        if logUi:
+            logUi(text)
 
     @staticmethod
     def tweet_strip(tweet):

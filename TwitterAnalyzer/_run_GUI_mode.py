@@ -47,12 +47,12 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def afk(self, *args, **kwargs):
         print("AFK_fork: ", args)
         for x in range(10):
-            self.log_ui(str('x :{}'.format(x)))
+            self.logUI(str('x :{}'.format(x)))
             # time.sleep(0.2)
 
     def collect_tweets_ui(self):
-        valid, message = self.collect_new_tweets(N=1, chunk_size=200, interval=0)
-        self.log_ui(message)
+        valid  = self.collect_new_tweets(N=1, chunk_size=200, interval=0, logUi=self.logUI)
+        # self.logUI(message)
 
     def clear_log(self):
         self.textEdit_log.setPlainText('')
@@ -70,14 +70,14 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def load_selected(self):
         print('Loading')
 
-    def log_ui(self, text_line):
+    def logUI(self, text_line):
         text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
         text = self.add_timestamp_to_text(text)
         self.textEdit_log.setPlainText(text)
 
     def login_to_twitter_ui(self):
         valid, message = self._login_procedure()
-        self.log_ui(message)
+        self.logUI(message)
 
     @staticmethod
     def post_action(method, next_method=None):
