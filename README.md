@@ -1,5 +1,7 @@
 # TwitterAnalyzer
 
+Python Application for improving twitter content and quality of usage
+
 ### Application Status (Current plan, can be change anytime)
 
 - [ ] Application to Analyze Twitter Content
@@ -16,13 +18,19 @@
 			- [x] Hold Temporary Tweets
 			- [x] Load Tweets
 			- [x] UTF-8 Support 
-			- [ ] Cleanup
-			- [ ] Rearange			
+			- [ ] Cleanup csv
+			- [ ] Rearange csv		
+			- [ ] Background Queue for requests (twitter limit)
 		- [ ] Analzye Tweets
 			- [ ] Count Comments / Reactions
 			- [ ] Analyze change in time
 				- [ ] Same id post
 				- [ ] RT impact
+			- [ ] Analyze Followers/Friends Tweets
+				- [ ] Analyze random peoples being active in tweets
+				- [ ] Suggest following new 
+				- [ ] Suggest stop folloing 
+				- [ ] Inform about friends attitude
 			- [ ] Classify Tweets (3 Filters of Sokrates)
 				- [ ] Analyze word count
 				- [ ] Good

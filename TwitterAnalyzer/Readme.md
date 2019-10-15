@@ -15,5 +15,5 @@ File should look like this example:
 }
 ```
 
-## Twitter Developer Guide
+## Generate token here (Twitter Developer Guide)
 > https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens
