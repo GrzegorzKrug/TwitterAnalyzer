@@ -1,3 +1,5 @@
+# TwitterApi.py
+# Grzegorz Krug
 import requests
 import json
 import twitter

@@ -8,17 +8,21 @@ import pandas as pd
 from TwitterApi import TwitterApi, TwitterLoginFailed
 import datetime
 import glob
-import json
 import threading
 
+
 class TwitterAnalyzer(TwitterApi):
-    def __init__(self, autologin=True):
+    def __init__(self, autologin=True, log_ui=None):
         TwitterApi.__init__(self, autologin=autologin)
 
         self._data_dir = 'tweets'
+        self.log_ui_ref = log_ui
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
+        self.DF = None
 
-    def add_timestamp_attr(self, tweet):
+    @staticmethod
+    def add_timestamp_attr(tweet):
+        '''Adding time stamp to tweet dict'''
         try:
             setattr(tweet, 'timestamp', round(time.time()))
 
@@ -26,10 +30,12 @@ class TwitterAnalyzer(TwitterApi):
             print('Attribute error')
             tweet['timestamp'] = round(time.time())
 
-    def collect_new_tweets(self, N=20, chunk_size=50, interval=60, filename=None, logUI=None):
-        chunk_size += 1
+    def collect_new_tweets(self, n=20, chunk_size=50, interval=60, filename=None):
+        '''Loop that runs N times, and collect Tweet x chunk_size
+        Twitter rate limit is 15 times in 15 mins'''
+        # chunk_size += 1
         try:
-            if filename == None:
+            if filename is None:
                 now = datetime.datetime.now()
                 filename = "tweets_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".\
                     format(y=str(now.year).rjust(4, '0'), mon=str(now.month).rjust(2, '0'),
@@ -37,46 +43,43 @@ class TwitterAnalyzer(TwitterApi):
                            m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
                            interval=str(interval).rjust(3, '0'), count=str(chunk_size).rjust(3, '0'))
 
-            text = 'New tweets -> {}'.format(filename + '.csv')
-            self.print_log(text, logUI)
-            x = 1
-            while x <  N + 1:
+            ch = 1
+            while ch < n + 1:
                 try:
                     home_twetts = self.CollectHome(chunk_size)
-                    if len(home_twetts) != chunk_size - 1:
-                        self.print_log('\tMissing Tweets! Got {}, expected {}'.
-                                       format(len(home_twetts), str(chunk_size-1)),
-                                       logUI)
-
-
-                    if home_twetts != None:
+                    if ch == 1:
+                        self.log('New tweets -> {}'.format(filename + '.csv'))
+                    if len(home_twetts) != chunk_size:
+                        self.log('\tMissing Tweets! Got {}, expected {}'.
+                                 format(len(home_twetts), str(chunk_size)))
+                    if home_twetts:
                         for i, tweet in enumerate(home_twetts):
                             self.add_timestamp_attr(tweet)
                             self.export_tweet_to_database(self._data_dir, tweet, filename)
                     else:
                         pass  # print("No tweets, None object received.")
                 except twitter.error.TwitterError as e:
-                    self.print_log(e, logUI)
+                    self.log(e)
+                    print('Repeating chunk {} / {} after 25s.'.format(ch, n))
                     time.sleep(25)
-                    print('Repeating chunk {} / {}'.format(x, N))
                     continue
 
                 except TwitterLoginFailed as e:
-                    self.print_log(str(e), logUI)
+                    self.log(str(e))
                     return False
 
-                text = ('\tTweets chunk saved: {} / {}'.format(x, N))
-                self.print_log(text, logUI)
+                text = ('\tTweets chunk saved: {} / {}'.format(ch, n))
+                self.log(text)
 
-                if x >= N:
+                if ch >= n:
                     break
 
                 if interval > 0:
-                    self.print_log('\tSleeping {}s'.format(interval), logUI)
+                    self.log('\tSleeping {}s'.format(interval))
                     time.sleep(interval)
-                x += 1
+                ch += 1
             text = '\tFinished -> {}'.format(filename + '.csv')
-            self.print_log(text, logUI)
+            self.log(text)
 
             return True
         finally:
@@ -88,28 +91,25 @@ class TwitterAnalyzer(TwitterApi):
     def export_tweet_to_database(_data_dir, tweet, filename='default', delay=0):
         if delay > 0:
             time.sleep(delay)
-
         if type(filename) != str:
             raise TypeError('File name is not string!')
         file_path = _data_dir + '\\' + filename + '.csv'
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
-                'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
-                'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
-                'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
-                'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
-                'retweeted', 'retweeted_status', 'scopes', 'source', 'text', 'truncated', 'urls',
-                'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
-                'withheld_scope', 'tweet_mode']
+                  'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
+                  'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
+                  'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
+                  'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
+                  'retweeted', 'retweeted_status', 'scopes', 'source', 'text', 'truncated', 'urls',
+                  'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
+                  'withheld_scope', 'tweet_mode']
 
-        # df = pd.DataFrame.from_dict(tweet)
         if not os.path.isfile(file_path):
             with open(file_path, 'wt') as file:
-                for i,h in enumerate(header):
+                for i, h in enumerate(header):
                     file.write(h)
                     if i < len(header)-1:
                         file.write(';')
                 file.write('\n')
-
         try:
             with open(file_path, 'a', encoding='utf8') as file:
                 for i, key in enumerate(header):
@@ -124,40 +124,41 @@ class TwitterAnalyzer(TwitterApi):
                         file.write(';')
                 file.write('\n')
         except PermissionError:
-            th = threading.Thread(target=lambda: TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
+            th = threading.Thread(target=lambda:
+                TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
+
             th.start()
             print('PermissionError, created background thread to save data')
             return None
 
-    @staticmethod
-    def export_tweet_to_jsonbase(_data_dir, tweet, filename='default', delay=0):
-        if delay > 0:
-            time.sleep(delay)
-
-        if type(filename) != str:
-            raise TypeError('File name is not string!')
-        file_path = _data_dir + '\\' + filename + '.json'
-        header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
-                  'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
-                  'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
-                  'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
-                  'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
-                  'retweeted', 'retweeted_status', 'scopes', 'source', 'text', 'truncated', 'urls',
-                  'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
-                  'withheld_scope', 'tweet_mode']
-
-        try:
-            with open(file_path, 'a', encoding='utf8') as file:
-                json.dump(tweet, file, indent=4)
-
-        except PermissionError:
-            th = threading.Thread(
-                target=lambda: TwitterAnalyzer.export_tweet_to_jsonbase(_data_dir, tweet, filename, 15))
-            th.start()
-            print('PermissionError, created background thread to save data')
+    # @staticmethod
+    # def export_tweet_to_jsonbase(_data_dir, tweet, filename='default', delay=0):
+    #     if delay > 0:
+    #         time.sleep(delay)
+    #
+    #     if type(filename) != str:
+    #         raise TypeError('File name is not string!')
+    #     file_path = _data_dir + '\\' + filename + '.json'
+    #     header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
+    #               'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
+    #               'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
+    #               'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
+    #               'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
+    #               'retweeted', 'retweeted_status', 'scopes', 'source', 'text', 'truncated', 'urls',
+    #               'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
+    #               'withheld_scope', 'tweet_mode']
+    #     try:
+    #         with open(file_path, 'a', encoding='utf8') as file:
+    #             json.dump(tweet, file, indent=4)
+    #
+    #     except PermissionError:
+    #         th = threading.Thread(
+    #             target=lambda: TwitterAnalyzer.export_tweet_to_jsonbase(_data_dir, tweet, filename, 15))
+    #         th.start()
+    #         print('PermissionError, created background thread to save data')
 
     def find_local_tweets(self, path=None):
-        if path == None:
+        if path is None:
             path = self._data_dir
         else:
             path = os.path.abspath(path)
@@ -166,23 +167,29 @@ class TwitterAnalyzer(TwitterApi):
         print(files)
         return files
 
-    def load_csv(self, file_path):
-        df = None
-        with open(file_path) as f:
-            df = pd.read_csv()
-
+    @staticmethod
+    def load_csv(file_path):
+        df = pd.read_csv(file_path, sep=';', encoding='utf8')
         return df
 
-    @staticmethod
-    def print_log(text, logUI):
+    def reload_files(self, file_list):
+        self.DF = None
+        for file in file_list:
+            df = pd.read_csv(self._data_dir + '\\' + file, sep=';', encoding='utf8')
+            if self.DF is None:
+                self.DF = df
+            else:
+                self.DF = pd.concat([self.DF, df])
+
+    def log(self, text):
         print(text)
-        if logUI:
-            logUI(text)
+        if self.log_ui_ref:
+            self.log_ui_ref(text)
 
     @staticmethod
     def tweet_strip(tweet):
         def add_data(query, new_query=None):
-            if new_query == None:
+            if new_query is None:
                 new_query = query
 
             out[new_query] = tweet[query]
@@ -210,15 +217,6 @@ class TwitterAnalyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
-    app.collect_new_tweets(N=3, chunk_size=5, interval=10)
-    print('End....')
-
-
-
-
-
-
-
-
-
-
+    for x in range(10):
+        app.collect_new_tweets(n=10, chunk_size=100, interval=60)
+    input('Press key....')
