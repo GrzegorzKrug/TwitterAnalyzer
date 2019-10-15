@@ -5,7 +5,9 @@ Python Application for improving twitter content and quality of usage
 ## Application Status (Current plan, can be change anytime)
 
 ### Application to Analyze Twitter Content
+
 #### API (2 / 8)
+
 	- [x] Login
 	- [x] Collect tweets from main page
 	- [ ] Collect comments from tweets
@@ -14,7 +16,9 @@ Python Application for improving twitter content and quality of usage
 	- [ ] Collect user tweets (diffrent than me)
 	- [ ] Collect user comments (diffrent than me)
 	- [ ] Background Queue for requests (twitter limit)
+	
 #### Analytic Tools (0 / 3)
+
 	- [ ] Write Read to file
 		- [x] Hold Temporary Tweets
 		- [x] Load Tweets
@@ -39,7 +43,9 @@ Python Application for improving twitter content and quality of usage
 		- [ ] Train model for predictions
 	- [ ] Show Tweets
 		- [ ] Decision model
+		
 #### GUI (2 / 6)
+
 	- [ ] Buttons
 		- [x] Login, Status, Load CSVs
 		- [ ] More Buttons
