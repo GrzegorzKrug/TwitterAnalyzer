@@ -90,8 +90,8 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def load_files(self):
         files = self.current_tree_selection()
         for file in files:
-            with open(self._data_dir + '\\' + file) as f:
-                df = pd.read_csv(f)
+            #with open(self._data_dir + '\\' + file, 'r', encoding='utf8') as f:
+            df = pd.read_csv(self._data_dir + '\\' + file, sep =';', encoding='utf8')
 
     def load_files_info(self, files):
         if type(files) != list:
