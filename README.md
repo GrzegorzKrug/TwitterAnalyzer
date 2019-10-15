@@ -4,8 +4,6 @@ Python Application for improving twitter content and quality of usage
 
 ## Application Status (Current plan, can be change anytime)
 
-### Application to Analyze Twitter Content
-
 #### API (2 / 8)
 
 - [x] Login
