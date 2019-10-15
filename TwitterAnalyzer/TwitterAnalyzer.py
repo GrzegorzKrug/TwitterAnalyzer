@@ -8,6 +8,8 @@ import pandas as pd
 from TwitterApi import TwitterApi, TwitterLoginFailed
 import datetime
 import glob
+import json
+import threading
 
 class TwitterAnalyzer(TwitterApi):
     def __init__(self, autologin=True):
@@ -33,28 +35,31 @@ class TwitterAnalyzer(TwitterApi):
                     format(y=str(now.year).rjust(4, '0'), mon=str(now.month).rjust(2, '0'),
                            d=str(now.day).rjust(2, '0'), h=str(now.hour).rjust(2, '0'),
                            m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
-                           interval=str(interval).rjust(3, '0'), count=chunk_size)
+                           interval=str(interval).rjust(3, '0'), count=str(chunk_size).rjust(3, '0'))
 
-            for x in range(1, N + 1):
+            text = 'New tweets -> {}'.format(filename + '.csv')
+            self.print_log(text, logUI)
+            x = 1
+            while x <  N + 1:
                 try:
                     home_twetts = self.CollectHome(chunk_size)
                     if len(home_twetts) != chunk_size - 1:
-                        self.print_log('Missing Tweets! Got {}, expected {}'.
+                        self.print_log('\tMissing Tweets! Got {}, expected {}'.
                                        format(len(home_twetts), str(chunk_size-1)),
                                        logUI)
 
-                    if x == 1:
-                        text = '\tNew tweets -> {}'.format(filename + '.csv')
-                        self.print_log(text, logUI)
 
                     if home_twetts != None:
                         for i, tweet in enumerate(home_twetts):
                             self.add_timestamp_attr(tweet)
-                            self.export_tweet_to_database(tweet, filename)
+                            self.export_tweet_to_database(self._data_dir, tweet, filename)
                     else:
                         pass  # print("No tweets, None object received.")
                 except twitter.error.TwitterError as e:
                     self.print_log(e, logUI)
+                    time.sleep(25)
+                    print('Repeating chunk {} / {}'.format(x, N))
+                    continue
 
                 except TwitterLoginFailed as e:
                     self.print_log(str(e), logUI)
@@ -63,13 +68,14 @@ class TwitterAnalyzer(TwitterApi):
                 text = ('\tTweets chunk saved: {} / {}'.format(x, N))
                 self.print_log(text, logUI)
 
-                if x == N + 1:
+                if x >= N:
                     break
 
                 if interval > 0:
-                    self.print_log('\t\tSleeping {}s'.format(interval), logUI)
+                    self.print_log('\tSleeping {}s'.format(interval), logUI)
                     time.sleep(interval)
-            text = 'Finished -> {}'.format(filename + '.csv')
+                x += 1
+            text = '\tFinished -> {}'.format(filename + '.csv')
             self.print_log(text, logUI)
 
             return True
@@ -78,11 +84,14 @@ class TwitterAnalyzer(TwitterApi):
             # text = 'Finished -> {}'.format(filename + '.csv')
             # print(text)
 
+    @staticmethod
+    def export_tweet_to_database(_data_dir, tweet, filename='default', delay=0):
+        if delay > 0:
+            time.sleep(delay)
 
-    def export_tweet_to_database(self, tweet, filename='default'):
         if type(filename) != str:
             raise TypeError('File name is not string!')
-        file_path = self._data_dir + '\\' + filename + '.csv'
+        file_path = _data_dir + '\\' + filename + '.csv'
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                 'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
                 'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
@@ -101,26 +110,24 @@ class TwitterAnalyzer(TwitterApi):
                         file.write(';')
                 file.write('\n')
 
-        while True:
-            try:
-                with open(file_path, 'at') as file:
-                    for i, key in enumerate(header):
-                        try:
-                            text = str(tweet.get(key, 'n/a'))
-                            for char in ['\n', ';', '\r']:
-                                text = text.replace(char, '')
-                            file.write(text)
-                        except UnicodeEncodeError:
-                            file.write('UnicodeEncodeError')
-                        if i < len(header)-1:
-                            file.write(';')
-                    file.write('\n')
-                break
-            except PermissionError:
-                print('PermissionError, waiting for file.')
-                time.sleep(10)
-
-
+        try:
+            with open(file_path, 'at') as file:
+                for i, key in enumerate(header):
+                    try:
+                        text = str(tweet.get(key, 'n/a'))
+                        for char in ['\n', ';', '\r']:
+                            text = text.replace(char, '')
+                        file.write(text)
+                    except UnicodeEncodeError:
+                        file.write('UnicodeEncodeError')
+                    if i < len(header)-1:
+                        file.write(';')
+                file.write('\n')
+        except PermissionError:
+            th = threading.Thread(target=lambda: TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
+            th.start()
+            print('PermissionError, created background thread to save data')
+            return None
 
     def find_local_tweets(self, path=None):
         if path == None:
@@ -176,9 +183,8 @@ class TwitterAnalyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = TwitterAnalyzer()
-    for i in range(10):
-        app.collect_new_tweets(N=100, chunk_size=100, interval=60)
-    input('End....')
+    app.collect_new_tweets(N=3, chunk_size=5, interval=10)
+    print('End....')
 
 
 
