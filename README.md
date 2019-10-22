@@ -10,10 +10,10 @@ Python Application for improving twitter content and quality of usage
 - [x] Collect tweets from main page
 - [ ] Collect comments from tweets
 - [ ] Collect reactions on tweets
-~~- [ ] Collect user followers (diffrent than me)~~ not required atm
+- [ ] ~~Collect user followers (diffrent than me)~~ not required atm
 - [ ] Collect user tweets (diffrent than me)
 - [ ] Collect user comments (diffrent than me)
-~~- [ ] Background Queue for requests (twitter limit)~~
+- [ ] ~~Background Queue for requests (twitter limit)~~
 	
 
 #### Analytic Tools (0 / 3)
