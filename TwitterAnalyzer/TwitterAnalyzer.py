@@ -19,6 +19,7 @@ class TwitterAnalyzer(TwitterApi):
         self.log_ui_ref = log_ui
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
         self.DF = None
+        self.loaded_to_DF =  []
 
     @staticmethod
     def add_timestamp_attr(tweet):
@@ -48,9 +49,9 @@ class TwitterAnalyzer(TwitterApi):
                 try:
                     home_twetts = self.CollectHome(chunk_size)
                     if ch == 1:
-                        self.log('New tweets -> {}'.format(filename + '.csv'))
+                        self.log_ui('New tweets -> {}'.format(filename + '.csv'))
                     if len(home_twetts) != chunk_size:
-                        self.log('\tMissing Tweets! Got {}, expected {}'.
+                        self.log_ui('\tMissing Tweets! Got {}, expected {}'.
                                  format(len(home_twetts), str(chunk_size)))
                     if home_twetts:
                         for i, tweet in enumerate(home_twetts):
@@ -59,33 +60,59 @@ class TwitterAnalyzer(TwitterApi):
                     else:
                         pass  # print("No tweets, None object received.")
                 except twitter.error.TwitterError as e:
-                    self.log(e)
+                    self.log_ui(e)
                     print('Repeating chunk {} / {} after 25s.'.format(ch, n))
                     time.sleep(25)
                     continue
 
                 except TwitterLoginFailed as e:
-                    self.log(str(e))
+                    self.log_ui(str(e))
                     return False
 
                 text = ('\tTweets chunk saved: {} / {}'.format(ch, n))
-                self.log(text)
-
+                self.log_ui(text)
                 if ch >= n:
                     break
-
                 if interval > 0:
-                    self.log('\tSleeping {}s'.format(interval))
+                    self.log_ui('\tSleeping {}s'.format(interval))
                     time.sleep(interval)
                 ch += 1
             # text = '\tFinished -> {}'.format(filename + '.csv')
-            # self.log(text)
+            # self.log_ui(text)
 
             return True
         finally:
             pass
             # text = 'Finished -> {}'.format(filename + '.csv')
             # print(text)
+
+    def delete_csv(self, filelist):
+        'Removes tweets_ only !'
+        if type(filelist) is str:
+            filelist = [filelist]
+
+        for file_path in filelist:
+            file = os.path.basename(file_path)
+            if file[-4:] == '.csv' and file[:7] == 'tweets_':
+                file_path = self._data_dir + '\\' + file
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                        self.log_ui(f'Removed {file}')
+                    except PermissionError:
+                        self.log_ui(f' PermissionError: Close this file {file}')
+
+    def delete_less(self,n=200):
+        'Procedure, Finds Tweets .csv, Removes them.'
+        filelist = self.find_local_tweets()
+        for f in filelist:
+            df = pd.read_csv(f, sep=';', encoding='utf8')
+            if df.shape[0] < n:
+                # self.log_ui('Smaller file '+ f)
+                self.delete_csv(f)
+            else:
+                pass
+        self.log_ui(f'Done removing')
 
     @staticmethod
     def export_tweet_to_database(_data_dir, tweet, filename='default', delay=0):
@@ -158,30 +185,28 @@ class TwitterAnalyzer(TwitterApi):
     #         print('PermissionError, created background thread to save data')
 
     def find_local_tweets(self, path=None):
-        if path is None:
-            path = self._data_dir
-        else:
+        if path:
             path = os.path.abspath(path)
-
+        else:
+            path = self._data_dir
         files = glob.glob(path + '\\tweets*.csv')
-        print(files)
         return files
 
-    @staticmethod
-    def load_csv(file_path):
-        df = pd.read_csv(file_path, sep=';', encoding='utf8')
-        return df
-
-    def reload_files(self, file_list):
+    def load_DF(self, file_list):
         self.DF = None
+        self.loaded_to_DF = []
+
         for file in file_list:
-            df = pd.read_csv(self._data_dir + '\\' + file, sep=';', encoding='utf8')
+            file_path = self._data_dir + '\\' + file
+            df = pd.read_csv(file_path, sep=';', encoding='utf8')
+            self.loaded_to_DF += [file]
             if self.DF is None:
                 self.DF = df
             else:
                 self.DF = pd.concat([self.DF, df])
+            self.log_ui_ref(f'Loading csv: {file}')
 
-    def log(self, text):
+    def log_ui(self, text):
         print(text)
         if self.log_ui_ref:
             self.log_ui_ref(text)

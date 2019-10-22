@@ -27,16 +27,19 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
 
     def _init_triggers(self):
-        self.actionLogin.triggered.connect(lambda f: self.login_to_twitter_ui())
-        self.actionWho_am_I.triggered.connect(lambda f: self.pop_window())
+        self.actionLogin.triggered.connect(self.login_to_twitter_ui)
+        self.actionWho_am_I.triggered.connect(self.pop_window)
 
-        self.label_login_status.mousePressEvent = lambda f: self.update_status()
+        self.label_login_status.mousePressEvent = self.update_status
 
-        self.pushButton_collect1.clicked.connect(lambda f: self.collect_tweets_ui())
+        self.pushButton_collect1.clicked.connect(self.collect_tweets_ui)
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks, parent=self))
-        self.pushButton_find_csv.clicked.connect(lambda f: self.find_local_tweets())
-        self.pushButton_load_csv.clicked.connect(lambda f: self.load_files())
-        self.pushButton_clear_log.clicked.connect(lambda f: self.clear_log())
+        self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
+        self.pushButton_clear_log.clicked.connect(self.clear_log)
+        self.pushButton_delete200.clicked.connect(lambda : self.delete_less(200))
+        self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
+        self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
+        self.pushButton_merge_selected.clicked.connect(self.merge_selected)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
@@ -65,7 +68,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def clear_log(self):
         self.textEdit_log.setPlainText('')
 
-    def current_tree_selection(self, override_file_name=False):
+    def current_tree_selection(self, ignore_name=False, ignore_extension=False):
         'Loads currently selected csv file from tree'
         files_list = []
         selected_list = self.treeView.selectedIndexes()
@@ -73,20 +76,25 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             if item.column() == 0:
                 files_list += [item.data()]
         # files_list = [item.data() if item.column() == 0 else None for item in selected_list]
-
+        good_files = []
         for file in files_list:
-            if file[-4:] == '.csv':
-                if file[:7] == 'tweets_' and not override_file_name:
-                    self.log_ui('Loading {}'.format(file))
+            if file[-4:] == '.csv' or ignore_extension:
+                if file[:7] == 'tweets_' or ignore_name:
+                    good_files += [file]
                 else:
                     self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
             else:
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
-        return files_list
+        return good_files
+
+    def delete_selected(self):
+        filelist = self.current_tree_selection(ignore_name=True,ignore_extension=True)
+        for f in filelist:
+            os.remove(self._data_dir + '\\' + f)
+            self.log_ui(f'Removed {f}')
 
     @staticmethod
     def download10_chunks(*args, **kwargs):
-        print(f'ARGS: {args}, Kwargs:{kwargs}')
         app = TwitterAnalyzer()
         # try:
         #     if kwargs['parent']:
@@ -105,12 +113,13 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         subprocess.start()
         return subprocess
 
-    def load_files(self):
+    def load_selected(self):
         files = self.current_tree_selection()
-        self.reload_files(files)
+        self.load_DF(files)
         self.log_ui(f'DF size: {self.DF.shape}')
 
     def log_ui(self, text_line):
+        print(text_line)
         text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
         text = self.add_timestamp_to_text(text)
         self.textEdit_log.setPlainText(text)
@@ -118,6 +127,10 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def login_to_twitter_ui(self):
         valid, message = self._login_procedure()
         self.log_ui(message)
+
+    def merge_selected(self):
+        pass
+
 
     @staticmethod
     def post_action(method, next_method=None):
@@ -160,7 +173,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
                     'verified', 'lang']:
             text += str(key + ':').ljust(20) + str(user_data[key]) + '\n'
-        self.plainTextEdit_selected_user.setPlainText(text)
+        self.plainTextEdit_info.setPlainText(text)
 
     def update_status(self):
         if self.logged_in:
