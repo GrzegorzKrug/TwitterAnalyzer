@@ -15,7 +15,8 @@ class TwitterApi(twitter.Api):
         self.me = None
 
         if autologin:
-            self._login_procedure()
+            valid, text = self._login_procedure()
+            print(text)
 
     def _get_following(self):
         return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
@@ -25,7 +26,7 @@ class TwitterApi(twitter.Api):
         if self.logged_in:
             self.me = self.api.VerifyCredentials()
             text = 'Logged in succesfuly as {}.'.format(self.me['screen_name'])
-            print(text)
+            #print(text)
             return True, text
         else:
             return False, message
