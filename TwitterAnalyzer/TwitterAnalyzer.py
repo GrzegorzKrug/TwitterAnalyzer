@@ -78,8 +78,8 @@ class TwitterAnalyzer(TwitterApi):
                     self.log('\tSleeping {}s'.format(interval))
                     time.sleep(interval)
                 ch += 1
-            text = '\tFinished -> {}'.format(filename + '.csv')
-            self.log(text)
+            # text = '\tFinished -> {}'.format(filename + '.csv')
+            # self.log(text)
 
             return True
         finally:
@@ -218,5 +218,5 @@ class TwitterAnalyzer(TwitterApi):
 if __name__ == "__main__":
     app = TwitterAnalyzer()
     for x in range(10):
-        app.collect_new_tweets(n=10, chunk_size=100, interval=60)
+        app.collect_new_tweets(n=10, chunk_size=200, interval=60)
     input('Press key....')
