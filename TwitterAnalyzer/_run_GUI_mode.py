@@ -36,7 +36,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks, parent=self))
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
         self.pushButton_clear_log.clicked.connect(self.clear_log)
-        self.pushButton_delete200.clicked.connect(lambda : self.delete_less(200))
+        self.pushButton_delete100.clicked.connect(lambda : self.delete_less(100))
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
         self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
         self.pushButton_merge_selected.clicked.connect(self.merge_selected)
@@ -79,7 +79,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         good_files = []
         for file in files_list:
             if file[-4:] == '.csv' or ignore_extension:
-                if file[:7] == 'tweets_' or ignore_name:
+                if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
                     good_files += [file]
                 else:
                     self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
@@ -89,9 +89,17 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
     def delete_selected(self):
         filelist = self.current_tree_selection(ignore_name=True,ignore_extension=True)
+        if filelist == []:
+            self.log_ui('Make selection!')
+            return None
+
         for f in filelist:
-            os.remove(self._data_dir + '\\' + f)
-            self.log_ui(f'Removed {f}')
+            try:
+                os.remove(self._data_dir + '\\' + f)
+                self.log_ui(f'Removed {f}')
+
+            except PermissionError:
+                self.log_ui(f'PermissionError!!!: Close Files {f}')
 
     @staticmethod
     def download10_chunks(*args, **kwargs):
@@ -129,7 +137,39 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.log_ui(message)
 
     def merge_selected(self):
-        pass
+        filelist = self.current_tree_selection()
+        if filelist == []:
+            self.log_ui('Error. Select files!')
+            return None
+        DF = []
+        now = datetime.datetime.now()
+        merged_file = 'merged_' \
+                    + f'{now.year}'.ljust(4, '0') \
+                    + f'{now.month}'.ljust(2, '0') \
+                    + f'{now.day}'.ljust(2, '0')  \
+                    + f'_{now.hour}'.ljust(3, '0')  \
+                    + f'-{now.minute}'.ljust(3, '0') \
+                    + f'-{now.second}'.ljust(3, '0') \
+                    + '.csv'
+        with open(self._data_dir + '\\' + merged_file, 'wt', encoding='utf8') as f:
+            for i, file in enumerate(filelist):
+                df = pd.read_csv(self._data_dir + '\\' + file, sep=';', encoding='utf8')
+                if i == 0:
+                    for i, k in enumerate(df.keys()):
+                        f.write(k)
+                        if i < len(df.keys()) - 1:
+                            f.write(';')
+                        else:
+                            f.write('\n')
+                    pass
+                df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
+                try:
+                    os.remove(self._data_dir + '\\' + file)
+                except PermissionError:
+                    self.log_ui(f'Merged, but can not remove {file}')
+
+        self.log_ui(f'Merged to file: {merged_file}')
+
 
 
     @staticmethod
