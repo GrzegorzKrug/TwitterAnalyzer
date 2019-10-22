@@ -31,7 +31,7 @@ class TwitterAnalyzer(TwitterApi):
             print('Attribute error')
             tweet['timestamp'] = round(time.time())
 
-    def collect_new_tweets(self, n=20, chunk_size=50, interval=60, filename=None):
+    def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
         Twitter rate limit is 15 times in 15 mins'''
         # chunk_size += 1
