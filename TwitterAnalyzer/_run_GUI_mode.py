@@ -27,12 +27,13 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
 
     def _init_triggers(self):
-        self.actionLogin.triggered.connect(lambda: self.login_to_twitter_ui())
+        self.actionLogin.triggered.connect(lambda f: self.login_to_twitter_ui())
         self.actionWho_am_I.triggered.connect(lambda f: self.pop_window())
 
         self.label_login_status.mousePressEvent = lambda f: self.update_status()
 
-        self.pushButton_collectTweets.clicked.connect(lambda f: self.collect_tweets_ui())
+        self.pushButton_collect1.clicked.connect(lambda f: self.collect_tweets_ui())
+        self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks, parent=self))
         self.pushButton_find_csv.clicked.connect(lambda f: self.find_local_tweets())
         self.pushButton_load_csv.clicked.connect(lambda f: self.load_files())
         self.pushButton_clear_log.clicked.connect(lambda f: self.clear_log())
@@ -83,16 +84,31 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
         return files_list
 
+    @staticmethod
+    def download10_chunks(*args, **kwargs):
+        print(f'ARGS: {args}, Kwargs:{kwargs}')
+        app = TwitterAnalyzer()
+        # try:
+        #     if kwargs['parent']:
+        #         print('TRUE parent')
+        #         kwargs['parent'].log_ui('THIS IS THREAD')
+        #
+        #         app.log_ui = kwargs['parent'].log_ui
+        # except KeyError:
+        #     pass
+        app.collect_new_tweets(n=10, chunk_size=200, interval=60)
+
     # @staticmethod
-    # def fork_method(self, method_to_fork):
-    #     subprocess = threading.Thread(target=method_to_fork)
-    #     subprocess.start()
-    #     return subprocess
+    def fork_method(self, method_to_fork, *args, **kwargs):
+        self.log_ui(f'New Thread: {method_to_fork.__name__}')
+        subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
+        subprocess.start()
+        return subprocess
 
     def load_files(self):
         files = self.current_tree_selection()
         self.reload_files(files)
-        print(self.DF.shape)
+        self.log_ui(f'DF size: {self.DF.shape}')
 
     def log_ui(self, text_line):
         text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
