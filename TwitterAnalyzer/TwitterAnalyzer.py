@@ -19,7 +19,7 @@ class TwitterAnalyzer(TwitterApi):
         self.log_ui_ref = log_ui
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
         self.DF = None
-        self.loaded_to_DF =  []
+        self.loaded_to_DF = []
 
     @staticmethod
     def add_timestamp_attr(tweet):
@@ -51,8 +51,7 @@ class TwitterAnalyzer(TwitterApi):
                     if ch == 1:
                         self.log_ui('New tweets -> {}'.format(filename + '.csv'))
                     if len(home_twetts) != chunk_size:
-                        self.log_ui('\tMissing Tweets! Got {}, expected {}'.
-                                 format(len(home_twetts), str(chunk_size)))
+                        self.log_ui('\tMissing Tweets! Got {}, expected {}'.format(len(home_twetts), str(chunk_size)))
                     if home_twetts:
                         for i, tweet in enumerate(home_twetts):
                             self.add_timestamp_attr(tweet)
@@ -102,7 +101,7 @@ class TwitterAnalyzer(TwitterApi):
                     except PermissionError:
                         self.log_ui(f' PermissionError: Close this file {file}')
 
-    def delete_less(self,n=200):
+    def delete_less(self, n=200):
         'Procedure, Finds Tweets .csv, Removes them.'
         filelist = self.find_local_tweets()
         for f in filelist:

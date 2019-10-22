@@ -26,7 +26,6 @@ class TwitterApi(twitter.Api):
         if self.logged_in:
             self.me = self.api.VerifyCredentials()
             text = 'Logged in succesfuly as {}.'.format(self.me['screen_name'])
-            #print(text)
             return True, text
         else:
             return False, message
@@ -48,11 +47,11 @@ class TwitterApi(twitter.Api):
                 api.VerifyCredentials()
                 message = 'Logged in succesfuly'
 
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             print("secret_token.txt is not in json format!")
             return False, api, "secret_token.txt is not in json format!"
 
-        except KeyError as e:
+        except KeyError:
             print("secret_token.txt is missing some keys!")
             return False, api, "secret_token.txt is missing some keys!"
 
@@ -70,12 +69,14 @@ class TwitterApi(twitter.Api):
         try:
             home = self.api.GetHomeTimeline(count=count)
             return home
+
         except AttributeError:
             raise TwitterLoginFailed("Error! Login status: {}".format(self.logged_in))
 
     @staticmethod
     def _overrider(display=True):
         text = []
+
         def add_items_method(self):
             return self.__dict__.items()
 
@@ -106,6 +107,7 @@ class TwitterApi(twitter.Api):
                 print('\t', comment)
             print('#' * 20, 'End of overloading.', '#' * 20, '\n')
 
+
 class TwitterLoginFailed(Exception):
     """Base class for Twitter errors"""
 
@@ -113,6 +115,7 @@ class TwitterLoginFailed(Exception):
     def message(self):
         '''Returns the first argument used to construct this error.'''
         return self.args[0]
+
 
 if __name__ == "__main__":
     app = TwitterApi()

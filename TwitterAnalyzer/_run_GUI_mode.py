@@ -1,10 +1,10 @@
 # _run_GUI_mode.py
 # Grzegorz Krug
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets, # QtGui
 from TwitterAnalyzer import TwitterAnalyzer
 from GUI import Ui_MainWindow
-import random
-import time
+#import random
+#import time
 import datetime
 import threading
 import traceback
@@ -25,7 +25,6 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
         self._loaded_files = []
 
-
     def _init_triggers(self):
         self.actionLogin.triggered.connect(self.login_to_twitter_ui)
         self.actionWho_am_I.triggered.connect(self.pop_window)
@@ -33,10 +32,10 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.label_login_status.mousePressEvent = self.update_status
 
         self.pushButton_collect1.clicked.connect(self.collect_tweets_ui)
-        self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks, parent=self))
+        self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
         self.pushButton_clear_log.clicked.connect(self.clear_log)
-        self.pushButton_delete100.clicked.connect(lambda : self.delete_less(100))
+        self.pushButton_delete100.clicked.connect(lambda: self.delete_less(100))
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
         self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
         self.pushButton_merge_selected.clicked.connect(self.merge_selected)
@@ -69,10 +68,10 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.textEdit_log.setPlainText('')
 
     def current_tree_selection(self, ignore_name=False, ignore_extension=False):
-        'Loads currently selected csv file from tree'
+        '''Loads currently selected csv file from tree'''
         files_list = []
         selected_list = self.treeView.selectedIndexes()
-        for i,item in enumerate(selected_list):
+        for i, item in enumerate(selected_list):
             if item.column() == 0:
                 files_list += [item.data()]
         # files_list = [item.data() if item.column() == 0 else None for item in selected_list]
@@ -88,7 +87,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         return good_files
 
     def delete_selected(self):
-        filelist = self.current_tree_selection(ignore_name=True,ignore_extension=True)
+        filelist = self.current_tree_selection(ignore_name=True, ignore_extension=True)
         if filelist == []:
             self.log_ui('Make selection!')
             return None
@@ -102,7 +101,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
                 self.log_ui(f'PermissionError!!!: Close Files {f}')
 
     @staticmethod
-    def download10_chunks(*args, **kwargs):
+    def download10_chunks():
         app = TwitterAnalyzer()
         # try:
         #     if kwargs['parent']:
@@ -138,10 +137,13 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
 
     def merge_selected(self):
         filelist = self.current_tree_selection()
-        if filelist == []:
+        if not filelist:
             self.log_ui('Error. Select files!')
             return None
-        DF = []
+        if len(filelist) <= 1:
+            self.log_ui('You can not merge this.')
+            return None
+
         now = datetime.datetime.now()
         merged_file = 'merged_' \
                     + f'{now.year}'.ljust(4, '0') \
@@ -155,9 +157,9 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             for i, file in enumerate(filelist):
                 df = pd.read_csv(self._data_dir + '\\' + file, sep=';', encoding='utf8')
                 if i == 0:
-                    for i, k in enumerate(df.keys()):
+                    for ki, k in enumerate(df.keys()):
                         f.write(k)
-                        if i < len(df.keys()) - 1:
+                        if ki < len(df.keys()) - 1:
                             f.write(';')
                         else:
                             f.write('\n')
@@ -169,8 +171,6 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
                     self.log_ui(f'Merged, but can not remove {file}')
 
         self.log_ui(f'Merged to file: {merged_file}')
-
-
 
     @staticmethod
     def post_action(method, next_method=None):
@@ -243,4 +243,3 @@ if __name__ == "__main__":
     error_dialog = QtWidgets.QErrorMessage()
     MainWindow.show()
     sys.exit(app.exec_())
-    
