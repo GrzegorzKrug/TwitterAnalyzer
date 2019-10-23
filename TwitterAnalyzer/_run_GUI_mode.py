@@ -1,6 +1,6 @@
 # _run_GUI_mode.py
 # Grzegorz Krug
-from PyQt5 import QtCore, QtWidgets, # QtGui
+from PyQt5 import QtCore, QtWidgets # QtGui
 from TwitterAnalyzer import TwitterAnalyzer
 from GUI import Ui_MainWindow
 #import random
@@ -16,7 +16,7 @@ import pandas as pd
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def __init__(self, mainWindow):        
         Ui_MainWindow.__init__(self)
-        TwitterAnalyzer.__init__(self, autologin=False, log_ui=self.log_ui)
+        TwitterAnalyzer.__init__(self, autologin=True, log_ui=self.log_ui)
         self.setupUi(mainWindow)
 
         self._init_wrappers()
@@ -28,7 +28,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def _init_triggers(self):
         self.actionLogin.triggered.connect(self.login_to_twitter_ui)
         self.actionWho_am_I.triggered.connect(self.pop_window)
-
+        self.actionRefresh_GUI.triggered.connect(self.refresh_gui)
         self.label_login_status.mousePressEvent = self.update_status
 
         self.pushButton_collect1.clicked.connect(self.collect_tweets_ui)
@@ -39,6 +39,9 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
         self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
         self.pushButton_merge_selected.clicked.connect(self.merge_selected)
+        self.pushButton_export_DF.clicked.connect(lambda: self.save_current_DF(self.lineEdit_DF_comment.text()))
+        self.pushButton_Info_screenLog.clicked.connect(lambda: self.log_ui( '=== Info:' + '\n'
+                                                                            + self.plainTextEdit_info.toPlainText()))
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
@@ -156,15 +159,12 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         with open(self._data_dir + '\\' + merged_file, 'wt', encoding='utf8') as f:
             for i, file in enumerate(filelist):
                 df = pd.read_csv(self._data_dir + '\\' + file, sep=';', encoding='utf8')
+
                 if i == 0:
-                    for ki, k in enumerate(df.keys()):
-                        f.write(k)
-                        if ki < len(df.keys()) - 1:
-                            f.write(';')
-                        else:
-                            f.write('\n')
-                    pass
-                df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
+                    df.to_csv(f, header=True, sep=';', encoding='utf8', index=False)
+                else:
+                    df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
+
                 try:
                     os.remove(self._data_dir + '\\' + file)
                 except PermissionError:

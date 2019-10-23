@@ -210,6 +210,34 @@ class TwitterAnalyzer(TwitterApi):
         if self.log_ui_ref:
             self.log_ui_ref(text)
 
+    def nowAsText(self):
+        now = datetime.datetime.now()
+        text = f'{now.year}'.ljust(4, '0') \
+              + f'{now.month}'.ljust(2, '0') \
+              + f'{now.day}'.ljust(2, '0') \
+              + f'_{now.hour}'.ljust(3, '0') \
+              + f'-{now.minute}'.ljust(3, '0') \
+              + f'-{now.second}'.ljust(3, '0')
+        return text
+
+    def save_current_DF(self, extraText=None):
+        if extraText:
+            extraText = '_' + extraText
+        filepath = self._data_dir + '\\' + 'dataframe_' + self.nowAsText() + extraText + '.csv'
+        self.save_DF(self.DF, filepath)
+
+    def save_DF(self, DF, filepath):
+        if DF is None:
+            self.log_ui('DF is empty!')
+            return None
+        else:
+            with open(filepath, 'wt', encoding='utf8') as f:
+                DF.to_csv(f, sep=';', encoding='utf8', index=False)
+                self.log_ui(f'Saved DF to file: {os.path.abspath(filepath)}')
+
+        #    return True
+        #self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+
     @staticmethod
     def tweet_strip(tweet):
         def add_data(query, new_query=None):
