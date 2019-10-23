@@ -89,6 +89,9 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
         return good_files
 
+    def display(self, text):
+        self.plainTextEdit_info.setPlainText(text)
+
     def delete_selected(self):
         filelist = self.current_tree_selection(ignore_name=True, ignore_extension=True)
         if filelist == []:
@@ -213,7 +216,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
                     'verified', 'lang']:
             text += str(key + ':').ljust(20) + str(user_data[key]) + '\n'
-        self.plainTextEdit_info.setPlainText(text)
+        self.display(text)
 
     def update_status(self):
         if self.logged_in:
