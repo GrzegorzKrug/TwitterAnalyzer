@@ -16,14 +16,15 @@ Python Application for improving twitter content and quality of usage
 - [ ] ~~Background Queue for requests (twitter limit)~~
 	
 
-#### Analytic Tools (0 / 3)
+#### Analytic Tools (1 / 3)
 
-- [ ] Write Read to file
+- [x] Write Read to file
 	- [x] Hold Temporary Tweets
 	- [x] Load Tweets
 	- [x] UTF-8 Support 
-	- [ ] Cleanup csv
-	- [ ] Rearange csv				
+	- [x] Cleanup csv
+	- [x] Rearange csv	
+	- [x] Save DF
 - [ ] Analzye Tweets
 	- [ ] Count Comments / Reactions
 	- [ ] Analyze changes in time
@@ -56,6 +57,11 @@ Python Application for improving twitter content and quality of usage
 	- [ ] Threads feedback
 - [ ] Filter tweets Dataframe
 	- [ ] Filter by key and param
+		- [ ] user_id
+		- [ ] post_id
+		- [ ] by time range
+			- [ ] Time collected
+			- [ ] Tweet borned
 	- [ ] Filter by words included
 	- [ ] Filter 
 - [ ] Display tweets / Dataframe
@@ -63,7 +69,7 @@ Python Application for improving twitter content and quality of usage
 	- [ ] show classification prediction
 - [ ] Manage CSV files
 	- [x] Loading selected CSV
-	- [ ] Save current DF to file
+	- [x] Save current DF to file
 	- [ ] ReArange
 		- [ ] Combine CSV  groups
 			- [ ] By Lang
@@ -73,5 +79,5 @@ Python Application for improving twitter content and quality of usage
 	- [ ] Remove
 		- [ ] Old
 		- [ ] Used
-		- [ ] Small
+		- [x] Small
 	
