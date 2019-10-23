@@ -270,5 +270,5 @@ class TwitterAnalyzer(TwitterApi):
 if __name__ == "__main__":
     app = TwitterAnalyzer()
     for x in range(10):
-        app.collect_new_tweets(n=10, chunk_size=200, interval=60)
+        app.collect_new_tweets(n=60, chunk_size=200, interval=60)
     input('Press key....')

@@ -34,7 +34,7 @@
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>Manage</string>
+      <string>Files</string>
      </attribute>
      <attribute name="toolTip">
       <string>Manage Tweet Files in 'tweets' directory</string>
@@ -100,7 +100,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>40</y>
         <width>91</width>
         <height>23</height>
        </rect>
@@ -144,15 +144,29 @@
        </property>
       </widget>
      </widget>
+     <widget class="QPushButton" name="pushButton_load_selected_csv">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>91</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Load selected</string>
+      </property>
+     </widget>
      <zorder>frame</zorder>
      <zorder>pushButton_delete100</zorder>
      <zorder>pushButton_deleteSelected</zorder>
      <zorder>pushButton_delete500</zorder>
      <zorder>pushButton_merge_selected</zorder>
+     <zorder>pushButton_load_selected_csv</zorder>
     </widget>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>Collect</string>
+      <string>Requests</string>
      </attribute>
      <attribute name="toolTip">
       <string>Collect Tweets from tweeter</string>
@@ -227,24 +241,11 @@ color: rgb(255, 255, 255);</string>
      <attribute name="toolTip">
       <string>Analyze loaded DF</string>
      </attribute>
-     <widget class="QPushButton" name="pushButton_load_selected_csv">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>91</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Load selected</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="pushButton_export_DF">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
+        <y>10</y>
         <width>91</width>
         <height>23</height>
        </rect>
@@ -259,10 +260,10 @@ color: rgb(255, 255, 255);</string>
      <widget class="QLineEdit" name="lineEdit_DF_comment">
       <property name="geometry">
        <rect>
-        <x>122</x>
-        <y>40</y>
-        <width>121</width>
-        <height>20</height>
+        <x>110</x>
+        <y>10</y>
+        <width>133</width>
+        <height>23</height>
        </rect>
       </property>
       <property name="toolTip">
@@ -294,7 +295,39 @@ color: rgb(255, 255, 255);</string>
         </rect>
        </property>
        <property name="text">
-        <string>Filter:</string>
+        <string>Filter df:</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_export_DF_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Save DF to .csv File</string>
+       </property>
+       <property name="text">
+        <string>Lang PL</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_export_DF_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Save DF to .csv File</string>
+       </property>
+       <property name="text">
+        <string>Lang En</string>
        </property>
       </widget>
      </widget>
