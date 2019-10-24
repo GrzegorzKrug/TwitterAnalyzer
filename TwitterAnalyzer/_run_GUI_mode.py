@@ -11,6 +11,7 @@ import traceback
 import sys
 import os
 import pandas as pd
+import time
 
 
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
@@ -75,6 +76,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         for line in self.plainTextEdit_info.toPlainText().split('\n'):
             text += '\n\t' + line
         self.log_ui(text)
+        time.sleep(0.8)
 
     def clear_log(self):
         self.textEdit_log.setPlainText('')
