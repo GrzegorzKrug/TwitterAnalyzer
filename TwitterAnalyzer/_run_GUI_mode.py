@@ -1,8 +1,8 @@
 # _run_GUI_mode.py
 # Grzegorz Krug
 from PyQt5 import QtCore, QtWidgets # QtGui
-from TwitterAnalyzer import TwitterAnalyzer
-from GUI import Ui_MainWindow
+from Analyzer.Analyzer import TwitterAnalyzer
+from GUI.GUI import Ui_MainWindow
 #import random
 #import time
 import datetime
@@ -15,7 +15,7 @@ import time
 
 
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
-    def __init__(self, mainWindow):        
+    def __init__(self, mainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(mainWindow)
         TwitterAnalyzer.__init__(self, autologin=True, log_ui=self.log_ui)
@@ -23,7 +23,6 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self._init_wrappers()
         self._init_triggers()
         self.refresh_gui()
-
         self._loaded_files = []
 
     def _init_triggers(self):
@@ -218,7 +217,7 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.show_tree()
 
     def show_tree(self):
-        path = os.path.dirname(__file__) + '\\' + self._data_dir
+        path = self._data_dir
         model = QtWidgets.QFileSystemModel()
         model.setRootPath(path)
         self.treeView.setModel(model)

@@ -3,7 +3,7 @@
 import requests
 import json
 import twitter
-
+import os
 
 class TwitterApi(twitter.Api):
     def __init__(self, autologin=True):
@@ -33,7 +33,14 @@ class TwitterApi(twitter.Api):
     def _autologin_from_file(self):
         api = None
         try:
-            with open('secret_token.txt', 'rt') as token_file:
+            #print(os.getcwd())
+            HERE = os.path.basename(os.path.dirname(__file__))
+            if HERE == 'Analyzer':
+                file_path = os.path.dirname(__file__) + '\\' + 'secret_token.txt'
+            else:
+                raise ValueError('Why is path false now?')
+
+            with open(file_path, 'rt') as token_file:
                 data = json.load(token_file)
                 consumer_key = data['consumer_key']
                 consumer_secret = data['consumer_secret']

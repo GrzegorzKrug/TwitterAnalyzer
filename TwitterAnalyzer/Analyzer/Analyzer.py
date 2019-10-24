@@ -5,19 +5,23 @@ import json
 import time
 import os
 import pandas as pd
-from TwitterApi import TwitterApi, TwitterLoginFailed
 import datetime
 import glob
 import threading
+from TwitterAnalyzer.Analyzer.TwitterApi import TwitterApi
 
 
 class TwitterAnalyzer(TwitterApi):
     def __init__(self, autologin=True, log_ui=None):
         TwitterApi.__init__(self, autologin=False)
 
-        self._data_dir = 'tweets'
-        self.log_ui_ref = log_ui
+        if os.path.basename(os.getcwd()) == 'Analyzer':
+            self._data_dir = os.path.dirname(os.getcwd()) + '\\' + 'tweets'
+        else:
+            self._data_dir = 'tweets'
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
+
+        self.log_ui_ref = log_ui
         self.DF = None
         self.loaded_to_DF = []
         
