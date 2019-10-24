@@ -16,8 +16,8 @@ import pandas as pd
 class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def __init__(self, mainWindow):        
         Ui_MainWindow.__init__(self)
-        TwitterAnalyzer.__init__(self, autologin=True, log_ui=self.log_ui)
         self.setupUi(mainWindow)
+        TwitterAnalyzer.__init__(self, autologin=True, log_ui=self.log_ui)
 
         self._init_wrappers()
         self._init_triggers()
@@ -29,19 +29,22 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.actionLogin.triggered.connect(self.login_to_twitter_ui)
         self.actionWho_am_I.triggered.connect(self.pop_window)
         self.actionRefresh_GUI.triggered.connect(self.refresh_gui)
-        self.label_login_status.mousePressEvent = self.update_status
+
+        # self.label_login_status.mousePressEvent = self.update_status
 
         self.pushButton_collect1.clicked.connect(self.collect_tweets_ui)
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
+        self.pushButton_load_selected_csv_2.clicked.connect(self.load_selected)
         self.pushButton_clear_log.clicked.connect(self.clear_log)
         self.pushButton_delete100.clicked.connect(lambda: self.delete_less(100))
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
         self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
         self.pushButton_merge_selected.clicked.connect(self.merge_selected)
         self.pushButton_export_DF.clicked.connect(lambda: self.save_current_DF(self.lineEdit_DF_comment.text()))
-        self.pushButton_Info_screenLog.clicked.connect(lambda: self.log_ui( '=== Info:' + '\n'
-                                                                            + self.plainTextEdit_info.toPlainText()))
+        self.pushButton_Info_screenLog.clicked.connect(self.copyInfoToLog)
+        self.pushButton_showTweets.clicked.connect(self.showDF)
+        self.pushButton_reload_DF.clicked.connect(self.reloadDF)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_status)
@@ -67,6 +70,12 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         valid = self.collect_new_tweets(n=1, chunk_size=200, interval=0)
         return valid
 
+    def copyInfoToLog(self):
+        text = '=== Info:'
+        for line in self.plainTextEdit_info.toPlainText().split('\n'):
+            text += '\n\t' + line
+        self.log_ui(text)
+
     def clear_log(self):
         self.textEdit_log.setPlainText('')
 
@@ -88,6 +97,11 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
             else:
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
         return good_files
+
+    def display_add(self, text):
+        old_text = self.plainTextEdit_info.toPlainText()
+        text = old_text + '\n' + text
+        self.plainTextEdit_info.setPlainText(text)
 
     def display(self, text):
         self.plainTextEdit_info.setPlainText(text)
@@ -129,7 +143,9 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
     def load_selected(self):
         files = self.current_tree_selection()
         self.load_DF(files)
-        self.log_ui(f'DF size: {self.DF.shape}')
+        if self.DF is not None:
+            self.display(f'DF size: {self.DF.shape}')
+            self.display_add(str(self.DF.head()))
 
     def log_ui(self, text_line):
         print(text_line)
@@ -210,6 +226,15 @@ class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
         self.treeView.setColumnWidth(2, 10*8)
         self.treeView.setColumnWidth(3, 15*8)
         # self.treeView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)  # its defined in GUI.py
+
+    def showDF(self):
+        if self.DF is None:
+            self.log_ui('DF is None!')
+            return None
+        else:
+            self.display(f'DF size: {self.DF.shape}')
+            self.display_add(str(self.DF.head()))
+
 
     def show_user_info(self, user_data):
         text = ''
