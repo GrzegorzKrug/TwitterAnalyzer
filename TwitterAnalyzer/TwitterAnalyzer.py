@@ -13,13 +13,17 @@ import threading
 
 class TwitterAnalyzer(TwitterApi):
     def __init__(self, autologin=True, log_ui=None):
-        TwitterApi.__init__(self, autologin=autologin)
+        TwitterApi.__init__(self, autologin=False)
 
         self._data_dir = 'tweets'
         self.log_ui_ref = log_ui
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
         self.DF = None
         self.loaded_to_DF = []
+        
+        if autologin:
+            valid, text = self._login_procedure()
+            self.log_ui(text)
 
     @staticmethod
     def add_timestamp_attr(tweet):
@@ -54,10 +58,12 @@ class TwitterAnalyzer(TwitterApi):
                         self.log_ui('\tMissing Tweets! Got {}, expected {}'.format(len(home_twetts), str(chunk_size)))
                     if home_twetts:
                         for i, tweet in enumerate(home_twetts):
+                            # if tweet['id_str'][-1] == '0':
+                            #     print(tweet)
                             self.add_timestamp_attr(tweet)
                             self.export_tweet_to_database(self._data_dir, tweet, filename)
                     else:
-                        pass  # print("No tweets, None object received.")
+                        self.log_ui("No tweets, None object received.")
                 except twitter.error.TwitterError as e:
                     self.log_ui(e)
                     print('Repeating chunk {} / {} after 25s.'.format(ch, n))
@@ -137,15 +143,18 @@ class TwitterAnalyzer(TwitterApi):
                         file.write(';')
                 file.write('\n')
         try:
-            with open(file_path, 'a', encoding='utf8') as file:
+            with open(file_path, 'at', encoding='utf8') as file:
                 for i, key in enumerate(header):
                     try:
                         text = str(tweet.get(key, 'n/a'))
                         for char in ['\n', ';', '\r']:
                             text = text.replace(char, '')
+                        # if key == 'text':
+                        #     text = text.lower()
                         file.write(text)
                     except UnicodeEncodeError:
                         file.write('UnicodeEncodeError')
+
                     if i < len(header)-1:
                         file.write(';')
                 file.write('\n')
@@ -194,16 +203,17 @@ class TwitterAnalyzer(TwitterApi):
     def load_DF(self, file_list):
         self.DF = None
         self.loaded_to_DF = []
-
+        text = 'Loading Tweets:'
         for file in file_list:
             file_path = self._data_dir + '\\' + file
             df = pd.read_csv(file_path, sep=';', encoding='utf8')
             self.loaded_to_DF += [file]
+            text += f'\n\t {file}'
             if self.DF is None:
                 self.DF = df
             else:
                 self.DF = pd.concat([self.DF, df])
-            self.log_ui_ref(f'Loading csv: {file}')
+        self.log_ui(text)
 
     def log_ui(self, text):
         print(text)
@@ -219,6 +229,21 @@ class TwitterAnalyzer(TwitterApi):
               + f'-{now.minute}'.ljust(3, '0') \
               + f'-{now.second}'.ljust(3, '0')
         return text
+
+    def reloadDF(self):
+        self.DF = None
+        text = 'Reloading Tweets'
+        for file in self.loaded_to_DF:
+            file_path = self._data_dir + '\\' + file
+            df = pd.read_csv(file_path, sep=';', encoding='utf8')
+            text += f'\n\t {file}'
+            if self.DF is None:
+                self.DF = df
+            else:
+                self.DF = pd.concat([self.DF, df])
+
+        self.log_ui(text)
+
 
     def save_current_DF(self, extraText=None):
         if extraText:
