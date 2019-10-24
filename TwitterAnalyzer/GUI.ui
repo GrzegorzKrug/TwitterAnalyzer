@@ -19,8 +19,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>431</width>
-      <height>301</height>
+      <width>481</width>
+      <height>311</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -270,13 +270,13 @@ color: rgb(255, 255, 255);</string>
        <string>You can Add some comment to file name</string>
       </property>
      </widget>
-     <widget class="QFrame" name="frame_2">
+     <widget class="QFrame" name="frame_4">
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>150</y>
-        <width>111</width>
-        <height>121</height>
+        <y>100</y>
+        <width>311</width>
+        <height>191</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -285,24 +285,143 @@ color: rgb(255, 255, 255);</string>
       <property name="frameShadow">
        <enum>QFrame::Sunken</enum>
       </property>
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="label_6">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>10</y>
-         <width>47</width>
-         <height>13</height>
+         <x>0</x>
+         <y>0</y>
+         <width>91</width>
+         <height>20</height>
         </rect>
        </property>
        <property name="text">
-        <string>Filter df:</string>
+        <string>Filter DF</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_export_DF_6">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Save DF to .csv File</string>
+       </property>
+       <property name="text">
+        <string>User</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_DF_comment_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>You can Add some comment to file name</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_export_DF_10">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>20</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Save DF to .csv File</string>
+       </property>
+       <property name="text">
+        <string>TweetId</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_DF_comment_6">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>50</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>You can Add some comment to file name</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_export_DF_11">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>80</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Save DF to .csv File</string>
+       </property>
+       <property name="text">
+        <string>Words</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_export_DF_9">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Save DF to .csv File</string>
+       </property>
+       <property name="text">
+        <string>Text</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_DF_comment_7">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>You can Add some comment to file name</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_DF_comment_5">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>110</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>You can Add some comment to file name</string>
        </property>
       </widget>
       <widget class="QPushButton" name="pushButton_export_DF_2">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>30</y>
+         <x>210</x>
+         <y>20</y>
          <width>91</width>
          <height>23</height>
         </rect>
@@ -317,8 +436,8 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_export_DF_3">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>60</y>
+         <x>210</x>
+         <y>50</y>
          <width>91</width>
          <height>23</height>
         </rect>
@@ -331,6 +450,110 @@ color: rgb(255, 255, 255);</string>
        </property>
       </widget>
      </widget>
+     <widget class="QFrame" name="frame_3">
+      <property name="geometry">
+       <rect>
+        <x>310</x>
+        <y>0</y>
+        <width>171</width>
+        <height>291</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <widget class="QPushButton" name="pushButton_load_selected_csv_2">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>0</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Loads files from tree.</string>
+       </property>
+       <property name="text">
+        <string>Load selected</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_reload_DF">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>30</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Reload DF from same files again.</string>
+       </property>
+       <property name="text">
+        <string>Reload DF</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_showTweets">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>60</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Shows currently loaded DF</string>
+       </property>
+       <property name="text">
+        <string>Show DF</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="pushButton_export_DF_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>91</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Split DF into X pieces and save.</string>
+      </property>
+      <property name="text">
+       <string>Split DF</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_DF_comment_3">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>40</y>
+        <width>31</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Number of pieces to split.</string>
+      </property>
+      <property name="text">
+       <string>2</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>NN Model</string>
+     </attribute>
     </widget>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -349,9 +572,9 @@ color: rgb(255, 255, 255);</string>
    <widget class="QTreeView" name="treeView">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>500</x>
       <y>30</y>
-      <width>481</width>
+      <width>441</width>
       <height>281</height>
      </rect>
     </property>
@@ -394,9 +617,9 @@ color: rgb(255, 255, 255);</string>
    <widget class="QTextEdit" name="textEdit_log">
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>500</x>
       <y>350</y>
-      <width>431</width>
+      <width>441</width>
       <height>361</height>
      </rect>
     </property>
@@ -404,6 +627,12 @@ color: rgb(255, 255, 255);</string>
      <font>
       <family>Lucida Console</family>
      </font>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
     <property name="verticalScrollBarPolicy">
      <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -441,9 +670,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="pushButton_Info_screenLog">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>360</x>
       <y>320</y>
-      <width>101</width>
+      <width>121</width>
       <height>23</height>
      </rect>
     </property>
@@ -451,7 +680,7 @@ p, li { white-space: pre-wrap; }
      <string notr="true"/>
     </property>
     <property name="text">
-     <string>Copy info To Log</string>
+     <string>Copy info To Log -&gt;</string>
     </property>
    </widget>
   </widget>
