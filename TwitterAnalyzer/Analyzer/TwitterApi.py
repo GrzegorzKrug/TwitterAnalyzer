@@ -33,12 +33,7 @@ class TwitterApi(twitter.Api):
     def _autologin_from_file(self):
         api = None
         try:
-            #print(os.getcwd())
-            HERE = os.path.basename(os.path.dirname(__file__))
-            if HERE == 'Analyzer':
-                file_path = os.path.dirname(__file__) + '\\' + 'secret_token.txt'
-            else:
-                raise ValueError('Why is path false now?')
+            file_path = os.path.dirname(__file__) + '\\' + 'secret_token.txt'
 
             with open(file_path, 'rt') as token_file:
                 data = json.load(token_file)

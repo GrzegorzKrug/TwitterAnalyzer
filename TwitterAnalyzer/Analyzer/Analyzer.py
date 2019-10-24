@@ -15,10 +15,7 @@ class TwitterAnalyzer(TwitterApi):
     def __init__(self, autologin=True, log_ui=None):
         TwitterApi.__init__(self, autologin=False)
 
-        if os.path.basename(os.getcwd()) == 'Analyzer':
-            self._data_dir = os.path.dirname(os.getcwd()) + '\\' + 'tweets'
-        else:
-            self._data_dir = 'tweets'
+        self._data_dir = os.path.dirname(os.path.dirname(__file__)) + '\\' + 'tweets'
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
         self.log_ui_ref = log_ui
