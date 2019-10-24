@@ -27,6 +27,8 @@ Python Application for improving twitter content and quality of usage
 	- [x] Save DF
 - [ ] Analzye Tweets
 	- [ ] Count Comments / Reactions
+	- [ ] Normalize Tweets
+		- [ ] Text lowercase
 	- [ ] Analyze changes in time
 		- [ ] Same id post
 		- [ ] RT impact
