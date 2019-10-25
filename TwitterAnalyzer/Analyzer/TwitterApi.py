@@ -20,16 +20,12 @@ class TwitterApi:
         if autologin:
             valid, text = self._login_procedure()
             print(text)
-            if valid:
-                self.logged_in = True
 
     def _login_procedure(self):
-        self.logged_in, self.me, message = self._verifyOAuth()
-        if self.logged_in:
-            text = 'Logged in succesfuly as {}.'.format(self.me['screen_name'])
-            return True, text
-        else:
-            return False, message
+        valid, self.me, message = self._verifyOAuth()
+        if valid:
+            self.logged_in = True
+        return valid, message
 
     def _verifyOAuth(self):
         try:
@@ -48,13 +44,12 @@ class TwitterApi:
                               consumer_secret,
                               access_token_key,
                               access_token_secret)
-                ressponse = requests.get(url, auth=auth)
+                response = requests.get(url, auth=auth)
                 try:
-                    self.verify_response(ressponse.status_code)
-                    message = 'Logged in succesfuly'
+                    self.verify_response(response.status_code)
                     self.auth = auth
-
-                    return True, ressponse.json(), message
+                    me = response.json()
+                    return True, me, f'Logged in successfully as {me["screen_name"]}'
                 except Unauthorized:
                     return False, None, 'Authorization failed! Invalid or expired token.'
 
@@ -75,6 +70,27 @@ class TwitterApi:
         #     return False, api, "Invalid or expired token!"
         #
         # return True, api, message
+
+    def collectHomeLine(self, chunk_size=200):
+        if not self.logged_in:
+            raise Unauthorized('Authentication not verified!')
+        if chunk_size < 0:
+            chunk_size = 1
+        elif chunk_size > 200:
+            chunk_size = 200
+
+        params = {'count': chunk_size}
+        fullUrl = self.apiUrl + r'/statuses/home_timeline.json'
+        valid, tweetsList = self.make_request(fullUrl, params=params)
+        if valid:
+            return tweetsList
+        else:
+            return None
+
+    def make_request(self, fullUrl, params=None, header=None):
+        response = requests.get(fullUrl, header=header, params=params, auth=self.auth)
+        if self.verify_response(response.status_code):
+            return True, response.json()
 
     @staticmethod
     def verify_response(resp_code):

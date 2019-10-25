@@ -9,6 +9,7 @@ import datetime
 import glob
 import threading
 from TwitterAnalyzer.Analyzer.TwitterApi import TwitterApi
+from TwitterAnalyzer.Analyzer.TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
 
 
 class TwitterAnalyzer(TwitterApi):
@@ -52,7 +53,7 @@ class TwitterAnalyzer(TwitterApi):
             ch = 1
             while ch < n + 1:
                 try:
-                    home_twetts = self.CollectHome(chunk_size)
+                    home_twetts = self.collectHomeLine(chunk_size=chunk_size)
                     if ch == 1:
                         self.log_ui('New tweets -> {}'.format(filename + '.csv'))
                     if len(home_twetts) != chunk_size:
@@ -65,13 +66,13 @@ class TwitterAnalyzer(TwitterApi):
                             self.export_tweet_to_database(self._data_dir, tweet, filename)
                     else:
                         self.log_ui("No tweets, None object received.")
-                except twitter.error.TwitterError as e:
+                except TooManyRequests as e:
                     self.log_ui(e)
                     print('Repeating chunk {} / {} after 25s.'.format(ch, n))
                     time.sleep(25)
                     continue
 
-                except TwitterLoginFailed as e:
+                except Unauthorized as e:
                     self.log_ui(str(e))
                     return False
 
