@@ -1,25 +1,26 @@
 # TwitterApi.py
 # Grzegorz Krug
 import requests
+from requests_oauthlib import OAuth1
 import json
 import twitter
 import os
 
-class TwitterApi(twitter.Api):
+
+class TwitterApi:
     def __init__(self, autologin=True):
         self._overrider(False)
-        twitter.Api.__init__(self)
         self.logged_in = False
-        self.api = None
+        self.apiUrl = r'https://api.twitter.com/1.1/'
         self.following = None
         self.me = None
-
+        self._verifyOAuth()
         if autologin:
-            valid, text = self._login_procedure()
+            valid, text = self._verifyOAuth()
             print(text)
-
-    def _get_following(self):
-        return self.api.GetFollowersPaged()[2]  # index 0,1 are empty
+            if valid:
+                self.logged_in = True
+            # self.request_me()
 
     def _login_procedure(self):
         self.logged_in, self.api, message = self._autologin_from_file()
@@ -30,8 +31,7 @@ class TwitterApi(twitter.Api):
         else:
             return False, message
 
-    def _autologin_from_file(self):
-        api = None
+    def _verifyOAuth(self):
         try:
             file_path = os.path.dirname(__file__) + '\\' + 'secret_token.txt'
 
@@ -42,30 +42,53 @@ class TwitterApi(twitter.Api):
                 access_token_key = data['access_token_key']
                 access_token_secret = data['access_token_secret']
 
-                api = twitter.Api(consumer_key=consumer_key,
-                                  consumer_secret=consumer_secret,
-                                  access_token_key=access_token_key,
-                                  access_token_secret=access_token_secret)
-                api.VerifyCredentials()
-                message = 'Logged in succesfuly'
+                url = self.apiUrl + r'/account/verify_credentials.json'
+
+                auth = OAuth1(consumer_key,
+                              consumer_secret,
+                              access_token_key,
+                              access_token_secret)
+                ressponse = requests.get(url, auth=auth)
+                try:
+                    self.verify_response(ressponse.status_code)
+                    message = 'Logged in succesfuly'
+                    return True, message
+                except Unauthorized:
+                    return False, 'Authorization failed! Invalid or expired token.'
 
         except json.decoder.JSONDecodeError:
             print("secret_token.txt is not in json format!")
-            return False, api, "secret_token.txt is not in json format!"
+            return False, "secret_token.txt is not in json format!"
 
         except KeyError:
             print("secret_token.txt is missing some keys!")
-            return False, api, "secret_token.txt is missing some keys!"
+            return False, "secret_token.txt is missing some keys!"
 
         except FileNotFoundError:
             print("secret_token.txt is missing!")
-            return False, api, "secret_token.txt is missing!"
+            return False, "secret_token.txt is missing!"
+        #
+        # except twitter.error.TwitterError:
+        #     print("Invalid or expired token!")
+        #     return False, api, "Invalid or expired token!"
+        #
+        # return True, api, message
 
-        except twitter.error.TwitterError:
-            print("Invalid or expired token!")
-            return False, api, "Invalid or expired token!"
-
-        return True, api, message
+    def verify_response(self, resp_code):
+        if resp_code == 200:
+            return True
+        # if resp_code == 400:
+        #     pass
+        elif resp_code == 401:
+            raise Unauthorized('No access to this request')
+        # elif resp_code == 402:
+        #     pass
+        elif resp_code == 404:
+            raise ApiNotFound('Error 404')
+        elif resp_code == 429:
+            raise  TooManyRequests('Error 429')
+        else:
+            raise Exception(f'Error, Response code {resp_code}')
 
     def CollectHome(self, count=200):
         try:
@@ -110,9 +133,22 @@ class TwitterApi(twitter.Api):
             print('#' * 20, 'End of overloading.', '#' * 20, '\n')
 
 
-class TwitterLoginFailed(Exception):
+class TooManyRequests(Exception):  # 429
     """Base class for Twitter errors"""
+    @property
+    def message(self):
+        '''Returns the first argument used to construct this error.'''
+        return self.args[0]
 
+class ApiNotFound(Exception):  # 404
+    """Base class for Twitter errors"""
+    @property
+    def message(self):
+        '''Returns the first argument used to construct this error.'''
+        return self.args[0]
+
+class Unauthorized(Exception):  # 401
+    """Base class for Twitter errors"""
     @property
     def message(self):
         '''Returns the first argument used to construct this error.'''
