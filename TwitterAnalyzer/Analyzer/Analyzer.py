@@ -1,6 +1,6 @@
 # TwitterAnalyzer.py
 # Grzegorz Krug
-import twitter
+# import twitter
 import json
 import time
 import os
@@ -22,7 +22,8 @@ class TwitterAnalyzer(TwitterApi):
         self.log_ui_ref = log_ui
         self.DF = None
         self.loaded_to_DF = []
-        
+
+        # self._login_procedure()
         if autologin:
             valid, text = self._login_procedure()
             self.log_ui(text)

@@ -3,7 +3,6 @@
 import requests
 from requests_oauthlib import OAuth1
 import json
-import twitter
 import os
 
 
@@ -54,16 +53,16 @@ class TwitterApi:
                     return False, None, 'Authorization failed! Invalid or expired token.'
 
         except json.decoder.JSONDecodeError:
-            print("secret_token.txt is not in json format!")
-            return False, "secret_token.txt is not in json format!"
+            print("Exception: secret_token.txt is not in json format!")
+            return False, None, "secret_token.txt is not in json format!"
 
         except KeyError:
-            print("secret_token.txt is missing some keys!")
-            return False, "secret_token.txt is missing some keys!"
+            print("Exception: secret_token.txt is missing some keys!")
+            return False, None, "secret_token.txt is missing some keys!"
 
         except FileNotFoundError:
-            print("secret_token.txt is missing!")
-            return False, "secret_token.txt is missing!"
+            print("Exception: secret_token.txt is missing!")
+            return False, None, "secret_token.txt is missing!"
         #
         # except twitter.error.TwitterError:
         #     print("Invalid or expired token!")
