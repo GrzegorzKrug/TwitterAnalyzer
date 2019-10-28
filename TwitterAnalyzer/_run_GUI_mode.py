@@ -1,7 +1,7 @@
 # _run_GUI_mode.py
 # Grzegorz Krug
 from PyQt5 import QtCore, QtWidgets # QtGui
-from Analyzer.Analyzer import TwitterAnalyzer
+from Analyzer.Analyzer import Analyzer
 from GUI.GUI import Ui_MainWindow
 #import random
 #import time
@@ -14,11 +14,11 @@ import pandas as pd
 import time
 
 
-class TwitterAnalyzerGUI(TwitterAnalyzer, Ui_MainWindow):
+class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def __init__(self, mainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(mainWindow)
-        TwitterAnalyzer.__init__(self, autologin=True, log_ui=self.log_ui)
+        Analyzer.__init__(self, autologin=True, log_ui=self.log_ui)
 
         self._init_wrappers()
         self._init_triggers()

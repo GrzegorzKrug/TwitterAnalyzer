@@ -8,11 +8,16 @@ import pandas as pd
 import datetime
 import glob
 import threading
-from TwitterAnalyzer.Analyzer.TwitterApi import TwitterApi
-from TwitterAnalyzer.Analyzer.TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
+
+if __name__ == "__main__":
+    from TwitterApi import TwitterApi
+    from TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
+else:
+    from Analyzer.TwitterApi import TwitterApi
+    from Analyzer.TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
 
 
-class TwitterAnalyzer(TwitterApi):
+class Analyzer(TwitterApi):
     def __init__(self, autologin=True, log_ui=None):
         TwitterApi.__init__(self, autologin=False)
 
@@ -296,7 +301,7 @@ class TwitterAnalyzer(TwitterApi):
 
 
 if __name__ == "__main__":
-    app = TwitterAnalyzer()
+    app = Analyzer()
     for x in range(10):
         app.collect_new_tweets(n=60, chunk_size=200, interval=60)
     input('Press key....')

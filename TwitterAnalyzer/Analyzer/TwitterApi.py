@@ -87,7 +87,7 @@ class TwitterApi:
             return None
 
     def make_request(self, fullUrl, params=None, header=None):
-        response = requests.get(fullUrl, header=header, params=params, auth=self.auth)
+        response = requests.get(fullUrl, headers=header, params=params, auth=self.auth)
         if self.verify_response(response.status_code):
             return True, response.json()
 
