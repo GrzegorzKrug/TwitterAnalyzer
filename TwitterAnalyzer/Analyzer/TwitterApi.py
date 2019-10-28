@@ -104,7 +104,7 @@ class TwitterApi:
         elif resp_code == 404:
             raise ApiNotFound('Error 404')
         elif resp_code == 429:
-            raise  TooManyRequests('Error 429')
+            raise  TooManyRequests('Error 429, too many requests.')
         else:
             raise Exception(f'Error, Response code {resp_code}')
 

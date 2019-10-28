@@ -36,12 +36,8 @@ class Analyzer(TwitterApi):
     @staticmethod
     def add_timestamp_attr(tweet):
         '''Adding time stamp to tweet dict'''
-        try:
-            setattr(tweet, 'timestamp', round(time.time()))
+        tweet['timestamp'] = round(time.time())
 
-        except AttributeError:
-            print('Attribute error')
-            tweet['timestamp'] = round(time.time())
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
@@ -74,8 +70,8 @@ class Analyzer(TwitterApi):
                         self.log_ui("No tweets, None object received.")
                 except TooManyRequests as e:
                     self.log_ui(e)
-                    print('Repeating chunk {} / {} after 25s.'.format(ch, n))
-                    time.sleep(25)
+                    print('Repeating chunk {} / {} after 21s.'.format(ch, n))
+                    time.sleep(21)
                     continue
 
                 except Unauthorized as e:
@@ -171,7 +167,7 @@ class Analyzer(TwitterApi):
                 TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
 
             th.start()
-            print('PermissionError, created background thread to save data')
+            self.log_ui('PermissionError, created background thread to save data')
             return None
 
     # @staticmethod
@@ -251,7 +247,6 @@ class Analyzer(TwitterApi):
                 self.DF = pd.concat([self.DF, df])
 
         self.log_ui(text)
-
 
     def save_current_DF(self, extraText=None):
         if extraText:
