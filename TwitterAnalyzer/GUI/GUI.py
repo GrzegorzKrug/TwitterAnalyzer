@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GUI.ui'
+# Form implementation generated from reading ui file 'GUI_QT.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.1
 #
@@ -75,6 +75,9 @@ class Ui_MainWindow(object):
 "color: rgb(255, 255, 255);")
         self.label_login_status.setAlignment(QtCore.Qt.AlignCenter)
         self.label_login_status.setObjectName("label_login_status")
+        self.pushButton_11111111111111 = QtWidgets.QPushButton(self.tab)
+        self.pushButton_11111111111111.setGeometry(QtCore.QRect(10, 100, 141, 23))
+        self.pushButton_11111111111111.setObjectName("pushButton_11111111111111")
         self.tabWidget.addTab(self.tab, "")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
@@ -186,6 +189,10 @@ class Ui_MainWindow(object):
         self.pushButton_Info_screenLog.setGeometry(QtCore.QRect(360, 320, 121, 23))
         self.pushButton_Info_screenLog.setStyleSheet("")
         self.pushButton_Info_screenLog.setObjectName("pushButton_Info_screenLog")
+        self.pushButton_check_threads = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_check_threads.setGeometry(QtCore.QRect(500, 320, 91, 23))
+        self.pushButton_check_threads.setStyleSheet("")
+        self.pushButton_check_threads.setObjectName("pushButton_check_threads")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 955, 21))
@@ -196,6 +203,8 @@ class Ui_MainWindow(object):
         self.menuAbout.setObjectName("menuAbout")
         self.menuAnalyze = QtWidgets.QMenu(self.menubar)
         self.menuAnalyze.setObjectName("menuAnalyze")
+        self.menuTask = QtWidgets.QMenu(self.menubar)
+        self.menuTask.setObjectName("menuTask")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -208,17 +217,21 @@ class Ui_MainWindow(object):
         self.actionabout.setObjectName("actionabout")
         self.actionRefresh_GUI = QtWidgets.QAction(MainWindow)
         self.actionRefresh_GUI.setObjectName("actionRefresh_GUI")
+        self.actionCheck_Status = QtWidgets.QAction(MainWindow)
+        self.actionCheck_Status.setObjectName("actionCheck_Status")
         self.menuAcc.addAction(self.actionLogin)
         self.menuAcc.addAction(self.actionWho_am_I)
         self.menuAcc.addSeparator()
         self.menuAcc.addAction(self.actionRefresh_GUI)
         self.menuAbout.addAction(self.actionabout)
+        self.menuTask.addAction(self.actionCheck_Status)
         self.menubar.addAction(self.menuAcc.menuAction())
         self.menubar.addAction(self.menuAnalyze.menuAction())
         self.menubar.addAction(self.menuAbout.menuAction())
+        self.menubar.addAction(self.menuTask.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -240,7 +253,8 @@ class Ui_MainWindow(object):
         self.pushButton_collect10.setText(_translate("MainWindow", "10 Chunks : 10mins"))
         self.label.setText(_translate("MainWindow", "Logged in:"))
         self.label_login_status.setText(_translate("MainWindow", "Not logged in"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Requests"))
+        self.pushButton_11111111111111.setText(_translate("MainWindow", "10 Chunks : 10mins"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Request"))
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Collect Tweets from tweeter"))
         self.pushButton_export_DF.setToolTip(_translate("MainWindow", "Save DF to .csv File"))
         self.pushButton_export_DF.setText(_translate("MainWindow", "Save DF"))
@@ -284,13 +298,16 @@ class Ui_MainWindow(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'MS Shell Dlg 2\';\"><br /></p></body></html>"))
         self.pushButton_clear_log.setText(_translate("MainWindow", "Clear Log"))
         self.pushButton_Info_screenLog.setText(_translate("MainWindow", "Copy info To Log ->"))
+        self.pushButton_check_threads.setText(_translate("MainWindow", "Check Threads"))
         self.menuAcc.setTitle(_translate("MainWindow", "Start"))
         self.menuAbout.setTitle(_translate("MainWindow", "About"))
         self.menuAnalyze.setTitle(_translate("MainWindow", "Analyze"))
+        self.menuTask.setTitle(_translate("MainWindow", "Task"))
         self.actionLogin.setText(_translate("MainWindow", "Login"))
         self.actionWho_am_I.setText(_translate("MainWindow", "Who am I?"))
         self.actionabout.setText(_translate("MainWindow", "about"))
         self.actionRefresh_GUI.setText(_translate("MainWindow", "Refresh GUI"))
+        self.actionCheck_Status.setText(_translate("MainWindow", "Check Status"))
 
 
 if __name__ == "__main__":

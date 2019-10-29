@@ -30,7 +30,7 @@
      <number>-1</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -166,7 +166,7 @@
     </widget>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>Requests</string>
+      <string>Request</string>
      </attribute>
      <attribute name="toolTip">
       <string>Collect Tweets from tweeter</string>
@@ -231,6 +231,19 @@ color: rgb(255, 255, 255);</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_11111111111111">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>100</y>
+        <width>141</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>10 Chunks : 10mins</string>
       </property>
      </widget>
     </widget>
@@ -683,6 +696,22 @@ p, li { white-space: pre-wrap; }
      <string>Copy info To Log -&gt;</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_check_threads">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>320</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>Check Threads</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -713,9 +742,16 @@ p, li { white-space: pre-wrap; }
      <string>Analyze</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuTask">
+    <property name="title">
+     <string>Task</string>
+    </property>
+    <addaction name="actionCheck_Status"/>
+   </widget>
    <addaction name="menuAcc"/>
    <addaction name="menuAnalyze"/>
    <addaction name="menuAbout"/>
+   <addaction name="menuTask"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLogin">
@@ -736,6 +772,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionRefresh_GUI">
    <property name="text">
     <string>Refresh GUI</string>
+   </property>
+  </action>
+  <action name="actionCheck_Status">
+   <property name="text">
+    <string>Check Status</string>
    </property>
   </action>
  </widget>

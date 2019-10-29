@@ -270,6 +270,6 @@ class Analyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = Analyzer()
-    for x in range(1):
-        app.collect_new_tweets(n=1, chunk_size=10, interval=60)
+    for x in range(10):
+        app.collect_new_tweets(n=60, chunk_size=200, interval=60)
     input('Press key....')

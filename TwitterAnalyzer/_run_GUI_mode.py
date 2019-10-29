@@ -24,6 +24,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self._init_triggers()
         self.refresh_gui()
         self._loaded_files = []
+        self.threads = []
+        self.th_num = 0
 
     def _init_triggers(self):
         self.actionLogin.triggered.connect(self.login_to_twitter_ui)
@@ -32,7 +34,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
         # self.label_login_status.mousePressEvent = self.update_status
 
-        self.pushButton_collect1.clicked.connect(self.collect_tweets_ui)
+        self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.downloadFullChunk))
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
         self.pushButton_load_selected_csv_2.clicked.connect(self.load_selected)
@@ -45,9 +47,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_Info_screenLog.clicked.connect(self.copyInfoToLog)
         self.pushButton_showTweets.clicked.connect(self.showDF)
         self.pushButton_reload_DF.clicked.connect(self.reloadDF)
-
+        self.pushButton_check_threads.clicked.connect(self.check_threads)
+        
     def _init_wrappers(self):
-        self._login_procedure = self.post_action(self._login_procedure, self.update_status)
+        self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -66,9 +69,20 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     #         self.log_ui(str('x :{}'.format(x)))
     #         # time.sleep(0.2)
 
-    def collect_tweets_ui(self):
-        valid = self.collect_new_tweets(n=1, chunk_size=200, interval=0)
-        return valid
+    def check_threads(self):
+        threads = self.threads
+        self.threads = []
+        for th in threads:
+            if th.isAlive():
+                self.log_ui(f'{th.__name__} is still alive')
+                self.threads += [th]
+            else:
+                self.log_ui(f'{th.__name__} is finished, removing from list')
+
+    @staticmethod
+    def downloadFullChunk():
+        app = Analyzer()
+        app.collect_new_tweets(n=1, chunk_size=200, interval=0)        
 
     def copyInfoToLog(self):
         text = '=== Info:'
@@ -123,7 +137,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     @staticmethod
     def download10_chunks():
-        app = TwitterAnalyzer()
+        app = Analyzer()
         # try:
         #     if kwargs['parent']:
         #         print('TRUE parent')
@@ -132,13 +146,17 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         #         app.log_ui = kwargs['parent'].log_ui
         # except KeyError:
         #     pass
-        app.collect_new_tweets(n=10, chunk_size=200, interval=60)
+        app.collect_new_tweets(n=2, chunk_size=200, interval=5)
 
     # @staticmethod
     def fork_method(self, method_to_fork, *args, **kwargs):
-        self.log_ui(f'New Thread: {method_to_fork.__name__}')
+        
         subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
+        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
+        self.log_ui(f'New Thread: {subprocess.__name__}')
         subprocess.start()
+        self.threads += [subprocess]
+        self.th_num += 1
         return subprocess
 
     def load_selected(self):
@@ -149,6 +167,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.display_add(str(self.DF.head()))
 
     def log_ui(self, text_line):
+        text_line = str(text_line)
         print(text_line)
         text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
         text = self.add_timestamp_to_text(text)
@@ -213,7 +232,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         msg.exec()
 
     def refresh_gui(self):
-        self.update_status()
+        self.update_loginBox()
         self.show_tree()
 
     def show_tree(self):
@@ -244,7 +263,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             text += str(key + ':').ljust(20) + str(user_data[key]) + '\n'
         self.display(text)
 
-    def update_status(self):
+    def update_loginBox(self):
         if self.logged_in:
             self.label_login_status.setText('True')
             self.label_login_status.setStyleSheet("background-color: rgb(30, 255, 180);")
