@@ -94,10 +94,10 @@ class TwitterApi:
             return True, response.json()
         else:
             return False, None
-
+    
     def request_status(self, statusID):        
         fullUrl = self.apiUrl + r'/statuses/show.json'
-        params={'id':statusID}
+        params={'id':int(statusID)}
         valid, data = self.make_request(fullUrl, params=params)    
         return data
         
