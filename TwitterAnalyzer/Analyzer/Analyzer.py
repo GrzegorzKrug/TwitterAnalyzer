@@ -94,6 +94,45 @@ class Analyzer(TwitterApi):
             # text = 'Finished -> {}'.format(filename + '.csv')
             # print(text)
 
+    def collect_status(self, statusList, filename=None):
+        '''Requests all status from List'''
+        if type(statusList) is not list:
+            raise TypeError
+        try:
+            if filename is None:
+                now = self.nowAsText()
+                filename = f"parentTweets_{now}"
+            st = 0
+            n = len(statusList)
+            while st < n:
+                try:
+                    this_st = self.request_status(statusList[st])
+                    if st == 0:
+                        self.log_ui('ParentTweets -> {}'.format(filename + '.csv'))                    
+                    if this_st:
+                        self.add_timestamp_attr(this_st)
+                        self.export_tweet_to_database(self._data_dir, this_st, filename)
+                        
+                    else:
+                        self.log_ui("No tweets, None object received.")
+                except TooManyRequests as e:
+                    self.log_ui(e)
+                    print('Repeating {} / {} after 10s.'.format(st+1, n))
+                    time.sleep(10)
+                    continue
+
+                except Unauthorized as e:
+                    self.log_ui(str(e))
+                    return False
+
+                text = ('\tStatus saved: {} / {}'.format(st+1, n))                
+                self.log_ui(text)                
+                st += 1
+            return True
+        
+        finally:
+            pass
+            
     def delete_csv(self, filelist):
         'Removes tweets_ only !'
         if type(filelist) is str:
@@ -197,7 +236,8 @@ class Analyzer(TwitterApi):
         if self.log_ui_ref:
             self.log_ui_ref(text)
 
-    def nowAsText(self):
+    @staticmethod
+    def nowAsText():
         now = datetime.datetime.now()
         text = f'{now.year}'.ljust(4, '0') \
               + f'{now.month}'.ljust(2, '0') \
@@ -209,15 +249,23 @@ class Analyzer(TwitterApi):
 
     def reloadDF(self):
         self.DF = None
-        text = 'Reloading Tweets'
+        text = 'Reloading Tweets:'
+        if not self.loaded_to_DF:
+            self.log_ui('Never loaded anything!')
+            return False
+        
         for file in self.loaded_to_DF:
             file_path = self._data_dir + '\\' + file
-            df = pd.read_csv(file_path, sep=';', encoding='utf8')
-            text += f'\n\t {file}'
-            if self.DF is None:
-                self.DF = df
-            else:
-                self.DF = pd.concat([self.DF, df])
+            try:
+                df = pd.read_csv(file_path, sep=';', encoding='utf8')
+                text += f'\n\t {file}'
+                if self.DF is None:
+                    self.DF = df
+                else:
+                    self.DF = pd.concat([self.DF, df])
+            except FileNotFoundError:
+                text += f'Missing file: {file}'
+                continue
 
         self.log_ui(text)
 
@@ -270,6 +318,15 @@ class Analyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = Analyzer()
-    for x in range(10):
-        app.collect_new_tweets(n=60, chunk_size=200, interval=60)
+    dumy_list = [1189259569060597762,
+                 1189259544188338176,
+                 1189259542049312775,
+                 1189259512496214016,
+                 1189259510906527744,
+                 1189259438840074242,
+                 1189259430489133057,
+                 1189259415108685824,
+                 1189259380824428547]
+
+    app.collect_status(dumy_list)
     input('Press key....')

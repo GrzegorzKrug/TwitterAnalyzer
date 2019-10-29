@@ -71,7 +71,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def check_threads(self):
         threads = self.threads
-        self.threads = []
+        if self.threads == []:
+            self.log_ui(f'All tasks are complete')
+            return False
+        
+        self.threads = []        
         for th in threads:
             if th.isAlive():
                 self.log_ui(f'{th.__name__} is still alive')
@@ -105,10 +109,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         good_files = []
         for file in files_list:
             if file[-4:] == '.csv' or ignore_extension:
-                if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
-                    good_files += [file]
-                else:
-                    self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
+                good_files += [file]
+##                if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
+##                    good_files += [file]
+##                else:
+##                    self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
             else:
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
         return good_files
