@@ -28,7 +28,6 @@ class Analyzer(TwitterApi):
         self.DF = None
         self.loaded_to_DF = []
 
-        # self._login_procedure()
         if autologin:
             valid, text = self._login_procedure()
             self.log_ui(text)
@@ -135,7 +134,7 @@ class Analyzer(TwitterApi):
                   'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
                   'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
                   'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
-                  'retweeted', 'retweeted_status', 'scopes', 'source', 'text', 'truncated', 'urls',
+                  'retweeted', 'retweeted_status', 'scopes', 'source', 'full_text', 'truncated', 'urls',
                   'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
                   'withheld_scope', 'tweet_mode']
 
@@ -169,32 +168,6 @@ class Analyzer(TwitterApi):
             th.start()
             self.log_ui('PermissionError, created background thread to save data')
             return None
-
-    # @staticmethod
-    # def export_tweet_to_jsonbase(_data_dir, tweet, filename='default', delay=0):
-    #     if delay > 0:
-    #         time.sleep(delay)
-    #
-    #     if type(filename) != str:
-    #         raise TypeError('File name is not string!')
-    #     file_path = _data_dir + '\\' + filename + '.json'
-    #     header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
-    #               'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
-    #               'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
-    #               'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
-    #               'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
-    #               'retweeted', 'retweeted_status', 'scopes', 'source', 'text', 'truncated', 'urls',
-    #               'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
-    #               'withheld_scope', 'tweet_mode']
-    #     try:
-    #         with open(file_path, 'a', encoding='utf8') as file:
-    #             json.dump(tweet, file, indent=4)
-    #
-    #     except PermissionError:
-    #         th = threading.Thread(
-    #             target=lambda: TwitterAnalyzer.export_tweet_to_jsonbase(_data_dir, tweet, filename, 15))
-    #         th.start()
-    #         print('PermissionError, created background thread to save data')
 
     def find_local_tweets(self, path=None):
         if path:
@@ -271,8 +244,8 @@ class Analyzer(TwitterApi):
         def add_data(query, new_query=None):
             if new_query is None:
                 new_query = query
-
             out[new_query] = tweet[query]
+            
         out = {}
         add_data('text')
         add_data('lang')
@@ -298,5 +271,5 @@ class Analyzer(TwitterApi):
 if __name__ == "__main__":
     app = Analyzer()
     for x in range(1):
-        app.collect_new_tweets(n=1, chunk_size=200, interval=60)
+        app.collect_new_tweets(n=1, chunk_size=10, interval=60)
     input('Press key....')

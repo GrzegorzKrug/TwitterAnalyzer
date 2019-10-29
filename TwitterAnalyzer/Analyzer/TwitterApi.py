@@ -80,17 +80,27 @@ class TwitterApi:
 
         params = {'count': chunk_size}
         fullUrl = self.apiUrl + r'/statuses/home_timeline.json'
-        valid, tweetsList = self.make_request(fullUrl, params=params)
-        if valid:
-            return tweetsList
-        else:
-            return None
+        valid, data = self.make_request(fullUrl, params=params)
+        return data
 
     def make_request(self, fullUrl, params=None, header=None):
+        if params is None:
+            params = {}
+            
+        params.update({'tweet_mode':'extended'})
         response = requests.get(fullUrl, headers=header, params=params, auth=self.auth)
+        
         if self.verify_response(response.status_code):
             return True, response.json()
+        else:
+            return False, None
 
+    def request_status(self, statusID):        
+        fullUrl = self.apiUrl + r'/statuses/show.json'
+        params={'id':statusID}
+        valid, data = self.make_request(fullUrl, params=params)    
+        return data
+        
     @staticmethod
     def verify_response(resp_code):
         if resp_code == 200:
@@ -177,3 +187,6 @@ class TooManyRequests(Exception):  # 429
 
 if __name__ == "__main__":
     app = TwitterApi()
+    r = app.collectHomeLine()
+    app.request_status(1188957411794653186)
+    
