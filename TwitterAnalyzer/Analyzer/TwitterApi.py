@@ -83,11 +83,11 @@ class TwitterApi:
         valid, data = self.make_request(fullUrl, params=params)
         return data
 
-    def make_request(self, fullUrl, params=None, header=None):
+    def make_request(self, fullUrl, params=None, header=None, extended=True):
         if params is None:
             params = {}
-            
-        params.update({'tweet_mode':'extended'})
+        if extended:
+            params.update({'tweet_mode':'extended'})
         response = requests.get(fullUrl, headers=header, params=params, auth=self.auth)
         
         if self.verify_response(response.status_code):
@@ -187,6 +187,6 @@ class TooManyRequests(Exception):  # 429
 
 if __name__ == "__main__":
     app = TwitterApi()
-    r = app.collectHomeLine()
-    app.request_status(1188957411794653186)
-    
+
+
+   
