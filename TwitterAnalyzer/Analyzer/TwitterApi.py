@@ -4,7 +4,7 @@ import requests
 from requests_oauthlib import OAuth1, OAuth1Session
 import json
 import os
-from PIL import Image as IM
+#from PIL import Image as IM
 
 class TwitterApi:
     def __init__(self, autologin=True):
