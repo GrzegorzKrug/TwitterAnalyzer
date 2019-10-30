@@ -10,6 +10,7 @@ class TwitterApi:
     def __init__(self, autologin=True):
         # self._overrider(False)
         self.apiUrl = r'https://api.twitter.com/1.1/'
+        self.apiUpload = r'https://upload.twitter.com/1.1/'
         self.logged_in = False
         self.auth = None
 
@@ -45,7 +46,7 @@ class TwitterApi:
                               access_token_secret)
                 response = requests.get(url, auth=auth)
                 try:
-                    self.verify_response(response.status_code)
+                    self.verify_response(response)
                     self.auth = auth
                     me = response.json()
                     return True, me, f'Logged in successfully as {me["screen_name"]}'
@@ -90,7 +91,7 @@ class TwitterApi:
             params.update({'tweet_mode':'extended'})
         response = requests.get(fullUrl, headers=header, params=params, auth=self.auth)
         
-        if self.verify_response(response.status_code):
+        if self.verify_response(response):
             return True, response.json()
         else:
             return False, None
@@ -109,8 +110,8 @@ class TwitterApi:
             params = {}
         if files is None:
             files = {}
-        response = requests.post(fullUrl, headers=header, params=params, auth=self.auth)
-        if self.verify_response(response.status_code):
+        response = requests.post(fullUrl, headers=header, params=params, auth=self.auth)        
+        if self.verify_response(response):
             return True, response.json()
         else:
             return False, None
@@ -136,11 +137,14 @@ class TwitterApi:
         return data
         
     @staticmethod
-    def verify_response(resp_code):
+    def verify_response(response):
+        resp_code = response.status_code
         if resp_code == 200:
             return True
-        # if resp_code == 400:
-        #     pass
+        elif resp_code == 202:
+            return True
+##        elif resp_code == 400:
+##            pass
         elif resp_code == 401:
             raise Unauthorized('No access to this request')
         # elif resp_code == 402:
@@ -149,8 +153,8 @@ class TwitterApi:
             raise ApiNotFound('Error 404')
         elif resp_code == 429:
             raise  TooManyRequests('Error 429, too many requests.')
-        else:
-            raise Exception(f'Error, Response code {resp_code}')
+        else:            
+            raise Exception(f'Error {resp_code}: {response.json()}')
 
     # def CollectHome(self, count=200):
     #     try:
@@ -221,6 +225,6 @@ class TooManyRequests(Exception):  # 429
 
 if __name__ == "__main__":
     app = TwitterApi()
-    app.post_image('220_kookaburra.png')
+    app.postLarge_image('220_kookaburra.png')
 
    
