@@ -4,16 +4,19 @@ Python Application for improving twitter content and quality of usage
 
 ## Application Status (Current plan, can be change anytime)
 
-#### API (2 / 6)
+#### API (4 / 7)
 
-- [x] Login
+- [x] Verify authorization
 - [x] Collect tweets from main page
 - [ ] Collect comments from tweets
 - [ ] Collect reactions on tweets
+- [x] Post
+	- [x] Tweets
+	- [x] Tweets with images
 - [ ] ~~Collect user followers (diffrent than me)~~ not required atm
-- [ ] Collect user tweets (diffrent than me)
-- [ ] Collect user comments (diffrent than me)
-- [ ] ~~Background Queue for requests (twitter limit)~~
+- [x] Collect user tweets (by statusid)
+- [ ] Collect user comments
+- [ ] ~~Background Queue for requests (twitter limit)~~ not here, in Analyzer
 	
 
 #### Analytic Tools (1 / 3)
