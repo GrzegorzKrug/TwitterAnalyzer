@@ -23,9 +23,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self._init_wrappers()
         self._init_triggers()
         self.refresh_gui()
-        self._loaded_files = []
-        self.threads = []
-        self.th_num = 0
+        self._loaded_files = []  # Last loaded files, for reloading
+        self.threads = []  # Thread reference list
+        self.th_num = 0  # Thread counter
+        self.currTweetDF_ind = -1 # Current tweet index from DF
 
     def _init_triggers(self):
         self.actionLogin.triggered.connect(self.login_to_twitter_ui)
@@ -46,8 +47,18 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_export_DF.clicked.connect(lambda: self.save_current_DF(self.lineEdit_DF_comment.text()))
         self.pushButton_Info_screenLog.clicked.connect(self.copyInfoToLog)
         self.pushButton_showTweets.clicked.connect(self.showDF)
-        self.pushButton_reload_DF.clicked.connect(self.reloadDF)
+        self.pushButton_reload_DF.clicked.connect(self.resetDF)
         self.pushButton_check_threads.clicked.connect(self.check_threads)
+
+        self.pushButton_ShowTweet.clicked.connect(self.showTweetfromDF)
+        self.pushButton_NextTweet.clicked.connect(self.showNextTweetfromDF)
+        self.pushButton_PreviousTweet.clicked.connect(self.showPrevTweetfromDF)
+        self.pushButton_JumpToTweet.clicked.connect(self.showTweetJump)
+
+        self.pushButton_Request_Status.clicked.connect(self.requestStatusFromBox)
+        self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterDF_Language('pl'))
+        self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.filterDF_Language('en'))
+        self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterDF_Language)
         
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
@@ -153,18 +164,30 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         #     pass
         app.collect_new_tweets(n=2, chunk_size=200, interval=5)
 
-    # @staticmethod
-    def fork_method(self, method_to_fork, *args, **kwargs):
+    def filterDF_Language(self, lang=None):
+        if lang:
+            self.filterDF_byLang(lang)
+        else:
+            lang = self.lineEdit_FilterLangOther.text()
+            lang = str(lang)
+            if lang == '':
+                self.log_ui('This is not language!')
+                return None
+            self.filterDF_byLang(lang)
+        self.showDF()
         
+    # @staticmethod
+    def fork_method(self, method_to_fork, *args, **kwargs):        
         subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
-        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
-        self.log_ui(f'New Thread: {subprocess.__name__}')
+        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__        
         subprocess.start()
+        self.log_ui(f'New Thread: {subprocess.__name__}')
         self.threads += [subprocess]
         self.th_num += 1
         return subprocess
 
     def load_selected(self):
+        self.currTweetDF_ind = -1
         files = self.current_tree_selection()
         self.load_DF(files)
         if self.DF is not None:
@@ -208,7 +231,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                     df.to_csv(f, header=True, sep=';', encoding='utf8', index=False)
                 else:
                     df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
-
                 try:
                     os.remove(self._data_dir + '\\' + file)
                 except PermissionError:
@@ -240,6 +262,20 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.update_loginBox()
         self.show_tree()
 
+    def resetDF(self):
+        self.currTweetDF_ind = -1
+        self.reloadDF()
+        self.showDF()
+
+    def requestStatusFromBox(self):
+        text = self.lineEdit_request_statusId.text()
+        try:
+            num = int(text)
+        except ValueError:
+            self.log_ui('This is not a number')
+            return None
+        self.collect_status([num])
+        
     def show_tree(self):
         path = self._data_dir
         model = QtWidgets.QFileSystemModel()
@@ -260,7 +296,62 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.display(f'DF size: {self.DF.shape}')
             self.display_add(str(self.DF.head()))
 
-
+    def showTweetJump(self):
+        if self.DF is None:
+            self.log_ui('DF not loaded!')
+            return None
+        ind_str = self.lineEdit_JumpToTweet.text()        
+        try:
+            ind = int(ind_str)
+        except ValueError:
+            self.log_ui('This is not a number')
+            return None
+        
+        if ind < 0 or ind >= len(self.DF):
+            self.log_ui(f'Index is not correct!')
+            return None        
+        self.currTweetDF_ind = ind
+        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
+        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
+            text += f'{key}:'.ljust(20) + f'{value}\n'
+        self.display(text)
+        
+    def showTweetfromDF(self):
+        if self.DF is None:
+            self.log_ui('DF not loaded!')
+            return None        
+        self.currTweetDF_ind = 0
+        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
+        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
+            text += f'{key}:'.ljust(20) + f'{value}\n'
+        self.display(text)
+                
+    def showNextTweetfromDF(self):
+        if self.DF is None:
+            self.log_ui('DF not loaded!')
+            return None
+        self.currTweetDF_ind += 1
+        if self.currTweetDF_ind < 0 or self.currTweetDF_ind >= len(self.DF):
+            self.currTweetDF_ind = 0  # First Tweet index            
+        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
+        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
+            text += f'{key}:'.ljust(20) + f'{value}\n'
+        self.display(text)
+        
+    def showPrevTweetfromDF(self):
+        if self.DF is None:
+            self.log_ui('DF not loaded!')
+            return None
+        self.currTweetDF_ind -= 1
+        if self.currTweetDF_ind < 0:
+            self.currTweetDF_ind = len(self.DF)-1  # Last Tweet index
+        elif self.currTweetDF_ind >= len(self.DF):
+            self.currTweetDF_ind = 0
+        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
+        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
+            text += f'{key}:'.ljust(20) + f'{value}\n'
+        self.display(text)
+           
     def show_user_info(self, user_data):
         text = ''
         for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',

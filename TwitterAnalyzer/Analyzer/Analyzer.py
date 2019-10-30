@@ -45,7 +45,7 @@ class Analyzer(TwitterApi):
         try:
             if filename is None:
                 now = datetime.datetime.now()
-                filename = "tweets_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".\
+                filename = "Home_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".\
                     format(y=str(now.year).rjust(4, '0'), mon=str(now.month).rjust(2, '0'),
                            d=str(now.day).rjust(2, '0'), h=str(now.hour).rjust(2, '0'),
                            m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
@@ -101,14 +101,14 @@ class Analyzer(TwitterApi):
         try:
             if filename is None:
                 now = self.nowAsText()
-                filename = f"parentTweets_{now}"
+                filename = f"Tweets_{now}"
             st = 0
             n = len(statusList)
             while st < n:
                 try:
                     this_st = self.request_status(statusList[st])
                     if st == 0:
-                        self.log_ui('ParentTweets -> {}'.format(filename + '.csv'))                    
+                        self.log_ui('Tweets -> {}'.format(filename + '.csv'))                    
                     if this_st:
                         self.add_timestamp_attr(this_st)
                         self.export_tweet_to_database(self._data_dir, this_st, filename)
@@ -121,6 +121,9 @@ class Analyzer(TwitterApi):
                     time.sleep(10)
                     continue
 
+                except ApiNotFound as e:
+                    self.log_ui(f'{e} Not Found this tweet')
+                                    
                 except Unauthorized as e:
                     self.log_ui(str(e))
                     return False
@@ -207,7 +210,12 @@ class Analyzer(TwitterApi):
             th.start()
             self.log_ui('PermissionError, created background thread to save data')
             return None
-
+        
+    def filterDF_byLang(self, lang):
+        lang = str(lang)
+        self.DF = self.DF.loc[lambda df: df['lang'] == lang]
+        self.log_ui(f'DF filtered by Language: {lang}')
+        
     def find_local_tweets(self, path=None):
         if path:
             path = os.path.abspath(path)
