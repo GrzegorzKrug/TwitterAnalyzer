@@ -4,7 +4,7 @@ import requests
 from requests_oauthlib import OAuth1
 import json
 import os
-
+from PIL import Image as IM
 
 class TwitterApi:
     def __init__(self, autologin=True):
@@ -94,7 +94,41 @@ class TwitterApi:
             return True, response.json()
         else:
             return False, None
-    
+
+    def post_image(self, imagePath):
+        fullUrl = self.apiUrl + r'/media/upload.json'
+        image = IM.open(imagePath)
+        params = {'media': image.tobytes(),
+                  'command': 'INIT',
+                  'media_category ': 'dm_image',
+                  'total_bytes': os.path.getsize(imagePath)}            
+        self.post_request(fullUrl, params=params)
+        
+    def post_request(self, fullUrl, params=None, header=None, files=None):
+        if params is None:
+            params = {}
+        if files is None:
+            files = {}
+        response = requests.post(fullUrl, headers=header, params=params, auth=self.auth)
+        if self.verify_response(response.status_code):
+            return True, response.json()
+        else:
+            return False, None
+        
+    def post_status(self, text, imagePath):
+        params = {}
+        pic_id = None
+        
+        if imageBinaryWrapper:
+            pic_id = self.post_image(imageBinaryWrapper)
+        if text:
+            params.update({'status': str(text)})
+        
+            
+        fullUrl = self.apiUrl + r'/statuses/update.json'        
+        valid, data = self.post_request(fullUrl, params=params)
+        print(data)
+         
     def request_status(self, statusID):        
         fullUrl = self.apiUrl + r'/statuses/show.json'
         params={'id':int(statusID)}
@@ -187,6 +221,6 @@ class TooManyRequests(Exception):  # 429
 
 if __name__ == "__main__":
     app = TwitterApi()
-
+    app.post_image('220_kookaburra.png')
 
    
