@@ -31,7 +31,7 @@ Python Application for improving twitter content and quality of usage
 - [ ] Analzye Tweets
 	- [ ] Count Comments / Reactions
 	- [ ] Normalize Tweets
-		- [ ] Text lowercase
+		- [ ] Lowercase text
 	- [ ] Analyze changes in time
 		- [ ] Same id post
 		- [ ] RT impact
@@ -41,15 +41,15 @@ Python Application for improving twitter content and quality of usage
 		- [ ] Suggest stop folloing 
 		- [ ] Inform about friends attitude
 	- [ ] Classify Tweets (3 Filters of Sokrates)
-		- [ ] Analyze word count
 		- [ ] Good
 		- [ ] Truth
 		- [ ] Useful
+	- [ ] Sort DF (? is this necessary ?)
 	- [ ] Train model for predictions
 - [ ] Show Tweets
 	- [ ] Decision model
 	
-#### GUI (2 / 7)
+#### GUI (3 / 8)
 
 - [ ] Buttons
 	- [x] Login, Status, Load CSVs
@@ -58,18 +58,24 @@ Python Application for improving twitter content and quality of usage
 - [x] Display CSV File Tree		
 - [ ] Threading background
 	- [x] Background requests
-	- [ ] Threads status
+	- [x] Threads status, Checking, removing refference (release memory)
 	- [ ] Threads feedback
-- [ ] Filter tweets Dataframe
-	- [ ] Filter by key and param
-		- [ ] user_id
-		- [ ] post_id
-		- [ ] by time range
-			- [ ] Time collected
-			- [ ] Tweet borned
+- [ ] Filter tweets / Dataframe
+	- [x] language
+		- [x] English
+		- [x] Polish
+		- [x] Other with input parameter
+	- [ ] user_id
+	- [ ] post_id
+	- [ ] by time range
+		- [ ] Time collected
+		- [ ] Tweet borned
 	- [ ] Filter by words included
-	- [ ] Filter 
-- [ ] Display tweets / Dataframe
+	- [ ] Filter by other parameter	
+- [x] Display tweets / Dataframe
+	- [x] Display single tweets
+	- [x] Browse tweets in current data frame
+- [ ] Display Tweet activity
 	- [ ] show comments quantity
 	- [ ] show classification prediction
 - [ ] Manage CSV files
@@ -77,12 +83,18 @@ Python Application for improving twitter content and quality of usage
 	- [x] Save current DF to file
 	- [ ] ReArange
 		- [ ] Combine CSV  groups
-			- [ ] By Lang
-			- [ ] By User
+			- [x] Combine selected
+			- [ ] Auto Combine/Filter by Lang
+			- [ ] Auto Combine/Filter by User
 			- [ ] Popular
 			- [ ] Other features
 	- [ ] Remove
 		- [ ] Old
-		- [ ] Used
+		- [ ] already used
 		- [x] Small
-	
+
+#### Application 
+- [ ] Venv compatibilty
+	- [ ] Installing modules
+	- [ ] Importing
+			
