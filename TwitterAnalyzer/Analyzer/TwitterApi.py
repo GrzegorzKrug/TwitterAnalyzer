@@ -3,6 +3,7 @@
 import requests
 from requests_oauthlib import OAuth1, OAuth1Session
 import json
+import sys
 import os
 #from PIL import Image as IM
 
@@ -25,6 +26,9 @@ class TwitterApi:
         valid, self.me, message = self._verifyOAuth()
         if valid:
             self.logged_in = True
+        else:
+            input('Check Analyzer\\Readme.md if you got problems, press to exit...')
+            sys.exit()
         return valid, message
 
     def _verifyOAuth(self):
