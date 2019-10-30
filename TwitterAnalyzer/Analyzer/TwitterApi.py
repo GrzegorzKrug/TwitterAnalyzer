@@ -1,7 +1,7 @@
 # TwitterApi.py
 # Grzegorz Krug
 import requests
-from requests_oauthlib import OAuth1
+from requests_oauthlib import OAuth1, OAuth1Session
 import json
 import os
 from PIL import Image as IM
@@ -13,7 +13,7 @@ class TwitterApi:
         self.apiUpload = r'https://upload.twitter.com/1.1/'
         self.logged_in = False
         self.auth = None
-
+        self.authSess = None
         self.following = None
         self.me = None
 
@@ -48,6 +48,11 @@ class TwitterApi:
                 try:
                     self.verify_response(response)
                     self.auth = auth
+                    self.authSess = OAuth1Session(consumer_key,
+                                                  consumer_secret,
+                                                  access_token_key,
+                                                  access_token_secret)
+                    
                     me = response.json()
                     return True, me, f'Logged in successfully as {me["screen_name"]}'
                 except Unauthorized:
@@ -97,15 +102,46 @@ class TwitterApi:
             return False, None
 
     def post_image(self, imagePath):
-        fullUrl = self.apiUrl + r'/media/upload.json'
-        image = IM.open(imagePath)
-        params = {'media': image.tobytes(),
-                  'command': 'INIT',
-                  'media_category ': 'tweet_image',
-                  'total_bytes': os.path.getsize(imagePath)}            
-        self.post_request(fullUrl, params=params)
+        fullUrl = self.apiUpload + r'/media/upload.json'
+        files = {}
+        params = {}
         
-    def post_request(self, fullUrl, params=None, header=None, files=None):
+        with open(imagePath, 'rb') as image:                
+##            files = {'media': ,
+##                     'media_category': 'tweet_image'}
+##            files = {'media': image.read()}
+            files = {'media': ('kooka.png', image)}
+            data = self.authSess.post(fullUrl, params=params, files=files)
+            print(data)
+
+    def postLarge_image(self, imagePath):
+        fullUrl = self.apiUpload + r'/media/upload.json'                   
+        sizeB = os.path.getsize(imagePath)
+        
+        'Step 1 of 4 INIT'
+        params = {'command': 'INIT',
+                  'media_type ': r'image/png',
+                  'total_bytes': sizeB}
+        
+        valid, resp_init = self.post_request(fullUrl, params=params)
+        media_id = resp_init['media_id']
+        print(media_id)
+        
+        'Step 2 of 4 Append'
+        fullUrl = self.apiUpload + r'/media/upload.json'
+        with open(imagePath, 'rb') as image:
+            params = {'command': 'APPEND',
+                      'media_id ': media_id,
+                      'media': image.read(),
+                      'segment_index': 0}
+        files = {}
+        valid, resp_init = self.post_request(fullUrl, params=params, files=files)
+        
+        'Step 3 of 4 Get id'
+        'Step 4 of 4 Finalize'
+        
+        
+    def post_request(self, fullUrl, header=None, params=None, files=None):
         if params is None:
             params = {}
         if files is None:
@@ -225,6 +261,6 @@ class TooManyRequests(Exception):  # 429
 
 if __name__ == "__main__":
     app = TwitterApi()
-    app.postLarge_image('220_kookaburra.png')
+    app.post_image('220_kookaburra.png')
 
    
