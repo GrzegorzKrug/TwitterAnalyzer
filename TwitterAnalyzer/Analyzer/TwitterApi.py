@@ -101,44 +101,40 @@ class TwitterApi:
         else:
             return False, None
 
-    def post_image(self, imagePath):
+    def post_image(self, imageBinary):
         fullUrl = self.apiUpload + r'/media/upload.json'
-        files = {}
-        params = {}
-        
-        with open(imagePath, 'rb') as image:                
-##            files = {'media': ,
-##                     'media_category': 'tweet_image'}
-##            files = {'media': image.read()}
-            files = {'media': ('kooka.png', image)}
-            data = self.authSess.post(fullUrl, params=params, files=files)
-            print(data)
+        if imageBinary:
+            files = {'media': imageBinary}
+        else:
+            raise ValueError('No image is given, can not post tweet')        
+        data = self.authSess.post(fullUrl, files=files)
+        return data.json()['media_id']
 
-    def postLarge_image(self, imagePath):
-        fullUrl = self.apiUpload + r'/media/upload.json'                   
-        sizeB = os.path.getsize(imagePath)
-        
-        'Step 1 of 4 INIT'
-        params = {'command': 'INIT',
-                  'media_type ': r'image/png',
-                  'total_bytes': sizeB}
-        
-        valid, resp_init = self.post_request(fullUrl, params=params)
-        media_id = resp_init['media_id']
-        print(media_id)
-        
-        'Step 2 of 4 Append'
-        fullUrl = self.apiUpload + r'/media/upload.json'
-        with open(imagePath, 'rb') as image:
-            params = {'command': 'APPEND',
-                      'media_id ': media_id,
-                      'media': image.read(),
-                      'segment_index': 0}
-        files = {}
-        valid, resp_init = self.post_request(fullUrl, params=params, files=files)
-        
-        'Step 3 of 4 Get id'
-        'Step 4 of 4 Finalize'
+##    def postLarge_image(self, imagePath):
+##        fullUrl = self.apiUpload + r'/media/upload.json'                   
+##        sizeB = os.path.getsize(imagePath)
+##        
+##        'Step 1 of 4 INIT'
+##        params = {'command': 'INIT',
+##                  'media_type ': r'image/png',
+##                  'total_bytes': sizeB}
+##        
+##        valid, resp_init = self.post_request(fullUrl, params=params)
+##        media_id = resp_init['media_id']
+##        print(media_id)
+##        
+##        'Step 2 of 4 Append'
+##        fullUrl = self.apiUpload + r'/media/upload.json'
+##        with open(imagePath, 'rb') as image:
+##            params = {'command': 'APPEND',
+##                      'media_id ': media_id,
+##                      'media': image,
+##                      'segment_index': 0}
+##            files = {}
+####        valid, resp_init = self.post_request(fullUrl, params=params, files=files)
+##            valid, resp_init = self.authSess.post(fullUrl, params=params, files=files)        
+##        'Step 3 of 4 Get id'
+##        'Step 4 of 4 Finalize'
         
         
     def post_request(self, fullUrl, header=None, params=None, files=None):
@@ -152,19 +148,24 @@ class TwitterApi:
         else:
             return False, None
         
-    def post_status(self, text, imagePath):
+    def post_status(self, text, imagePath=None, imageBinary=None):
         params = {}
         pic_id = None
         
-        if imageBinaryWrapper:
-            pic_id = self.post_image(imageBinaryWrapper)
+        if imagePath:
+            with open(imagePath, 'rb') as image:
+                pic_id = self.post_image(image.read())            
+            params.update({'media_ids': pic_id})
+            
+        elif imageBinary:
+            pic_id = self.post_image(imageBinary)            
+            params.update({'media_ids': pic_id})
+            
         if text:
             params.update({'status': str(text)})
-        
-            
+                    
         fullUrl = self.apiUrl + r'/statuses/update.json'        
         valid, data = self.post_request(fullUrl, params=params)
-        print(data)
          
     def request_status(self, statusID):        
         fullUrl = self.apiUrl + r'/statuses/show.json'
@@ -261,6 +262,7 @@ class TooManyRequests(Exception):  # 429
 
 if __name__ == "__main__":
     app = TwitterApi()
-    app.post_image('220_kookaburra.png')
+    app.post_status('Test Api imagebinary', imagePath='220_kookaburra.png')
+    # app.postLarge_image('220_kookaburra.png')
 
    
