@@ -100,7 +100,7 @@ class TwitterApi:
         image = IM.open(imagePath)
         params = {'media': image.tobytes(),
                   'command': 'INIT',
-                  'media_category ': 'dm_image',
+                  'media_category ': 'tweet_image',
                   'total_bytes': os.path.getsize(imagePath)}            
         self.post_request(fullUrl, params=params)
         
