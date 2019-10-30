@@ -19,8 +19,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>511</width>
-      <height>371</height>
+      <width>321</width>
+      <height>361</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -30,7 +30,7 @@
      <number>-1</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -200,7 +200,7 @@
      <widget class="QLabel" name="label">
       <property name="geometry">
        <rect>
-        <x>260</x>
+        <x>220</x>
         <y>10</y>
         <width>81</width>
         <height>21</height>
@@ -213,8 +213,8 @@
      <widget class="QLabel" name="label_login_status">
       <property name="geometry">
        <rect>
-        <x>320</x>
-        <y>10</y>
+        <x>220</x>
+        <y>40</y>
         <width>91</width>
         <height>21</height>
        </rect>
@@ -237,13 +237,39 @@ color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>100</y>
+        <y>70</y>
         <width>141</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
        <string>Request parent Tweets</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_Request_Status">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>100</y>
+        <width>141</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Request status</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_request_statusId">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>100</y>
+        <width>151</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Input index for Jump button.</string>
       </property>
      </widget>
     </widget>
@@ -291,6 +317,9 @@ color: rgb(255, 255, 255);</string>
         <width>321</width>
         <height>251</height>
        </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -430,7 +459,7 @@ color: rgb(255, 255, 255);</string>
         <string>You can Add some comment to file name</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton_export_DF_2">
+      <widget class="QPushButton" name="pushButton_FilterDF_Lang_Polish">
        <property name="geometry">
         <rect>
          <x>210</x>
@@ -440,13 +469,13 @@ color: rgb(255, 255, 255);</string>
         </rect>
        </property>
        <property name="toolTip">
-        <string>Save DF to .csv File</string>
+        <string>Filter DF, polish</string>
        </property>
        <property name="text">
         <string>Lang PL</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton_export_DF_3">
+      <widget class="QPushButton" name="pushButton_FilterDF_Lang_English">
        <property name="geometry">
         <rect>
          <x>210</x>
@@ -456,7 +485,7 @@ color: rgb(255, 255, 255);</string>
         </rect>
        </property>
        <property name="toolTip">
-        <string>Save DF to .csv File</string>
+        <string>Filter DF, english</string>
        </property>
        <property name="text">
         <string>Lang En</string>
@@ -465,10 +494,10 @@ color: rgb(255, 255, 255);</string>
       <widget class="QFrame" name="frame_5">
        <property name="geometry">
         <rect>
-         <x>0</x>
+         <x>10</x>
          <y>140</y>
-         <width>321</width>
-         <height>111</height>
+         <width>311</width>
+         <height>101</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -668,116 +697,33 @@ color: rgb(255, 255, 255);</string>
         </property>
        </widget>
       </widget>
-     </widget>
-     <widget class="QFrame" name="frame_3">
-      <property name="geometry">
-       <rect>
-        <x>310</x>
-        <y>0</y>
-        <width>201</width>
-        <height>351</height>
-       </rect>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <widget class="QPushButton" name="pushButton_load_selected_csv_2">
+      <widget class="QPushButton" name="pushButton_FilterDF_Lang_Other">
        <property name="geometry">
         <rect>
-         <x>100</x>
-         <y>10</y>
+         <x>210</x>
+         <y>80</y>
          <width>91</width>
          <height>23</height>
         </rect>
        </property>
        <property name="toolTip">
-        <string>Loads files from tree.</string>
+        <string>Filter DF, put language below</string>
        </property>
        <property name="text">
-        <string>Load selected</string>
+        <string>Lang</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton_reload_DF">
+      <widget class="QLineEdit" name="lineEdit_FilterLangOther">
        <property name="geometry">
         <rect>
-         <x>100</x>
-         <y>40</y>
+         <x>210</x>
+         <y>110</y>
          <width>91</width>
          <height>23</height>
         </rect>
        </property>
        <property name="toolTip">
-        <string>Reload DF from same files again.</string>
-       </property>
-       <property name="text">
-        <string>Reload DF</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_showTweets">
-       <property name="geometry">
-        <rect>
-         <x>100</x>
-         <y>70</y>
-         <width>91</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Shows currently loaded DF</string>
-       </property>
-       <property name="text">
-        <string>Show DF</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_export_DF_8">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>210</y>
-         <width>91</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Save DF to .csv File</string>
-       </property>
-       <property name="text">
-        <string>NextTweet</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_export_DF_12">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>240</y>
-         <width>91</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Save DF to .csv File</string>
-       </property>
-       <property name="text">
-        <string>PreviousTweet</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_export_DF_13">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>180</y>
-         <width>91</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Save DF to .csv File</string>
-       </property>
-       <property name="text">
-        <string>ShowFirst</string>
+        <string>input for Lang Button</string>
        </property>
       </widget>
      </widget>
@@ -791,7 +737,7 @@ color: rgb(255, 255, 255);</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>Split DF into X pieces and save.</string>
+       <string>Split DF into X pieces and saves.</string>
       </property>
       <property name="text">
        <string>Split DF</string>
@@ -839,9 +785,9 @@ color: rgb(255, 255, 255);</string>
    <widget class="QTreeView" name="treeView">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>590</x>
       <y>10</y>
-      <width>481</width>
+      <width>421</width>
       <height>361</height>
      </rect>
     </property>
@@ -854,7 +800,7 @@ color: rgb(255, 255, 255);</string>
      <rect>
       <x>10</x>
       <y>410</y>
-      <width>511</width>
+      <width>571</width>
       <height>361</height>
      </rect>
     </property>
@@ -874,6 +820,9 @@ color: rgb(255, 255, 255);</string>
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
     <property name="lineWrapMode">
      <enum>QPlainTextEdit::NoWrap</enum>
     </property>
@@ -884,9 +833,9 @@ color: rgb(255, 255, 255);</string>
    <widget class="QTextEdit" name="textEdit_log">
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>590</x>
       <y>410</y>
-      <width>471</width>
+      <width>421</width>
       <height>361</height>
      </rect>
     </property>
@@ -950,21 +899,181 @@ p, li { white-space: pre-wrap; }
      <string>Copy info To Log -&gt;</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_check_threads">
+   <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>380</y>
-      <width>91</width>
-      <height>23</height>
+      <x>330</x>
+      <y>10</y>
+      <width>251</width>
+      <height>361</height>
      </rect>
     </property>
-    <property name="styleSheet">
-     <string notr="true"/>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
-    <property name="text">
-     <string>Check Threads</string>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
+    <widget class="QPushButton" name="pushButton_NextTweet">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>270</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Show next Tweet from DF</string>
+     </property>
+     <property name="text">
+      <string>NextTweet</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_PreviousTweet">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>300</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Show previous Tweet from DF</string>
+     </property>
+     <property name="text">
+      <string>PreviousTweet</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_ShowTweet">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>240</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Show first Tweet from DF</string>
+     </property>
+     <property name="text">
+      <string>ShowFirst</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_JumpToTweet">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>330</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Jumps to Tweet in DF, define index in box.</string>
+     </property>
+     <property name="text">
+      <string>Jump</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_JumpToTweet">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>330</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Input index for Jump button.</string>
+     </property>
+    </widget>
+    <widget class="QFrame" name="frame_6">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>251</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <widget class="QPushButton" name="pushButton_load_selected_csv_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>91</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Loads files from tree.</string>
+      </property>
+      <property name="text">
+       <string>Load selected</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_reload_DF">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>91</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Reload DF from the same files again.</string>
+      </property>
+      <property name="text">
+       <string>Reload DF</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_check_threads">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>10</y>
+        <width>91</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Check currently runing threads and print status.</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>Check Threads</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QPushButton" name="pushButton_showTweets">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>91</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Shows currently loaded DF</string>
+     </property>
+     <property name="text">
+      <string>Show DF</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
