@@ -1,1 +1,1 @@
-print('TwiterAnalyzer\\TwiterAnalyzer dir')
+print('. \\TwiterAnalyzer dir')
