@@ -1,13 +1,13 @@
 from setuptools import setup
 
 setup(
-   name='Analyzer',
+   name='TwitterAnalyzer',
    version='1.0',
    description='Gathering Tweets, Posting Tweets, Manipulation stored Tweets' \
    +' in CSV',
    author='Grzegorz Krug',
    author_email='my mail',
-   packages=['Analyzer'],  #same as name
+   packages=['TwitterAnalyzer'],  #same as name
    install_requires=['pandas', 'json', 'glob', 'threading', 'PyQt5',
-                     'requests', 'requests_oauthlib'], #external packages as dependencies
+                     'request', 'requests_oauthlib'], #external packages as dependencies
 )
