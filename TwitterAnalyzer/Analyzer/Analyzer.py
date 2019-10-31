@@ -9,12 +9,8 @@ import datetime
 import glob
 import threading
 
-if __name__ == "__main__":
-    from TwitterApi import TwitterApi
-    from TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
-else:
-    from Analyzer.TwitterApi import TwitterApi
-    from Analyzer.TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
+from TwitterAnalyzer.Analyzer.TwitterApi import TwitterApi
+from TwitterAnalyzer.Analyzer.TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
 
 
 class Analyzer(TwitterApi):
@@ -37,7 +33,6 @@ class Analyzer(TwitterApi):
         '''Adding time stamp to tweet dict'''
         tweet['timestamp'] = round(time.time())
 
-
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
         Twitter rate limit is 15 times in 15 mins'''
@@ -50,7 +45,6 @@ class Analyzer(TwitterApi):
                            d=str(now.day).rjust(2, '0'), h=str(now.hour).rjust(2, '0'),
                            m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
                            interval=str(interval).rjust(3, '0'), count=str(chunk_size).rjust(3, '0'))
-
             ch = 1
             while ch < n + 1:
                 try:

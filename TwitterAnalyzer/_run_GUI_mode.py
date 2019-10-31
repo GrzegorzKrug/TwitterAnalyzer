@@ -81,11 +81,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     #         # time.sleep(0.2)
 
     def check_threads(self):
-        threads = self.threads
-        if self.threads == []:
-            self.log_ui(f'All tasks are complete')
-            return False
-        
+        threads = self.threads            
         self.threads = []        
         for th in threads:
             if th.isAlive():
@@ -93,6 +89,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                 self.threads += [th]
             else:
                 self.log_ui(f'{th.__name__} is finished, removing from list')
+                
+        if self.threads == []:
+            self.log_ui(f'All tasks are complete')
+            return False
 
     @staticmethod
     def downloadFullChunk():
