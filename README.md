@@ -2,7 +2,7 @@
 
 Python Application for improving twitter content and quality of usage
 
-## Application Status (Current plan, can be change anytime)
+## Application Status (Current plan, can be change any time)
 
 #### API (4 / 7)
 
@@ -13,7 +13,7 @@ Python Application for improving twitter content and quality of usage
 - [x] Post
 	- [x] Tweets
 	- [x] Tweets with images
-- [ ] ~~Collect user followers (diffrent than me)~~ not required atm
+- [ ] ~~Collect user followers (different than me)~~ not required atm
 - [x] Collect user tweets (by statusid)
 - [ ] Collect user comments
 - [ ] ~~Background Queue for requests (twitter limit)~~ not here, in Analyzer
@@ -26,19 +26,19 @@ Python Application for improving twitter content and quality of usage
 	- [x] Load Tweets
 	- [x] UTF-8 Support 
 	- [x] Cleanup csv
-	- [x] Rearange csv	
+	- [x] Rearrange csv	
 	- [x] Save DF
-- [ ] Analzye Tweets
+- [ ] Analysis of Tweets
 	- [ ] Count Comments / Reactions
 	- [ ] Normalize Tweets
 		- [ ] Lowercase text
-	- [ ] Analyze changes in time
+	- [ ] Analysis in time
 		- [ ] Same id post
 		- [ ] RT impact
-	- [ ] Analyze Followers/Friends Tweets
-		- [ ] Analyze random peoples being active in tweets
+	- [ ] Analysis Followers/Friends Tweets
+		- [ ] Analysis random peoples being active in tweets
 		- [ ] Suggest following new 
-		- [ ] Suggest stop folloing 
+		- [ ] Suggest stop following 
 		- [ ] Inform about friends attitude
 	- [ ] Classify Tweets (3 Filters of Sokrates)
 		- [ ] Good
@@ -58,7 +58,7 @@ Python Application for improving twitter content and quality of usage
 - [x] Display CSV File Tree		
 - [ ] Threading background
 	- [x] Background requests
-	- [x] Threads status, Checking, removing refference (release memory)
+	- [x] Threads status, Checking, removing reference (release memory)
 	- [ ] Threads feedback
 - [ ] Filter tweets / Dataframe
 	- [x] language
@@ -69,7 +69,7 @@ Python Application for improving twitter content and quality of usage
 	- [ ] post_id
 	- [ ] by time range
 		- [ ] Time collected
-		- [ ] Tweet borned
+		- [ ] Tweet born time
 	- [ ] Filter by words included
 	- [ ] Filter by other parameter	
 - [x] Display tweets / Dataframe
@@ -81,20 +81,20 @@ Python Application for improving twitter content and quality of usage
 - [ ] Manage CSV files
 	- [x] Loading selected CSV
 	- [x] Save current DF to file
-	- [ ] ReArange
-		- [ ] Combine CSV  groups
-			- [x] Combine selected
-			- [ ] Auto Combine/Filter by Lang
-			- [ ] Auto Combine/Filter by User
-			- [ ] Popular
-			- [ ] Other features
+- [ ] Auto Arrange tweets into files
+	- [ ] Combine CSV  groups
+		- [x] Combine selected
+		- [ ] Auto Combine/Filter by Lang
+		- [ ] Auto Combine/Filter by User
+		- [ ] Popular
+		- [ ] Other features
 	- [ ] Remove
 		- [ ] Old
 		- [ ] already used
 		- [x] Small
 
 #### Application 
-- [ ] Venv compatibilty
-	- [ ] Installing modules
-	- [ ] Importing
+- [x] Venv compatibility
+	- [x] Installing modules
+	- [x] Importing
 			
