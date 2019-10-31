@@ -9,5 +9,5 @@ setup(
    author_email='my mail',
    packages=['Analyzer'],  #same as name
    install_requires=['pandas', 'json', 'glob', 'threading', 'PyQt5',
-                     'requests', 'requests_oauthlib', 'time'], #external packages as dependencies
+                     'requests', 'requests_oauthlib'], #external packages as dependencies
 )
