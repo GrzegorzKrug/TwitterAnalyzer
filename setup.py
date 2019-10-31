@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
    name='TwitterAnalyzer',
-   version='1.0',
+   version='0.5',
    description='Gathering Tweets, Posting Tweets, Manipulation stored Tweets' \
    +' in CSV',
    author='Grzegorz Krug',
