@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1015</width>
+    <width>1025</width>
     <height>820</height>
    </rect>
   </property>
@@ -17,9 +17,9 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>10</y>
-      <width>321</width>
+      <width>331</width>
       <height>361</height>
      </rect>
     </property>
@@ -30,7 +30,7 @@
      <number>-1</number>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -314,7 +314,7 @@ color: rgb(255, 255, 255);</string>
        <rect>
         <x>-10</x>
         <y>100</y>
-        <width>321</width>
+        <width>341</width>
         <height>251</height>
        </rect>
       </property>
@@ -322,15 +322,15 @@ color: rgb(255, 255, 255);</string>
        <string notr="true"/>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Box</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
+       <enum>QFrame::Plain</enum>
       </property>
       <widget class="QLabel" name="label_6">
        <property name="geometry">
         <rect>
-         <x>0</x>
+         <x>10</x>
          <y>0</y>
          <width>91</width>
          <height>20</height>
@@ -346,7 +346,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_export_DF_6">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>20</x>
          <y>20</y>
          <width>91</width>
          <height>23</height>
@@ -362,7 +362,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QLineEdit" name="lineEdit_DF_comment_2">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>20</x>
          <y>50</y>
          <width>91</width>
          <height>23</height>
@@ -375,7 +375,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_export_DF_10">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>120</x>
          <y>20</y>
          <width>91</width>
          <height>23</height>
@@ -391,7 +391,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QLineEdit" name="lineEdit_DF_comment_6">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>120</x>
          <y>50</y>
          <width>91</width>
          <height>23</height>
@@ -404,7 +404,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_export_DF_11">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>120</x>
          <y>80</y>
          <width>91</width>
          <height>23</height>
@@ -420,7 +420,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_export_DF_9">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>20</x>
          <y>80</y>
          <width>91</width>
          <height>23</height>
@@ -436,7 +436,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QLineEdit" name="lineEdit_DF_comment_7">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>20</x>
          <y>110</y>
          <width>91</width>
          <height>23</height>
@@ -449,7 +449,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QLineEdit" name="lineEdit_DF_comment_5">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>120</x>
          <y>110</y>
          <width>91</width>
          <height>23</height>
@@ -462,7 +462,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_FilterDF_Lang_Polish">
        <property name="geometry">
         <rect>
-         <x>210</x>
+         <x>220</x>
          <y>20</y>
          <width>91</width>
          <height>23</height>
@@ -478,7 +478,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_FilterDF_Lang_English">
        <property name="geometry">
         <rect>
-         <x>210</x>
+         <x>220</x>
          <y>50</y>
          <width>91</width>
          <height>23</height>
@@ -494,22 +494,22 @@ color: rgb(255, 255, 255);</string>
       <widget class="QFrame" name="frame_5">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>0</x>
          <y>140</y>
-         <width>311</width>
+         <width>341</width>
          <height>101</height>
         </rect>
        </property>
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Plain</enum>
        </property>
        <widget class="QPushButton" name="pushButton_export_DF_18">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>20</x>
           <y>10</y>
           <width>91</width>
           <height>23</height>
@@ -525,7 +525,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLineEdit" name="lineEdit_DF_comment_8">
         <property name="geometry">
          <rect>
-          <x>260</x>
+          <x>270</x>
           <y>10</y>
           <width>41</width>
           <height>23</height>
@@ -538,7 +538,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLineEdit" name="lineEdit_DF_comment_10">
         <property name="geometry">
          <rect>
-          <x>210</x>
+          <x>220</x>
           <y>10</y>
           <width>41</width>
           <height>23</height>
@@ -551,7 +551,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLineEdit" name="lineEdit_DF_comment_15">
         <property name="geometry">
          <rect>
-          <x>160</x>
+          <x>170</x>
           <y>10</y>
           <width>41</width>
           <height>23</height>
@@ -564,7 +564,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLineEdit" name="lineEdit_DF_comment_9">
         <property name="geometry">
          <rect>
-          <x>260</x>
+          <x>270</x>
           <y>40</y>
           <width>41</width>
           <height>23</height>
@@ -577,7 +577,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLineEdit" name="lineEdit_DF_comment_16">
         <property name="geometry">
          <rect>
-          <x>160</x>
+          <x>170</x>
           <y>40</y>
           <width>41</width>
           <height>23</height>
@@ -590,7 +590,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLineEdit" name="lineEdit_DF_comment_17">
         <property name="geometry">
          <rect>
-          <x>210</x>
+          <x>220</x>
           <y>40</y>
           <width>41</width>
           <height>23</height>
@@ -603,7 +603,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QPushButton" name="pushButton_export_DF_26">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>20</x>
           <y>40</y>
           <width>91</width>
           <height>23</height>
@@ -619,7 +619,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLabel" name="label_4">
         <property name="geometry">
          <rect>
-          <x>160</x>
+          <x>170</x>
           <y>70</y>
           <width>41</width>
           <height>20</height>
@@ -635,7 +635,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLabel" name="label_5">
         <property name="geometry">
          <rect>
-          <x>210</x>
+          <x>220</x>
           <y>70</y>
           <width>41</width>
           <height>20</height>
@@ -651,7 +651,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLabel" name="label_7">
         <property name="geometry">
          <rect>
-          <x>260</x>
+          <x>270</x>
           <y>70</y>
           <width>41</width>
           <height>20</height>
@@ -667,7 +667,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLabel" name="label_9">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>130</x>
           <y>10</y>
           <width>41</width>
           <height>20</height>
@@ -683,7 +683,7 @@ color: rgb(255, 255, 255);</string>
        <widget class="QLabel" name="label_10">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>130</x>
           <y>40</y>
           <width>41</width>
           <height>20</height>
@@ -700,7 +700,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QPushButton" name="pushButton_FilterDF_Lang_Other">
        <property name="geometry">
         <rect>
-         <x>210</x>
+         <x>220</x>
          <y>80</y>
          <width>91</width>
          <height>23</height>
@@ -716,7 +716,7 @@ color: rgb(255, 255, 255);</string>
       <widget class="QLineEdit" name="lineEdit_FilterLangOther">
        <property name="geometry">
         <rect>
-         <x>210</x>
+         <x>220</x>
          <y>110</y>
          <width>91</width>
          <height>23</height>
@@ -908,11 +908,14 @@ p, li { white-space: pre-wrap; }
       <height>361</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Panel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Sunken</enum>
+     <enum>QFrame::Plain</enum>
     </property>
     <widget class="QPushButton" name="pushButton_NextTweet">
      <property name="geometry">
@@ -959,7 +962,7 @@ p, li { white-space: pre-wrap; }
       <string>Show first Tweet from DF</string>
      </property>
      <property name="text">
-      <string>ShowFirst</string>
+      <string>Show Tweet</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_JumpToTweet">
@@ -1001,10 +1004,10 @@ p, li { white-space: pre-wrap; }
       </rect>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Panel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Plain</enum>
      </property>
      <widget class="QPushButton" name="pushButton_load_selected_csv_2">
       <property name="geometry">
@@ -1070,51 +1073,47 @@ p, li { white-space: pre-wrap; }
      <property name="toolTip">
       <string>Shows currently loaded DF</string>
      </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="text">
-      <string>Show DF</string>
+      <string>DF Info</string>
      </property>
     </widget>
    </widget>
+   <zorder>tabWidget</zorder>
+   <zorder>frame_3</zorder>
+   <zorder>label_2</zorder>
+   <zorder>treeView</zorder>
+   <zorder>plainTextEdit_info</zorder>
+   <zorder>textEdit_log</zorder>
+   <zorder>pushButton_clear_log</zorder>
+   <zorder>pushButton_Info_screenLog</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1015</width>
+     <width>1025</width>
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuAcc">
+   <widget class="QMenu" name="actionMenuAuth">
     <property name="title">
-     <string>Start</string>
+     <string>Auth</string>
     </property>
     <addaction name="actionLogin"/>
     <addaction name="actionWho_am_I"/>
-    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="actionMenuRefresh_Gui">
+    <property name="title">
+     <string>GUI</string>
+    </property>
     <addaction name="actionRefresh_GUI"/>
    </widget>
-   <widget class="QMenu" name="menuAbout">
-    <property name="title">
-     <string>About</string>
-    </property>
-    <addaction name="actionabout"/>
-   </widget>
-   <widget class="QMenu" name="menuAnalyze">
-    <property name="title">
-     <string>Analyze</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuTask">
-    <property name="title">
-     <string>Task</string>
-    </property>
-    <addaction name="actionCheck_Status"/>
-   </widget>
-   <addaction name="menuAcc"/>
-   <addaction name="menuAnalyze"/>
-   <addaction name="menuAbout"/>
-   <addaction name="menuTask"/>
+   <addaction name="actionMenuAuth"/>
+   <addaction name="actionMenuRefresh_Gui"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLogin">
@@ -1122,24 +1121,14 @@ p, li { white-space: pre-wrap; }
     <string>Login</string>
    </property>
   </action>
+  <action name="actionRefresh_GUI">
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+  </action>
   <action name="actionWho_am_I">
    <property name="text">
     <string>Who am I?</string>
-   </property>
-  </action>
-  <action name="actionabout">
-   <property name="text">
-    <string>about</string>
-   </property>
-  </action>
-  <action name="actionRefresh_GUI">
-   <property name="text">
-    <string>Refresh GUI</string>
-   </property>
-  </action>
-  <action name="actionCheck_Status">
-   <property name="text">
-    <string>Check Status</string>
    </property>
   </action>
  </widget>
