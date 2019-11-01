@@ -1,8 +1,8 @@
 # _run_GUI_mode.py
 # Grzegorz Krug
 from PyQt5 import QtCore, QtWidgets # QtGui
-from Analyzer.Analyzer import Analyzer
-from GUI.GUI import Ui_MainWindow
+from TwitterAnalyzer.Analyzer.Analyzer import Analyzer
+from TwitterAnalyzer.GUI.GUI import Ui_MainWindow
 #import random
 #import time
 import datetime
@@ -380,13 +380,14 @@ if QtCore.QT_VERSION >= 0x50501:  # Showing traceback from crashes
         QtCore.qFatal('')
 sys.excepthook = excepthook
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
+def runGUI():
+    ui = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = TwitterAnalyzerGUI(MainWindow)
+    app = TwitterAnalyzerGUI(MainWindow)
     # ui.setupUi(MainWindow)  # moved to class init
     error_dialog = QtWidgets.QErrorMessage()
     MainWindow.show()
-    sys.exit(app.exec_())
+    sys.exit(ui.exec_())
+    
+if __name__ == "__main__":
+    runGUI()
