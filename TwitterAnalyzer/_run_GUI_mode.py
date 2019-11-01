@@ -70,7 +70,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         h = now.hour
         m = now.minute
         s = now.second
-        timestamp = str(h).rjust(2, '0') + '-' + str(m).rjust(2, '0') + '-' + str(s).rjust(2, '0') + ':  '
+        timestamp = str(h).rjust(2, '0') + '-' + str(m).rjust(2, '0') + '-' + str(s).rjust(2, '0') + ': '
         return timestamp + text
 
     # # @staticmethod
@@ -319,8 +319,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def showTweetfromDF(self):
         if self.DF is None:
             self.log_ui('DF not loaded!')
-            return None        
-        self.currTweetDF_ind = 0
+            return None
+        if self.currTweetDF_ind < 0:
+            self.currTweetDF_ind = 0
+        elif self.currTweetDF_ind >= len(self.DF):
+            self.currTweetDF_ind = len(self.DF) - 1
         text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
         for key, value in self.DF.iloc[self.currTweetDF_ind].items():
             text += f'{key}:'.ljust(20) + f'{value}\n'

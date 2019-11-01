@@ -207,8 +207,11 @@ class Analyzer(TwitterApi):
         
     def filterDF_byLang(self, lang):
         lang = str(lang)
-        self.DF = self.DF.loc[lambda df: df['lang'] == lang]
-        self.log_ui(f'DF filtered by Language: {lang}')
+        if self.DF is not None:
+            self.DF = self.DF.loc[lambda df: df['lang'] == lang]
+            self.log_ui(f'DF filtered by Language: {lang}')
+        else:
+            self.log_ui('DF is empty.')
         
     def find_local_tweets(self, path=None):
         if path:
