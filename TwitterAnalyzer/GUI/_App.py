@@ -15,10 +15,10 @@ import time
 
 
 class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
-    def __init__(self, mainWindow):
+    def __init__(self, mainWindow, autologin=True):
         Ui_MainWindow.__init__(self)
         self.setupUi(mainWindow)
-        Analyzer.__init__(self, autologin=True, log_ui=self.log_ui)
+        Analyzer.__init__(self, autologin=autologin, log_ui=self.log_ui)
 
         self._init_wrappers()
         self._init_triggers()
