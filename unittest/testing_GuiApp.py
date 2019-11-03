@@ -13,19 +13,19 @@ class UnitTest(unittest.TestCase):
     def test_fail_collect_Home(self):
         app = TwitterAnalyzerGUI(MainWindow, autologin=False)
         valid = app.collect_new_tweets(n=1)
-        assert not valid
+        self.assertFalse(valid)
 
     def test_login(self):
-        app = TwitterAnalyzerGUI(MainWindow, autologin=False)
+        #app = TwitterAnalyzerGUI(MainWindow, autologin=False)
         valid, _= app._login_procedure()
-        assert valid
+        self.assertTrue(valid)
 ##
     def test_collect_Home(self):
-        app = TwitterAnalyzerGUI(MainWindow, autologin=False)
+        #app = TwitterAnalyzerGUI(MainWindow, autologin=False)
         app._login_procedure()
         valid = app.collect_new_tweets(filename='unittest',n=1)
-        assert valid
+        self.assertTrue(valid)
 
 
-unittest.sortTestMethodsUsing = None
+#unittest.sortTestMethodsUsing = None
 unittest.main()
