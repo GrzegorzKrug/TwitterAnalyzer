@@ -132,20 +132,24 @@ class Analyzer(TwitterApi):
             
     def delete_csv(self, filelist):
         'Removes tweets_ only !'
-        if type(filelist) is str:
+        if type(filelist) is not list:
             filelist = [filelist]
 
         for file_path in filelist:
             file = os.path.basename(file_path)
-            if file[-4:] == '.csv' and file[:7] == 'tweets_':
-                file_path = self._data_dir + '\\' + file
+            
+            if not os.path.isabs(file_path):
+                file_path = self._data_dir + '\\' + file_path            
+            if file[-4:] == '.csv':
                 if os.path.exists(file_path):
                     try:
                         os.remove(file_path)
-                        self.log_ui(f'Removed {file}')
+                        self.log_ui(f'Removed: {file_path}')
                     except PermissionError:
                         self.log_ui(f' PermissionError: Close this file {file}')
-
+                else:
+                    self.log_ui(f'File does not exists {file_path}')
+                    
     def delete_less(self, n=200):
         'Procedure, Finds Tweets .csv, Removes them.'
         filelist = self.find_local_tweets()
@@ -164,6 +168,10 @@ class Analyzer(TwitterApi):
             time.sleep(delay)
         if type(filename) != str:
             raise TypeError('File name is not string!')
+        if not os.path.isabs(_data_dir):
+            # Parent AbsPath + _data_dir
+            _data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), _data_dir)
+            
         file_path = _data_dir + '\\' + filename + '.csv'
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                   'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
@@ -181,6 +189,8 @@ class Analyzer(TwitterApi):
                     if i < len(header)-1:
                         file.write(';')
                 file.write('\n')
+        if not tweet:
+            return True
         try:
             with open(file_path, 'at', encoding='utf8') as file:
                 for i, key in enumerate(header):
@@ -197,6 +207,7 @@ class Analyzer(TwitterApi):
                     if i < len(header)-1:
                         file.write(';')
                 file.write('\n')
+            return True
         except PermissionError:
             th = threading.Thread(target=lambda:
                 TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
