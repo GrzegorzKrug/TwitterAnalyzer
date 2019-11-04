@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1025</width>
-    <height>820</height>
+    <height>884</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -769,19 +769,6 @@ color: rgb(255, 255, 255);</string>
      </attribute>
     </widget>
    </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>380</y>
-      <width>91</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Current info:</string>
-    </property>
-   </widget>
    <widget class="QTreeView" name="treeView">
     <property name="geometry">
      <rect>
@@ -799,9 +786,9 @@ color: rgb(255, 255, 255);</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>410</y>
+      <y>380</y>
       <width>571</width>
-      <height>361</height>
+      <height>461</height>
      </rect>
     </property>
     <property name="font">
@@ -836,7 +823,7 @@ color: rgb(255, 255, 255);</string>
       <x>590</x>
       <y>410</y>
       <width>421</width>
-      <height>361</height>
+      <height>431</height>
      </rect>
     </property>
     <property name="font">
@@ -886,7 +873,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="pushButton_Info_screenLog">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>600</x>
       <y>380</y>
       <width>121</width>
       <height>23</height>
@@ -1083,7 +1070,6 @@ p, li { white-space: pre-wrap; }
    </widget>
    <zorder>tabWidget</zorder>
    <zorder>frame_3</zorder>
-   <zorder>label_2</zorder>
    <zorder>treeView</zorder>
    <zorder>plainTextEdit_info</zorder>
    <zorder>textEdit_log</zorder>
