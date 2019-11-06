@@ -195,13 +195,14 @@ class Analyzer(TwitterApi):
             with open(file_path, 'at', encoding='utf8') as file:
                 for i, key in enumerate(header):
                     try:
-                        text = str(tweet.get(key, 'n/a'))
+                        text = str(tweet.get(key, None))  # fix here, dont replace?
                         for char in ['\n', ';', '\r']:
                             text = text.replace(char, '')
                         # if key == 'text':
                         #     text = text.lower()
                         file.write(text)
                     except UnicodeEncodeError:
+                        input("UnicodeEncodeError...")
                         file.write('UnicodeEncodeError')
 
                     if i < len(header)-1:
@@ -215,7 +216,21 @@ class Analyzer(TwitterApi):
             th.start()
             self.log_ui('PermissionError, created background thread to save data')
             return None
+
+    def filtrerDF_ByExistingKey(self, key):  # Fix exceptions, bool type
+        if not key or key == '' or key not in self.DF.keys():
+            self.log_ui('Wrong key to filter.')
+            return False
+        DF = self.DF
+        df = DF.loc[(DF[key] != None) & (DF[key] != 'nan') & (DF[key] != r'n/a')
+                    & (DF[key] != 'None')]
         
+        if max(df.shape) > 0 and df.shape != DF.shape:
+            self.DF = df
+            return True
+        else:
+            return False
+    
     def filterDF_byLang(self, lang):
         lang = str(lang)
         if self.DF is not None:
@@ -233,6 +248,8 @@ class Analyzer(TwitterApi):
         return files
 
     def load_DF(self, file_list):
+        if type(file_list) is str:
+            file_list = [file_list]
         self.DF = None
         self.loaded_to_DF = []
         text = 'Loading Tweets:'
@@ -333,16 +350,9 @@ class Analyzer(TwitterApi):
 
 
 if __name__ == "__main__":
-    app = Analyzer()
-    dumy_list = [1189259569060597762,
-                 1189259544188338176,
-                 1189259542049312775,
-                 1189259512496214016,
-                 1189259510906527744,
-                 1189259438840074242,
-                 1189259430489133057,
-                 1189259415108685824,
-                 1189259380824428547]
-
-    app.collect_status(dumy_list)
+    app = Analyzer(autologin=False)
+    app.load_DF('Home_20191104_23-36-09_060sec_200.csv')
+    print(f'Shape {app.DF.shape}')
+    valid = app.filtrerDF_ByExistingKey('in_reply_to_screen_name')
+    print(f'Valid {valid}, Shape {app.DF.shape}')
     input('Press key....')
