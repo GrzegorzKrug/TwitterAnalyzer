@@ -19,7 +19,7 @@
      <rect>
       <x>0</x>
       <y>10</y>
-      <width>331</width>
+      <width>411</width>
       <height>361</height>
      </rect>
     </property>
@@ -275,7 +275,7 @@ color: rgb(255, 255, 255);</string>
     </widget>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
-      <string>Analyze</string>
+      <string>Prepare Data</string>
      </attribute>
      <attribute name="toolTip">
       <string>Analyze loaded DF</string>
@@ -314,7 +314,7 @@ color: rgb(255, 255, 255);</string>
        <rect>
         <x>-10</x>
         <y>100</y>
-        <width>341</width>
+        <width>421</width>
         <height>251</height>
        </rect>
       </property>
@@ -496,7 +496,7 @@ color: rgb(255, 255, 255);</string>
         <rect>
          <x>0</x>
          <y>140</y>
-         <width>341</width>
+         <width>421</width>
          <height>101</height>
         </rect>
        </property>
@@ -726,6 +726,35 @@ color: rgb(255, 255, 255);</string>
         <string>input for Lang Button</string>
        </property>
       </widget>
+      <widget class="QPushButton" name="pushButton_FilterDF_by_Key">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>80</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Filter tweets with valused instead of None, put category</string>
+       </property>
+       <property name="text">
+        <string>Find Key</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_filterKeyinput">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>110</y>
+         <width>91</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Key input</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QPushButton" name="pushButton_export_DF_7">
       <property name="geometry">
@@ -763,6 +792,11 @@ color: rgb(255, 255, 255);</string>
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="Analyze">
+     <attribute name="title">
+      <string>Analyze</string>
+     </attribute>
+    </widget>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
       <string>NN Model</string>
@@ -772,9 +806,9 @@ color: rgb(255, 255, 255);</string>
    <widget class="QTreeView" name="treeView">
     <property name="geometry">
      <rect>
-      <x>590</x>
+      <x>600</x>
       <y>10</y>
-      <width>421</width>
+      <width>411</width>
       <height>361</height>
      </rect>
     </property>
@@ -889,9 +923,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>410</x>
       <y>10</y>
-      <width>251</width>
+      <width>181</width>
       <height>361</height>
      </rect>
     </property>
@@ -907,9 +941,9 @@ p, li { white-space: pre-wrap; }
     <widget class="QPushButton" name="pushButton_NextTweet">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>270</y>
-       <width>91</width>
+       <x>90</x>
+       <y>210</y>
+       <width>81</width>
        <height>23</height>
       </rect>
      </property>
@@ -917,15 +951,15 @@ p, li { white-space: pre-wrap; }
       <string>Show next Tweet from DF</string>
      </property>
      <property name="text">
-      <string>NextTweet</string>
+      <string>Next &gt;&gt;</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_PreviousTweet">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>300</y>
-       <width>91</width>
+       <y>210</y>
+       <width>81</width>
        <height>23</height>
       </rect>
      </property>
@@ -933,14 +967,14 @@ p, li { white-space: pre-wrap; }
       <string>Show previous Tweet from DF</string>
      </property>
      <property name="text">
-      <string>PreviousTweet</string>
+      <string>&lt;&lt; Prev</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_ShowTweet">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>240</y>
+       <y>180</y>
        <width>91</width>
        <height>23</height>
       </rect>
@@ -973,7 +1007,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>110</x>
        <y>330</y>
-       <width>71</width>
+       <width>51</width>
        <height>23</height>
       </rect>
      </property>
@@ -986,7 +1020,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>251</width>
+       <width>181</width>
        <height>111</height>
       </rect>
      </property>
@@ -1028,31 +1062,12 @@ p, li { white-space: pre-wrap; }
        <string>Reload DF</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_check_threads">
-      <property name="geometry">
-       <rect>
-        <x>110</x>
-        <y>10</y>
-        <width>91</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Check currently runing threads and print status.</string>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="text">
-       <string>Check Threads</string>
-      </property>
-     </widget>
     </widget>
     <widget class="QPushButton" name="pushButton_showTweets">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>120</y>
+       <y>150</y>
        <width>91</width>
        <height>23</height>
       </rect>
@@ -1068,6 +1083,25 @@ p, li { white-space: pre-wrap; }
      </property>
     </widget>
    </widget>
+   <widget class="QPushButton" name="pushButton_check_threads">
+    <property name="geometry">
+     <rect>
+      <x>820</x>
+      <y>380</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Check currently runing threads and print status.</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>Check Threads</string>
+    </property>
+   </widget>
    <zorder>tabWidget</zorder>
    <zorder>frame_3</zorder>
    <zorder>treeView</zorder>
@@ -1075,6 +1109,7 @@ p, li { white-space: pre-wrap; }
    <zorder>textEdit_log</zorder>
    <zorder>pushButton_clear_log</zorder>
    <zorder>pushButton_Info_screenLog</zorder>
+   <zorder>pushButton_check_threads</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -1098,8 +1133,15 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionRefresh_GUI"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionTweet_Description"/>
+   </widget>
    <addaction name="actionMenuAuth"/>
    <addaction name="actionMenuRefresh_Gui"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLogin">
@@ -1115,6 +1157,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionWho_am_I">
    <property name="text">
     <string>Who am I?</string>
+   </property>
+  </action>
+  <action name="actionTweet_Description">
+   <property name="text">
+    <string>Tweet Description</string>
    </property>
   </action>
  </widget>
