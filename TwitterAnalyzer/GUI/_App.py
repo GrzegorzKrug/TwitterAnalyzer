@@ -32,7 +32,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.actionLogin.triggered.connect(self.login_to_twitter_ui)
         self.actionWho_am_I.triggered.connect(self.pop_window)
         self.actionRefresh_GUI.triggered.connect(self.refresh_gui)
-
+        self.actionTweet_Description.triggered.connect(self.whatTweetis)
+        
         # self.label_login_status.mousePressEvent = self.update_status
 
         self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.downloadFullChunk))
@@ -56,9 +57,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_JumpToTweet.clicked.connect(self.showTweetJump)
 
         self.pushButton_Request_Status.clicked.connect(self.requestStatusFromBox)
-        self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterDF_Language('pl'))
-        self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.filterDF_Language('en'))
-        self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterDF_Language)
+        
+        self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterdata_Language('pl'))
+        self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.filterdata_Language('en'))
+        self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)
+        self.pushButton_FilterDF_by_Key.clicked.connect(self.filterData_ByExistingkey)
         
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
@@ -135,6 +138,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.plainTextEdit_info.setPlainText(text)
 
     def display(self, text):
+        while text[-1] == '\n' \
+        or text[-1] == '\r' \
+        or text[-1] == ' ':
+            text = text[:-1]            
         self.plainTextEdit_info.setPlainText(text)
 
     def delete_selected(self):
@@ -164,7 +171,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         #     pass
         app.collect_new_tweets(n=2, chunk_size=200, interval=5)
 
-    def filterDF_Language(self, lang=None):
+    def filterData_ByExistingkey(self):
+        text = self.lineEdit_filterKeyinput.text()
+        valid = self.filtrerDF_ByExistingKey(text)
+        
+    def filterdata_Language(self, lang=None):
         if lang:
             self.filterDF_byLang(lang)
         else:
@@ -263,7 +274,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.show_tree()
 
     def resetDF(self):
-        self.currTweetDF_ind = -1
+        # self.currTweetDF_ind = -1
         self.reloadDF()
         self.showDF()
 
@@ -313,7 +324,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.currTweetDF_ind = ind
         text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
         for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(20) + f'{value}\n'
+            text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)
         
     def showTweetfromDF(self):
@@ -326,7 +337,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = len(self.DF) - 1
         text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
         for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(20) + f'{value}\n'
+            text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)
                 
     def showNextTweetfromDF(self):
@@ -338,7 +349,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0  # First Tweet index            
         text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
         for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(20) + f'{value}\n'
+            text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)
         
     def showPrevTweetfromDF(self):
@@ -352,14 +363,14 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
         text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
         for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(20) + f'{value}\n'
+            text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)
            
     def show_user_info(self, user_data):
         text = ''
         for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
                     'verified', 'lang']:
-            text += str(key + ':').ljust(20) + str(user_data[key]) + '\n'
+            text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
         self.display(text)
 
     def update_loginBox(self):
@@ -371,6 +382,48 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.label_login_status.setText('False')
             self.label_login_status.setStyleSheet("background-color: rgb(255, 149, 151);\n"
                                                   "color: rgb(255, 255, 255);")
+
+    def whatTweetis(self):
+        text = 'Tweet index:             index / last tweet' \
+               '\nid:                      tweet id' \
+               '\ntimestamp:               time in seconds' \
+               '\ncontributors:            <help>' \
+               '\ncoordinates:             <help>' \
+               '\ncreated_at:              <help>' \
+               '\ncurrent_user_retweet:    <help>' \
+               '\nfavorite_count:          <help>' \
+               '\nfavorited:               <help>' \
+               '\nfull_text:               <help>' \
+               '\ngeo:                     geolocation' \
+               '\nhashtags:                hashtags used in tweet' \
+               '\nid_str:                  tweetid string' \
+               '\nin_reply_to_screen_name: <help>' \
+               '\nin_reply_to_status_id:   <help>' \
+               '\nin_reply_to_user_id:     <help>' \
+               '\nlang:                    <help>' \
+               '\nlocation:                <help>' \
+               '\nmedia:                   <help>' \
+               '\nplace:                   <help>' \
+               '\npossibly_sensitive:      <help>' \
+               '\nquoted_status:           <help>' \
+               '\nquoted_status_id:        <help>' \
+               '\nquoted_status_id_str:    <help>' \
+               '\nretweet_count:           <help>' \
+               '\nretweeted:               <help>' \
+               '\nretweeted_status:        <help>' \
+               '\nscopes:                  <help>' \
+               '\nsource:                  <help>' \
+               '\nfull_text.1:             <help>' \
+               '\ntruncated:               <help>' \
+               '\nurls:                    <help>' \
+               '\nuser:                    <help>' \
+               '\nuser_mentions:           <help>' \
+               '\nwithheld_copyright:      <help>' \
+               '\nwithheld_in_countries:   <help>' \
+               '\nwithheld_scope:          <help>' \
+               '\ntweet_mode:              <help>'
+        self.display(text)
+        
 # ------ Sorted methods are above --------------------------------------------------------------------------------------
 
 
