@@ -132,20 +132,24 @@ class Analyzer(TwitterApi):
             
     def delete_csv(self, filelist):
         'Removes tweets_ only !'
-        if type(filelist) is str:
+        if type(filelist) is not list:
             filelist = [filelist]
 
         for file_path in filelist:
             file = os.path.basename(file_path)
-            if file[-4:] == '.csv' and file[:7] == 'tweets_':
-                file_path = self._data_dir + '\\' + file
+            
+            if not os.path.isabs(file_path):
+                file_path = self._data_dir + '\\' + file_path            
+            if file[-4:] == '.csv':
                 if os.path.exists(file_path):
                     try:
                         os.remove(file_path)
-                        self.log_ui(f'Removed {file}')
+                        self.log_ui(f'Removed: {file_path}')
                     except PermissionError:
                         self.log_ui(f' PermissionError: Close this file {file}')
-
+                else:
+                    self.log_ui(f'File does not exists {file_path}')
+                    
     def delete_less(self, n=200):
         'Procedure, Finds Tweets .csv, Removes them.'
         filelist = self.find_local_tweets()
@@ -164,6 +168,10 @@ class Analyzer(TwitterApi):
             time.sleep(delay)
         if type(filename) != str:
             raise TypeError('File name is not string!')
+        if not os.path.isabs(_data_dir):
+            # Parent AbsPath + _data_dir
+            _data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), _data_dir)
+            
         file_path = _data_dir + '\\' + filename + '.csv'
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                   'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
@@ -181,22 +189,26 @@ class Analyzer(TwitterApi):
                     if i < len(header)-1:
                         file.write(';')
                 file.write('\n')
+        if not tweet:
+            return True
         try:
             with open(file_path, 'at', encoding='utf8') as file:
                 for i, key in enumerate(header):
                     try:
-                        text = str(tweet.get(key, 'n/a'))
+                        text = str(tweet.get(key, None))  # fix here, dont replace?
                         for char in ['\n', ';', '\r']:
                             text = text.replace(char, '')
                         # if key == 'text':
                         #     text = text.lower()
                         file.write(text)
                     except UnicodeEncodeError:
+                        input("UnicodeEncodeError...")
                         file.write('UnicodeEncodeError')
 
                     if i < len(header)-1:
                         file.write(';')
                 file.write('\n')
+            return True
         except PermissionError:
             th = threading.Thread(target=lambda:
                 TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
@@ -204,11 +216,28 @@ class Analyzer(TwitterApi):
             th.start()
             self.log_ui('PermissionError, created background thread to save data')
             return None
+
+    def filtrerDF_ByExistingKey(self, key):  # Fix exceptions, bool type
+        if not key or key == '' or key not in self.DF.keys():
+            self.log_ui('Wrong key to filter.')
+            return False
+        DF = self.DF
+        df = DF.loc[(DF[key] != None) & (DF[key] != 'nan') & (DF[key] != r'n/a')
+                    & (DF[key] != 'None')]
         
+        if max(df.shape) > 0 and df.shape != DF.shape:
+            self.DF = df
+            return True
+        else:
+            return False
+    
     def filterDF_byLang(self, lang):
         lang = str(lang)
-        self.DF = self.DF.loc[lambda df: df['lang'] == lang]
-        self.log_ui(f'DF filtered by Language: {lang}')
+        if self.DF is not None:
+            self.DF = self.DF.loc[lambda df: df['lang'] == lang]
+            self.log_ui(f'DF filtered by Language: {lang}')
+        else:
+            self.log_ui('DF is empty.')
         
     def find_local_tweets(self, path=None):
         if path:
@@ -219,6 +248,8 @@ class Analyzer(TwitterApi):
         return files
 
     def load_DF(self, file_list):
+        if type(file_list) is str:
+            file_list = [file_list]
         self.DF = None
         self.loaded_to_DF = []
         text = 'Loading Tweets:'
@@ -319,16 +350,9 @@ class Analyzer(TwitterApi):
 
 
 if __name__ == "__main__":
-    app = Analyzer()
-    dumy_list = [1189259569060597762,
-                 1189259544188338176,
-                 1189259542049312775,
-                 1189259512496214016,
-                 1189259510906527744,
-                 1189259438840074242,
-                 1189259430489133057,
-                 1189259415108685824,
-                 1189259380824428547]
-
-    app.collect_status(dumy_list)
+    app = Analyzer(autologin=False)
+    app.load_DF('Home_20191104_23-36-09_060sec_200.csv')
+    print(f'Shape {app.DF.shape}')
+    valid = app.filtrerDF_ByExistingKey('in_reply_to_screen_name')
+    print(f'Valid {valid}, Shape {app.DF.shape}')
     input('Press key....')

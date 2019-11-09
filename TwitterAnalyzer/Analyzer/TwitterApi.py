@@ -27,7 +27,8 @@ class TwitterApi:
         if valid:
             self.logged_in = True
         else:
-            input('Check Analyzer\\Readme.md if you got problems, press to exit...')
+            input(f'Error: {message}\n'+
+                  'Check "Analyzer\\Readme.md" if you got problems, press to exit...')
             sys.exit()
         return valid, message
 
@@ -37,6 +38,7 @@ class TwitterApi:
 
             with open(file_path, 'rt') as token_file:
                 data = json.load(token_file)
+
                 consumer_key = data['consumer_key']
                 consumer_secret = data['consumer_secret']
                 access_token_key = data['access_token_key']
@@ -266,7 +268,7 @@ class TooManyRequests(Exception):  # 429
 
 if __name__ == "__main__":
     app = TwitterApi()
-    app.post_status('Test Api imagebinary', imagePath='220_kookaburra.png')
+    # app.post_status('Test Api imagebinary', imagePath='220_kookaburra.png')
     # app.postLarge_image('220_kookaburra.png')
 
    
