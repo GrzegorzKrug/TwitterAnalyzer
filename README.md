@@ -90,8 +90,10 @@ Python Application for improving twitter content and quality of usage
 		- [ ] Other features
 	- [ ] Remove
 		- [ ] Old
+		- [ ] prioritize new files if limit is reached. (1GB ? defined by user)
 		- [ ] already used
-		- [x] Small
+		- [ ] Small
+		- [x] With low tweet amount
 
 #### Application 
 - [x] Venv compatibility
