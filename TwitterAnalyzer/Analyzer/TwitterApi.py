@@ -28,13 +28,13 @@ class TwitterApi:
             self.logged_in = True
         else:
             input(f'Error: {message}\n'+
-                  'Check "Analyzer\\Readme.md" if you got problems, press to exit...')
+                  'Check "Analyzer\\Readme.md" if you got problems, press enter to exit...')
             sys.exit()
         return valid, message
 
     def _verifyOAuth(self):
         try:
-            file_path = os.path.dirname(__file__) + '\\' + 'secret_token.txt'
+            file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
 
             with open(file_path, 'rt') as token_file:
                 data = json.load(token_file)
@@ -69,12 +69,22 @@ class TwitterApi:
             return False, None, "secret_token.txt is not in json format!"
 
         except KeyError:
-            print("Exception: secret_token.txt is missing some keys!")
+            print("Exception: secret_token.txt is missing some keys!")            
             return False, None, "secret_token.txt is missing some keys!"
 
         except FileNotFoundError:
-            print("Exception: secret_token.txt is missing!")
-            return False, None, "secret_token.txt is missing!"
+            #print("Exception: secret_token.txt is missing!\n"
+            	#"Created blank secret_token.txt.")
+            with open(file_path, 'wt') as file:
+            	data = 	json.dumps({
+            		"consumer_key" : "ABC",
+            		"consumer_secret" : "ABC",
+            		"access_token_key" : "ABC",
+            		"access_token_secret" : "ABC"},
+            		indent=4)
+            	file.write(data)
+
+            return False, None, "Exception: secret_token.txt is missing!\n>\tCreated blank secret_token.txt."
         #
         # except twitter.error.TwitterError:
         #     print("Invalid or expired token!")

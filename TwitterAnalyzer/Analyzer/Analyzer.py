@@ -17,7 +17,7 @@ class Analyzer(TwitterApi):
     def __init__(self, autologin=True, log_ui=None):
         TwitterApi.__init__(self, autologin=False)
 
-        self._data_dir = os.path.dirname(os.path.dirname(__file__)) + '\\' + 'tweets'
+        self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
         self.log_ui_ref = log_ui
@@ -139,7 +139,7 @@ class Analyzer(TwitterApi):
             file = os.path.basename(file_path)
             
             if not os.path.isabs(file_path):
-                file_path = self._data_dir + '\\' + file_path            
+                file_path = os.path.join(self._data_dir, file_path)
             if file[-4:] == '.csv':
                 if os.path.exists(file_path):
                     try:
@@ -172,7 +172,7 @@ class Analyzer(TwitterApi):
             # Parent AbsPath + _data_dir
             _data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), _data_dir)
             
-        file_path = _data_dir + '\\' + filename + '.csv'
+        file_path = os.path.join(_data_dir, filename + '.csv')
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                   'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
                   'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
@@ -244,7 +244,7 @@ class Analyzer(TwitterApi):
             path = os.path.abspath(path)
         else:
             path = self._data_dir
-        files = glob.glob(path + '\\tweets*.csv')
+        files = glob.glob(os.path.join(path + 'tweets*.csv'))
         return files
 
     def load_DF(self, file_list):
@@ -254,7 +254,7 @@ class Analyzer(TwitterApi):
         self.loaded_to_DF = []
         text = 'Loading Tweets:'
         for file in file_list:
-            file_path = self._data_dir + '\\' + file
+            file_path = os.path.join(self._data_dir + file)
             df = pd.read_csv(file_path, sep=';', encoding='utf8')
             self.loaded_to_DF += [file]
             text += f'\n\t {file}'
