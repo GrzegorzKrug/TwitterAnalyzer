@@ -291,7 +291,7 @@ class Analyzer(TwitterApi):
             return False
         
         for file in self.loaded_to_DF:
-            file_path = self._data_dir + '\\' + file
+            file_path = os.path.join(self._data_dir, file)
             try:
                 df = pd.read_csv(file_path, sep=';', encoding='utf8')
                 text += f'\n\t {file}'
