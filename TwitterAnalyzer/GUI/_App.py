@@ -161,15 +161,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     @staticmethod
     def download10_chunks():
         app = Analyzer()
-        # try:
-        #     if kwargs['parent']:
-        #         print('TRUE parent')
-        #         kwargs['parent'].log_ui('THIS IS THREAD')
-        #
-        #         app.log_ui = kwargs['parent'].log_ui
-        # except KeyError:
-        #     pass
-        app.collect_new_tweets(n=2, chunk_size=200, interval=5)
+        app.collect_new_tweets(n=10, chunk_size=200, interval=60)
 
     def filterData_ByExistingkey(self):
         text = self.lineEdit_filterKeyinput.text()
