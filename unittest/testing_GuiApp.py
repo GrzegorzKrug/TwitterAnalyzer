@@ -28,6 +28,7 @@ class UnitTest(unittest.TestCase):
 
     def test_create_delete_csv(self):
         filepath = os.path.join(tweet_dir, 'unittest.csv')
+        print(filepath)
         app.export_tweet_to_database('tweets', None, 'unittest')
         self.assertTrue(os.path.exists(filepath))
 

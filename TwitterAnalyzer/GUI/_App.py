@@ -264,7 +264,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def pop_window(self):
         msg = QtWidgets.QMessageBox()
         if self.me:
-            msg.setText('Currently logged in: {} ({}).'
+            msg.setText('Currently logged in as {} ({}).'
                         .format(self.me['screen_name'], self.me['name']))
         else:
             msg.setText('Currently not logged in.')
