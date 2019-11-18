@@ -57,6 +57,8 @@ or
 		- [ ] Useful
 	- [ ] Sort DF (? is this necessary ?)
 	- [ ] Train model for predictions
+		- [ ] Start making cool stuff
+		- [ ] Enjoy
 - [ ] Show Tweets
 	- [ ] Decision model
 	
