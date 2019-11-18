@@ -2,6 +2,13 @@
 
 Application for analyzing and processing text information in tweets using Machine learning techniques.
 
+
+## Install Package in editable state
+Download files. 
+Excecute command in root of project to install it from `setup.py`.
+`pip install -e .` or 
+`pip3 install -e .`
+
 ## Application Status (Current plan, can be change any time)
 
 #### API (4 / 7)
