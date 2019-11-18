@@ -254,8 +254,8 @@ class Analyzer(TwitterApi):
         self.loaded_to_DF = []
         text = 'Loading Tweets:'
         for file in file_list:
-            file_path = os.path.join(self._data_dir + file)
-            df = pd.read_csv(file_path, sep=';', encoding='utf8')
+            file_path = os.path.abspath(os.path.join(self._data_dir, file))
+            df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
             self.loaded_to_DF += [file]
             text += f'\n\t {file}'
             if self.DF is None:

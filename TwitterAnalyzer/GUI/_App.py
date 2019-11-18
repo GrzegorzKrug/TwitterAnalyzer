@@ -152,7 +152,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
         for f in filelist:
             try:
-                os.remove(self._data_dir + '\\' + f)
+                os.remove(os.path.join(self._data_dir, f))
                 self.log_ui(f'Removed {f}')
 
             except PermissionError:
@@ -236,14 +236,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                     + '.csv'
         with open(self._data_dir + '\\' + merged_file, 'wt', encoding='utf8') as f:
             for i, file in enumerate(filelist):
-                df = pd.read_csv(self._data_dir + '\\' + file, sep=';', encoding='utf8')
+                curr_file_path = os.path.join(self._data_dir, file)
+                df = pd.read_csv(curr_file_path, sep=';', encoding='utf8')
 
                 if i == 0:
                     df.to_csv(f, header=True, sep=';', encoding='utf8', index=False)
                 else:
                     df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
                 try:
-                    os.remove(self._data_dir + '\\' + file)
+                    os.remove(curr_file_path)
                 except PermissionError:
                     self.log_ui(f'Merged, but can not remove {file}')
 
