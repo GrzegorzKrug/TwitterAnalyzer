@@ -99,4 +99,5 @@ Application for analyzing and processing text information in tweets.
 - [x] Venv compatibility
 	- [x] Installing modules
 	- [x] Importing
+	- [x] Setup.py
 			
