@@ -1,6 +1,6 @@
 # TwitterAnalyzer
 
-Application for analyzing and processing text information in tweets.
+Application for analyzing and processing text information in tweets using Machine learning techniques.
 
 ## Application Status (Current plan, can be change any time)
 
@@ -28,7 +28,7 @@ Application for analyzing and processing text information in tweets.
 	- [x] Cleanup csv
 	- [x] Rearrange csv	
 	- [x] Save DF
-- [ ] Analysis of Tweets
+- [ ] ML Analysis of Tweets
 	- [ ] Count Comments / Reactions
 	- [ ] Normalize Tweets
 		- [ ] Lowercase text
