@@ -132,23 +132,26 @@ class Analyzer(TwitterApi):
             
     def delete_csv(self, filelist):
         'Removes tweets_ only !'
-        if type(filelist) is not list:
+        if type(filelist) is not list:            
             filelist = [filelist]
 
-        for file_path in filelist:
-            file = os.path.basename(file_path)
+        for file_path in filelist:            
+            file_name = os.path.basename(file_path)
             
-            if not os.path.isabs(file_path):
-                file_path = os.path.join(self._data_dir, file_path)
-            if file[-4:] == '.csv':
+            if not os.path.isabs(file_path):           
+                file_path = os.path.abspath(os.path.join(self._data_dir, file_path))
+
+            if file_name[-4:] == '.csv':
                 if os.path.exists(file_path):
                     try:
                         os.remove(file_path)
                         self.log_ui(f'Removed: {file_path}')
                     except PermissionError:
-                        self.log_ui(f' PermissionError: Close this file {file}')
+                        self.log_ui(f' PermissionError: Close this file {file_name}')
                 else:
                     self.log_ui(f'File does not exists {file_path}')
+            else:
+                self.log_ui(f"File {file_name} is not *.csv")
                     
     def delete_less(self, n=200):
         'Procedure, Finds Tweets .csv, Removes them.'
@@ -243,8 +246,8 @@ class Analyzer(TwitterApi):
         if path:
             path = os.path.abspath(path)
         else:
-            path = self._data_dir
-        files = glob.glob(os.path.join(path + 'tweets*.csv'))
+            path = self._data_dir        
+        files = glob.glob(os.path.join(path, 'Tweets*.csv'))        
         return files
 
     def load_DF(self, file_list):
@@ -288,7 +291,7 @@ class Analyzer(TwitterApi):
             return False
         
         for file in self.loaded_to_DF:
-            file_path = self._data_dir + '\\' + file
+            file_path = os.path.join(self._data_dir, file)
             try:
                 df = pd.read_csv(file_path, sep=';', encoding='utf8')
                 text += f'\n\t {file}'

@@ -10,8 +10,9 @@ MainWindow = QtWidgets.QMainWindow()
 app = TwitterAnalyzerGUI(MainWindow, autologin=False)
 
 global tweet_dir
-tweet_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+tweet_dir = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))),
                         'TwitterAnalyzer', 'tweets')
+
 
 class UnitTest(unittest.TestCase):
     def test_Login_Collect_Home(self):
