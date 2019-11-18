@@ -1,6 +1,6 @@
 # TwitterAnalyzer
 
-Python Application for improving twitter content and quality of usage
+Application for analyzing and processing text information in tweets.
 
 ## Application Status (Current plan, can be change any time)
 
@@ -32,7 +32,7 @@ Python Application for improving twitter content and quality of usage
 	- [ ] Count Comments / Reactions
 	- [ ] Normalize Tweets
 		- [ ] Lowercase text
-	- [ ] Analysis in time
+	- [ ] Analysis influence in time
 		- [ ] Same id post
 		- [ ] RT impact
 	- [ ] Analysis Followers/Friends Tweets
