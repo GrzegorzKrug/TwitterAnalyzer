@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
-    <height>746</height>
+    <width>1117</width>
+    <height>771</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <enum>QLayout::SetMinimumSize</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QGridLayout" name="MainGrid" rowstretch="1,0,2" columnstretch="3,0,1,1,1" rowminimumheight="350,20,300" columnminimumwidth="400,100,150,150,150">
+     <layout class="QGridLayout" name="MainGrid" rowstretch="1,0,2" columnstretch="3,0,1,1,1" rowminimumheight="370,20,300" columnminimumwidth="400,100,150,150,150">
       <property name="sizeConstraint">
        <enum>QLayout::SetNoConstraint</enum>
       </property>
@@ -614,7 +614,7 @@ color: rgb(255, 255, 255);</string>
             <x>10</x>
             <y>70</y>
             <width>371</width>
-            <height>252</height>
+            <height>269</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="Vertical_Filters" stretch="1,1,0">
@@ -969,8 +969,8 @@ color: rgb(255, 255, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1118</width>
-     <height>21</height>
+     <width>1117</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="actionMenuAuth">
