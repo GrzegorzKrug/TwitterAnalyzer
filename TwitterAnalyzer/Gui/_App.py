@@ -2,7 +2,7 @@
 # Grzegorz Krug
 from PyQt5 import QtCore, QtWidgets # QtGui
 from TwitterAnalyzer.Analyzer.Analyzer import Analyzer
-from TwitterAnalyzer.GUI.GUI import Ui_MainWindow
+from TwitterAnalyzer.Gui.GUI import Ui_MainWindow
 #import random
 #import time
 import datetime

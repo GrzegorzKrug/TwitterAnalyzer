@@ -1,3 +1,3 @@
-from TwitterAnalyzer.GUI._App import runGUI
+from TwitterAnalyzer.Gui._App import runGUI
 
 runGUI()
