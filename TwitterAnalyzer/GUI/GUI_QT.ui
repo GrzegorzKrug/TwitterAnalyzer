@@ -612,9 +612,9 @@ color: rgb(255, 255, 255);</string>
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>60</y>
-            <width>391</width>
-            <height>261</height>
+            <y>70</y>
+            <width>381</width>
+            <height>252</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="Vertical_Filters" stretch="1,1,0">
@@ -625,30 +625,13 @@ color: rgb(255, 255, 255);</string>
             <enum>QLayout::SetMinimumSize</enum>
            </property>
            <item>
-            <layout class="QGridLayout" name="gridLayout_DataFilters" rowstretch="1,1,1,1,1,0" columnstretch="2,2,1,1" rowminimumheight="5,5,5,5,5,0">
+            <layout class="QGridLayout" name="gridLayout_DataFilters" rowstretch="1,0,0,0,0,0" columnstretch="2,0,0,0">
              <property name="sizeConstraint">
               <enum>QLayout::SetNoConstraint</enum>
              </property>
              <property name="spacing">
               <number>5</number>
              </property>
-             <item row="4" column="0">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_7">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QPushButton" name="pushButton_FilterDF_Lang_Other">
-               <property name="toolTip">
-                <string>Filter DF, put language below</string>
-               </property>
-               <property name="text">
-                <string>Lang</string>
-               </property>
-              </widget>
-             </item>
              <item row="1" column="2">
               <widget class="QPushButton" name="pushButton_FilterDF_Lang_Polish">
                <property name="toolTip">
@@ -656,26 +639,6 @@ color: rgb(255, 255, 255);</string>
                </property>
                <property name="text">
                 <string>Lang PL</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPushButton" name="pushButton_export_DF_11">
-               <property name="toolTip">
-                <string>Save DF to .csv File</string>
-               </property>
-               <property name="text">
-                <string>Words</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QPushButton" name="pushButton_FilterDF_Lang_English">
-               <property name="toolTip">
-                <string>Filter DF, english</string>
-               </property>
-               <property name="text">
-                <string>Lang En</string>
                </property>
               </widget>
              </item>
@@ -689,27 +652,6 @@ color: rgb(255, 255, 255);</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_6">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_5">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_2">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
-               </property>
-              </widget>
-             </item>
              <item row="3" column="3">
               <widget class="QPushButton" name="pushButton_FilterDF_by_Key">
                <property name="toolTip">
@@ -717,6 +659,13 @@ color: rgb(255, 255, 255);</string>
                </property>
                <property name="text">
                 <string>Non Empty</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_6">
+               <property name="toolTip">
+                <string>You can Add some comment to file name</string>
                </property>
               </widget>
              </item>
@@ -730,27 +679,44 @@ color: rgb(255, 255, 255);</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
-              <widget class="QPushButton" name="pushButton_export_DF_9">
-               <property name="toolTip">
-                <string>Save DF to .csv File</string>
-               </property>
-               <property name="text">
-                <string>Text</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="3">
-              <widget class="QLineEdit" name="lineEdit_filterKeyinput">
-               <property name="toolTip">
-                <string>Key input</string>
-               </property>
-              </widget>
-             </item>
              <item row="4" column="2">
               <widget class="QLineEdit" name="lineEdit_FilterLangOther">
                <property name="toolTip">
                 <string>input for Lang Button</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QPushButton" name="pushButton_export_DF_11">
+               <property name="toolTip">
+                <string>Save DF to .csv File</string>
+               </property>
+               <property name="text">
+                <string>Words</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_5">
+               <property name="toolTip">
+                <string>You can Add some comment to file name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_7">
+               <property name="toolTip">
+                <string>You can Add some comment to file name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QPushButton" name="pushButton_FilterDF_Lang_English">
+               <property name="toolTip">
+                <string>Filter DF, english</string>
+               </property>
+               <property name="text">
+                <string>Lang En</string>
                </property>
               </widget>
              </item>
@@ -770,10 +736,44 @@ color: rgb(255, 255, 255);</string>
                </property>
               </spacer>
              </item>
+             <item row="3" column="2">
+              <widget class="QPushButton" name="pushButton_FilterDF_Lang_Other">
+               <property name="toolTip">
+                <string>Filter DF, put language below</string>
+               </property>
+               <property name="text">
+                <string>Lang</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QPushButton" name="pushButton_export_DF_9">
+               <property name="toolTip">
+                <string>Save DF to .csv File</string>
+               </property>
+               <property name="text">
+                <string>Text</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_2">
+               <property name="toolTip">
+                <string>You can Add some comment to file name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QLineEdit" name="lineEdit_filterKeyinput">
+               <property name="toolTip">
+                <string>Key input</string>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="0" colspan="4">
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>Filter DF</string>
+                <string>- - - - Filter DF - - - - </string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -946,6 +946,22 @@ color: rgb(255, 255, 255);</string>
             </spacer>
            </item>
           </layout>
+         </widget>
+         <widget class="QFrame" name="frame_2">
+          <property name="geometry">
+           <rect>
+            <x>270</x>
+            <y>0</y>
+            <width>81</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
          </widget>
         </widget>
         <widget class="QWidget" name="Analyze">
