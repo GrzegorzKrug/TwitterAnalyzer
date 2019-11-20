@@ -197,15 +197,20 @@ class Analyzer(TwitterApi):
         try:
             with open(file_path, 'at', encoding='utf8') as file:
                 for i, key in enumerate(header):
+                    if i >= 37:
+                        print(i)
                     try:
-                        text = str(tweet.get(key, None))  # fix here, dont replace?
-                        for char in ['\n', ';', '\r']:
-                            text = text.replace(char, '')
-                        # if key == 'text':
-                        #     text = text.lower()
-                        file.write(text)
-                    except UnicodeEncodeError:
-                        input("UnicodeEncodeError...")
+                        text = str(tweet.get(key, None))
+                        if text is None:
+                            file.write('None')
+                        elif text.lower() in ['nan', 'none', 'n\\a']:
+                            file.write('None')
+                        else:
+                            for char in ['\n', ';', '\r']:
+                                text = text.replace(char, '')                       
+                                file.write(text)
+
+                    except UnicodeEncodeError:                      
                         file.write('UnicodeEncodeError')
 
                     if i < len(header)-1:
@@ -225,22 +230,32 @@ class Analyzer(TwitterApi):
             self.log_ui('Wrong key to filter.')
             return False
         DF = self.DF
-        df = DF.loc[(DF[key] != None) & (DF[key] != 'nan') & (DF[key] != r'n/a')
-                    & (DF[key] != 'None')]
-        
+        df = DF.loc[(DF[key] != None) & (DF[key] != 'None')]        
         if max(df.shape) > 0 and df.shape != DF.shape:
             self.DF = df
             return True
         else:
             return False
     
+    def filter_conditions(self, df):
+        if df.shape[0] > 0 and df.shape != self.DF.shape:                
+                return True
+        elif df.shape[0] > 0:
+            self.log_ui('Invalid filtration! DF size is the same.')
+            return False
+        else:
+            self.log_ui('Invalid filtration! DF is empty.')
+            return False
+
     def filterDF_byLang(self, lang):
         lang = str(lang)
         if self.DF is not None:
-            self.DF = self.DF.loc[lambda df: df['lang'] == lang]
-            self.log_ui(f'DF filtered by Language: {lang}')
+            df = self.DF.loc[lambda df: df['lang'] == lang]
+            if self.filter_conditions(df):
+                self.DF = df
+                self.log_ui(f"Filtration by language ({lang}) is ok.")
         else:
-            self.log_ui('DF is empty.')
+            self.log_ui('DF is empty. Load some tweets first.')
         
     def find_local_tweets(self, path=None):
         if path:

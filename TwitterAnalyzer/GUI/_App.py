@@ -174,8 +174,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             lang = self.lineEdit_FilterLangOther.text()
             lang = str(lang)
             if lang == '':
-                self.log_ui('This is not language!')
-                return None
+                self.log_ui('Box is empty!')
+                return None                
             self.filterDF_byLang(lang)
         self.showDF()
         
