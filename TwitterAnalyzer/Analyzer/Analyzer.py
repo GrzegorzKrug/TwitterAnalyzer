@@ -196,9 +196,7 @@ class Analyzer(TwitterApi):
             return True
         try:
             with open(file_path, 'at', encoding='utf8') as file:
-                for i, key in enumerate(header):
-                    if i >= 37:
-                        print(i)
+                for i, key in enumerate(header):                    
                     try:
                         text = str(tweet.get(key, None))
                         if text is None:
@@ -208,7 +206,7 @@ class Analyzer(TwitterApi):
                         else:
                             for char in ['\n', ';', '\r']:
                                 text = text.replace(char, '')                       
-                                file.write(text)
+                            file.write(text)
 
                     except UnicodeEncodeError:                      
                         file.write('UnicodeEncodeError')
