@@ -30,7 +30,7 @@
      <number>-1</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -827,7 +827,8 @@ color: rgb(255, 255, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Lucida Console</family>
+      <family>Consolas</family>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="styleSheet">

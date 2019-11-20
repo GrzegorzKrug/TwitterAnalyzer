@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI_QT.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -215,7 +215,8 @@ class Ui_MainWindow(object):
         self.plainTextEdit_info = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.plainTextEdit_info.setGeometry(QtCore.QRect(10, 380, 571, 461))
         font = QtGui.QFont()
-        font.setFamily("Lucida Console")
+        font.setFamily("Consolas")
+        font.setPointSize(10)
         self.plainTextEdit_info.setFont(font)
         self.plainTextEdit_info.setStyleSheet("background-color: rgb(220, 220, 220);\n"
 "\n"
@@ -323,7 +324,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
