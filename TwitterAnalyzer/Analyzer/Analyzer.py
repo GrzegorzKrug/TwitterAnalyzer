@@ -229,7 +229,7 @@ class Analyzer(TwitterApi):
             return False
         DF = self.DF
         df = DF.loc[(DF[key] != None) & (DF[key] != 'None')]        
-        if max(df.shape) > 0 and df.shape != DF.shape:
+        if self.filter_conditions(df):
             self.DF = df
             return True
         else:

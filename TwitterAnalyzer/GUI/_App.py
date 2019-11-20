@@ -36,8 +36,12 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         
         # self.label_login_status.mousePressEvent = self.update_status
 
+        'Requesting methods'
         self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.downloadFullChunk))
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
+        self.pushButton_Request_Status.clicked.connect(self.requestStatusFromBox)
+
+        'Buttons'
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
         self.pushButton_load_selected_csv_2.clicked.connect(self.load_selected)
         self.pushButton_clear_log.clicked.connect(self.clear_log)
@@ -51,18 +55,19 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_reload_DF.clicked.connect(self.resetDF)
         self.pushButton_check_threads.clicked.connect(self.check_threads)
 
+        'Displaying Tweets'
         self.pushButton_ShowTweet.clicked.connect(self.showTweetfromDF)
         self.pushButton_NextTweet.clicked.connect(self.showNextTweetfromDF)
         self.pushButton_PreviousTweet.clicked.connect(self.showPrevTweetfromDF)
         self.pushButton_JumpToTweet.clicked.connect(self.showTweetJump)
 
-        self.pushButton_Request_Status.clicked.connect(self.requestStatusFromBox)
-        
+        'Filtration Buttons'
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterdata_Language('pl'))
         self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.filterdata_Language('en'))
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)
         self.pushButton_FilterDF_by_Key.clicked.connect(self.filterData_ByExistingkey)
-        
+        self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterData_ByNonEmptyKey)
+
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
 
@@ -163,7 +168,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         app = Analyzer()
         app.collect_new_tweets(n=10, chunk_size=200, interval=60)
 
-    def filterData_ByExistingkey(self):
+    def filterData_ByNonEmptyKey(self):
         text = self.lineEdit_filterKeyinput.text()
         valid = self.filtrerDF_ByExistingKey(text)
         
