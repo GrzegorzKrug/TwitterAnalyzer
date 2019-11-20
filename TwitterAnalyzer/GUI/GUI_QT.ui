@@ -653,9 +653,9 @@ color: rgb(255, 255, 255);</string>
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QPushButton" name="pushButton_FilterDF_by_Key">
+              <widget class="QPushButton" name="pushButton_FilterDF_by_NonEmptyKey">
                <property name="toolTip">
-                <string>Filter tweets with valused instead of None, put category</string>
+                <string>Filter Tweets with non empty fields. Display field in Help menu</string>
                </property>
                <property name="text">
                 <string>Non Empty</string>
