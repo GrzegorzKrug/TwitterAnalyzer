@@ -210,6 +210,10 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tab_4, "")
         self.treeView = QtWidgets.QTreeView(self.centralwidget)
         self.treeView.setGeometry(QtCore.QRect(600, 10, 411, 361))
+        font = QtGui.QFont()
+        font.setFamily("Consolas")
+        font.setPointSize(10)
+        self.treeView.setFont(font)
         self.treeView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
         self.treeView.setObjectName("treeView")
         self.plainTextEdit_info = QtWidgets.QPlainTextEdit(self.centralwidget)
@@ -229,7 +233,8 @@ class Ui_MainWindow(object):
         self.textEdit_log = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_log.setGeometry(QtCore.QRect(590, 410, 421, 431))
         font = QtGui.QFont()
-        font.setFamily("Lucida Console")
+        font.setFamily("Consolas")
+        font.setPointSize(10)
         self.textEdit_log.setFont(font)
         self.textEdit_log.setFrameShape(QtWidgets.QFrame.Box)
         self.textEdit_log.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -404,8 +409,8 @@ class Ui_MainWindow(object):
         self.textEdit_log.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Lucida Console\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'MS Shell Dlg 2\';\"><br /></p></body></html>"))
+"</style></head><body style=\" font-family:\'Consolas\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'MS Shell Dlg 2\'; font-size:8.25pt;\"><br /></p></body></html>"))
         self.pushButton_clear_log.setText(_translate("MainWindow", "Clear Log"))
         self.pushButton_Info_screenLog.setText(_translate("MainWindow", "Copy info To Log ->"))
         self.pushButton_NextTweet.setToolTip(_translate("MainWindow", "Show next Tweet from DF"))
