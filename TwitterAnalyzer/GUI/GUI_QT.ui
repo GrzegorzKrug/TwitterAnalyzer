@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1241</width>
+    <width>1118</width>
     <height>746</height>
    </rect>
   </property>
@@ -15,8 +15,14 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetMinimumSize</enum>
+    </property>
     <item row="0" column="0">
-     <layout class="QGridLayout" name="MainGrid" rowstretch="1,0,2" columnstretch="3,1,1,1,1" rowminimumheight="350,20,300" columnminimumwidth="400,100,150,100,100">
+     <layout class="QGridLayout" name="MainGrid" rowstretch="1,0,2" columnstretch="3,0,1,1,1" rowminimumheight="350,20,300" columnminimumwidth="400,100,150,150,150">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetNoConstraint</enum>
+      </property>
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -129,9 +135,12 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="0" column="1">
-       <layout class="QGridLayout" name="DisplayTweetsGrid" columnstretch="0,0" columnminimumwidth="50,50">
+       <layout class="QGridLayout" name="DisplayTweetsGrid" columnstretch="1,1" columnminimumwidth="30,30">
         <property name="sizeConstraint">
-         <enum>QLayout::SetFixedSize</enum>
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
+        <property name="spacing">
+         <number>5</number>
         </property>
         <item row="11" column="1">
          <widget class="QPushButton" name="pushButton_NextTweet">
@@ -603,41 +612,30 @@ color: rgb(255, 255, 255);</string>
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>80</y>
-            <width>371</width>
-            <height>211</height>
+            <y>70</y>
+            <width>381</width>
+            <height>247</height>
            </rect>
           </property>
-          <layout class="QVBoxLayout" name="Vertical_Filters">
+          <layout class="QVBoxLayout" name="Vertical_Filters" stretch="1,1">
+           <property name="spacing">
+            <number>8</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
            <item>
-            <layout class="QGridLayout" name="gridLayout_DataFilters" columnstretch="2,2,1,1">
-             <item row="1" column="0">
-              <widget class="QPushButton" name="pushButton_export_DF_6">
+            <layout class="QGridLayout" name="gridLayout_DataFilters" rowstretch="1,1,1,1,1,0" columnstretch="2,2,1,1" rowminimumheight="5,5,5,5,5,0">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetNoConstraint</enum>
+             </property>
+             <property name="spacing">
+              <number>5</number>
+             </property>
+             <item row="4" column="0">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_7">
                <property name="toolTip">
-                <string>Save DF to .csv File</string>
-               </property>
-               <property name="text">
-                <string>User</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="3">
-              <widget class="QPushButton" name="pushButton_FilterDF_by_Key">
-               <property name="toolTip">
-                <string>Filter tweets with valused instead of None, put category</string>
-               </property>
-               <property name="text">
-                <string>Non Empty</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QPushButton" name="pushButton_FilterDF_Lang_English">
-               <property name="toolTip">
-                <string>Filter DF, english</string>
-               </property>
-               <property name="text">
-                <string>Lang En</string>
+                <string>You can Add some comment to file name</string>
                </property>
               </widget>
              </item>
@@ -651,43 +649,6 @@ color: rgb(255, 255, 255);</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="0" colspan="2">
-              <widget class="QLabel" name="label_6">
-               <property name="text">
-                <string>Filter DF</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QPushButton" name="pushButton_export_DF_9">
-               <property name="toolTip">
-                <string>Save DF to .csv File</string>
-               </property>
-               <property name="text">
-                <string>Text</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_5">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="pushButton_export_DF_10">
-               <property name="toolTip">
-                <string>Save DF to .csv File</string>
-               </property>
-               <property name="text">
-                <string>TweetId</string>
-               </property>
-              </widget>
-             </item>
              <item row="1" column="2">
               <widget class="QPushButton" name="pushButton_FilterDF_Lang_Polish">
                <property name="toolTip">
@@ -695,34 +656,6 @@ color: rgb(255, 255, 255);</string>
                </property>
                <property name="text">
                 <string>Lang PL</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_7">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="3">
-              <widget class="QLineEdit" name="lineEdit_filterKeyinput">
-               <property name="toolTip">
-                <string>Key input</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_2">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEdit_DF_comment_6">
-               <property name="toolTip">
-                <string>You can Add some comment to file name</string>
                </property>
               </widget>
              </item>
@@ -736,6 +669,84 @@ color: rgb(255, 255, 255);</string>
                </property>
               </widget>
              </item>
+             <item row="2" column="2">
+              <widget class="QPushButton" name="pushButton_FilterDF_Lang_English">
+               <property name="toolTip">
+                <string>Filter DF, english</string>
+               </property>
+               <property name="text">
+                <string>Lang En</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="pushButton_export_DF_10">
+               <property name="toolTip">
+                <string>Save DF to .csv File</string>
+               </property>
+               <property name="text">
+                <string>TweetId</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_6">
+               <property name="toolTip">
+                <string>You can Add some comment to file name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_5">
+               <property name="toolTip">
+                <string>You can Add some comment to file name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLineEdit" name="lineEdit_DF_comment_2">
+               <property name="toolTip">
+                <string>You can Add some comment to file name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QPushButton" name="pushButton_FilterDF_by_Key">
+               <property name="toolTip">
+                <string>Filter tweets with valused instead of None, put category</string>
+               </property>
+               <property name="text">
+                <string>Non Empty</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="pushButton_export_DF_6">
+               <property name="toolTip">
+                <string>Save DF to .csv File</string>
+               </property>
+               <property name="text">
+                <string>User</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QPushButton" name="pushButton_export_DF_9">
+               <property name="toolTip">
+                <string>Save DF to .csv File</string>
+               </property>
+               <property name="text">
+                <string>Text</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QLineEdit" name="lineEdit_filterKeyinput">
+               <property name="toolTip">
+                <string>Key input</string>
+               </property>
+              </widget>
+             </item>
              <item row="4" column="2">
               <widget class="QLineEdit" name="lineEdit_FilterLangOther">
                <property name="toolTip">
@@ -743,10 +754,42 @@ color: rgb(255, 255, 255);</string>
                </property>
               </widget>
              </item>
+             <item row="5" column="1">
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::MinimumExpanding</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="0" colspan="4">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Filter DF</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>
-            <layout class="QGridLayout" name="gridLayout_TimeFilters" columnstretch="2,0,0,0,0">
+            <layout class="QGridLayout" name="gridLayout_TimeFilters" rowstretch="1,1,1" columnstretch="2,0,0,0,0" rowminimumheight="5,5,5">
+             <property name="horizontalSpacing">
+              <number>5</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>2</number>
+             </property>
              <item row="1" column="0">
               <widget class="QPushButton" name="pushButton_export_DF_26">
                <property name="toolTip">
@@ -790,6 +833,11 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="label_10">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>to:</string>
                </property>
@@ -807,6 +855,11 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="2" column="3">
               <widget class="QLabel" name="label_5">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>M</string>
                </property>
@@ -817,6 +870,11 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_9">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>from:</string>
                </property>
@@ -827,6 +885,11 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="2" column="2">
               <widget class="QLabel" name="label_4">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>H</string>
                </property>
@@ -844,6 +907,11 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="2" column="4">
               <widget class="QLabel" name="label_7">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>S</string>
                </property>
@@ -885,7 +953,7 @@ color: rgb(255, 255, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1241</width>
+     <width>1118</width>
      <height>21</height>
     </rect>
    </property>
