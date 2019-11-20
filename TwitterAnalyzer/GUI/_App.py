@@ -64,8 +64,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         'Filtration Buttons'
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterdata_Language('pl'))
         self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.filterdata_Language('en'))
-        self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)
-        self.pushButton_FilterDF_by_Key.clicked.connect(self.filterData_ByExistingkey)
+        self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)        
         self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterData_ByNonEmptyKey)
 
     def _init_wrappers(self):
@@ -384,14 +383,14 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def whatTweetis(self):
         text = 'Tweet index:             index / last tweet' \
                '\nid:                      tweet id' \
-               '\ntimestamp:               time in seconds' \
+               '\ntimestamp:               time when tweet was collected' \
                '\ncontributors:            <help>' \
                '\ncoordinates:             <help>' \
-               '\ncreated_at:              <help>' \
+               '\ncreated_at:              Tweet creation time' \
                '\ncurrent_user_retweet:    <help>' \
                '\nfavorite_count:          <help>' \
                '\nfavorited:               <help>' \
-               '\nfull_text:               <help>' \
+               '\nfull_text:               Tweet text' \
                '\ngeo:                     geolocation' \
                '\nhashtags:                hashtags used in tweet' \
                '\nid_str:                  tweetid string' \

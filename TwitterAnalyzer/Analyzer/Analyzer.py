@@ -231,6 +231,7 @@ class Analyzer(TwitterApi):
         df = DF.loc[(DF[key] != None) & (DF[key] != 'None')]        
         if self.filter_conditions(df):
             self.DF = df
+            self.log_ui(f'Found tweets with values in {key}')
             return True
         else:
             return False
