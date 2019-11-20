@@ -15,5 +15,7 @@ File should look like this example:
 }
 ```
 
+**Key is case sensitive. If it is not working, check for empty spaces!**
+
 ## Generate token here (Twitter Developer Guide)
 > https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens
