@@ -173,8 +173,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         valid = self.filtrerDF_ByExistingKey(text)
 
     def filtedata_ByTweetId(self):
-        text = int(self.lineEdit_tweet_id.text())
-        if text >= 0:    
+        text = self.lineEdit_tweet_id.text()
+        if len(text) > 0:
             self.filteDF_ByTweetId(text)
         else:
             self.log_ui("This is not valid ID")

@@ -257,9 +257,14 @@ class Analyzer(TwitterApi):
             self.log_ui('DF is empty. Load some tweets first.')
 
     def filteDF_ByTweetId(self, tweet_id):
-        #tweet_id = str(tweet_id)
+        try:
+            tweet_id = int(tweet_id)
+        except ValueError as e:
+            self.log_ui("Invalid Tweet id")
+            return None
+
         if self.DF is not None:
-            #tweet_id = str(tweet_id)
+
             df = self.DF.loc[lambda df: df['id'] == tweet_id]
             if self.filter_conditions(df):
                 self.DF = df
