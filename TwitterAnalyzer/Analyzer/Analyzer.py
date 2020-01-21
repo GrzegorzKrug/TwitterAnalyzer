@@ -181,7 +181,7 @@ class Analyzer(TwitterApi):
                   'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
                   'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
                   'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
-                  'retweeted', 'retweeted_status', 'scopes', 'source', 'full_text', 'truncated', 'urls',
+                  'retweeted', 'retweeted_status', 'scopes', 'source', 'truncated', 'urls',
                   'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
                   'withheld_scope', 'tweet_mode']
 

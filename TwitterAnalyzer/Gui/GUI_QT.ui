@@ -135,33 +135,13 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="0" column="1">
-       <layout class="QGridLayout" name="DisplayTweetsGrid" columnstretch="1,1" columnminimumwidth="30,30">
+       <layout class="QGridLayout" name="DisplayTweetsGrid" columnstretch="1,0">
         <property name="sizeConstraint">
          <enum>QLayout::SetMinimumSize</enum>
         </property>
         <property name="spacing">
          <number>5</number>
         </property>
-        <item row="11" column="1">
-         <widget class="QPushButton" name="pushButton_NextTweet">
-          <property name="toolTip">
-           <string>Show next Tweet from DF</string>
-          </property>
-          <property name="text">
-           <string>Next &gt;&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkBox_HideEmptyValues">
-          <property name="text">
-           <string>Hide empty values</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_reload_DF">
           <property name="toolTip">
@@ -169,6 +149,39 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="text">
            <string>Reload DF</string>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0">
+         <widget class="QPushButton" name="pushButton_PreviousTweet">
+          <property name="toolTip">
+           <string>Show previous Tweet from DF</string>
+          </property>
+          <property name="text">
+           <string>&lt;&lt; Prev</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_showTweets">
+          <property name="toolTip">
+           <string>Shows currently loaded DF</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string>DF Info</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkBox_HideEmptyValues">
+          <property name="text">
+           <string>Hide empty values</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -188,69 +201,6 @@ p, li { white-space: pre-wrap; }
           </property>
          </spacer>
         </item>
-        <item row="11" column="0">
-         <widget class="QPushButton" name="pushButton_PreviousTweet">
-          <property name="toolTip">
-           <string>Show previous Tweet from DF</string>
-          </property>
-          <property name="text">
-           <string>&lt;&lt; Prev</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_load_selected_csv_2">
-          <property name="toolTip">
-           <string>Loads files from tree.</string>
-          </property>
-          <property name="text">
-           <string>Load selected</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Display short user info</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_ShowTweet">
-          <property name="toolTip">
-           <string>Show first Tweet from DF</string>
-          </property>
-          <property name="text">
-           <string>Show Tweet</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="1">
-         <widget class="QLineEdit" name="lineEdit_JumpToTweet">
-          <property name="toolTip">
-           <string>Input index for Jump button.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="0">
-         <widget class="QPushButton" name="pushButton_JumpToTweet">
-          <property name="toolTip">
-           <string>Jumps to Tweet in DF, define index in box.</string>
-          </property>
-          <property name="text">
-           <string>Jump</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
@@ -267,16 +217,76 @@ p, li { white-space: pre-wrap; }
           </property>
          </spacer>
         </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_showTweets">
+        <item row="12" column="1">
+         <widget class="QPushButton" name="pushButton_NextTweet">
           <property name="toolTip">
-           <string>Shows currently loaded DF</string>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
+           <string>Show next Tweet from DF</string>
           </property>
           <property name="text">
-           <string>DF Info</string>
+           <string>Next &gt;&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_ShowTweet">
+          <property name="toolTip">
+           <string>Show first Tweet from DF</string>
+          </property>
+          <property name="text">
+           <string>Show Tweet</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="0">
+         <widget class="QPushButton" name="pushButton_JumpToTweet">
+          <property name="toolTip">
+           <string>Jumps to Tweet in DF, define index in box.</string>
+          </property>
+          <property name="text">
+           <string>Jump</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Short user info</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QLineEdit" name="lineEdit_JumpToTweet">
+          <property name="toolTip">
+           <string>Input index for Jump button.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_load_selected_csv_2">
+          <property name="toolTip">
+           <string>Loads files from tree.</string>
+          </property>
+          <property name="text">
+           <string>Load selected</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkBox_DisplayShortQuoteStatus">
+          <property name="text">
+           <string>Short quote and retweet</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

@@ -10,6 +10,7 @@ import threading
 import traceback
 import sys
 import os
+import ast
 import pandas as pd
 import time
 
@@ -312,26 +313,52 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.display(f'DF size: {self.DF.shape}')
             self.display_add(str(self.DF.head()))
 
+    def showTweet(self, ind):
+        try:
+            ind = int(ind)
+        except ValueError:
+            self.log_ui('This is not a number')
+            return None
+        flag_hide_empty = True if self.checkBox_HideEmptyValues.checkState() == 2 else False
+        flag_short_user = True if self.checkBox_DisplayShortUserinfo.checkState() == 2 else False
+        flag_short_quote = True if self.checkBox_DisplayShortQuoteStatus.checkState() == 2 else False
+        if ind < 0 or ind >= len(self.DF):
+            self.log_ui(f'Index is not correct!')
+            return None
+        self.currTweetDF_ind = ind
+
+        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF) - 1}\n'
+        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
+            if "str" in key:
+                continue
+            if flag_hide_empty and (value == 0 or value == "0" or value == "none" or value == "None"):
+                continue
+            if key == "user" and flag_short_user:
+                user_dict = ast.literal_eval(value)
+                text += f'{key}:'.ljust(25) + ''.join([f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
+                    "id",
+                    "name",
+                    "screen_name",
+                    "location",
+                    "favourites_count"]
+                    else "" for deep_key, deep_val in user_dict.items()])
+            elif (key == "quoted_status" or key == "retweeted_status")and flag_short_quote:
+                user_dict = ast.literal_eval(value)
+                text += f'{key}:'.ljust(25) + ''.join([f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
+                    "id",
+                    "full_text"]
+                                                       else "" for deep_key, deep_val in user_dict.items()])
+            else:
+                text += f'{key}:'.ljust(25) + f'{value}\n'
+        self.display(text)
+
     def showTweetJump(self):
         if self.DF is None:
             self.log_ui('DF not loaded!')
             return None
-        ind_str = self.lineEdit_JumpToTweet.text()        
-        try:
-            ind = int(ind_str)
-        except ValueError:
-            self.log_ui('This is not a number')
-            return None
-        
-        if ind < 0 or ind >= len(self.DF):
-            self.log_ui(f'Index is not correct!')
-            return None        
-        self.currTweetDF_ind = ind
-        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
-        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(25) + f'{value}\n'
-        self.display(text)
-        
+        ind_str = self.lineEdit_JumpToTweet.text()
+        self.showTweet(ind_str)
+
     def showTweetfromDF(self):
         if self.DF is None:
             self.log_ui('DF not loaded!')
@@ -340,10 +367,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
         elif self.currTweetDF_ind >= len(self.DF):
             self.currTweetDF_ind = len(self.DF) - 1
-        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
-        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(25) + f'{value}\n'
-        self.display(text)
+
+        self.showTweet(self.currTweetDF_ind)
                 
     def showNextTweetfromDF(self):
         if self.DF is None:
@@ -352,10 +377,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.currTweetDF_ind += 1
         if self.currTweetDF_ind < 0 or self.currTweetDF_ind >= len(self.DF):
             self.currTweetDF_ind = 0  # First Tweet index            
-        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
-        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(25) + f'{value}\n'
-        self.display(text)
+
+        self.showTweet(self.currTweetDF_ind)
         
     def showPrevTweetfromDF(self):
         if self.DF is None:
@@ -366,10 +389,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = len(self.DF)-1  # Last Tweet index
         elif self.currTweetDF_ind >= len(self.DF):
             self.currTweetDF_ind = 0
-        text = f'Tweet index: {self.currTweetDF_ind} / {len(self.DF)-1}\n'
-        for key, value in self.DF.iloc[self.currTweetDF_ind].items():
-            text += f'{key}:'.ljust(25) + f'{value}\n'
-        self.display(text)
+
+        self.showTweet(self.currTweetDF_ind)
            
     def show_user_info(self, user_data):
         text = ''
