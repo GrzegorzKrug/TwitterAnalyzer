@@ -255,6 +255,18 @@ class Analyzer(TwitterApi):
                 self.log_ui(f"Filtration by language ({lang}) is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
+
+    def filteDF_ByTweetId(self, tweet_id):
+        #tweet_id = str(tweet_id)
+        if self.DF is not None:
+            #tweet_id = str(tweet_id)
+            df = self.DF.loc[lambda df: df['id'] == tweet_id]
+            if self.filter_conditions(df):
+                self.DF = df
+                self.log_ui(f"Filtration is ok.")
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+        
         
     def find_local_tweets(self, path=None):
         if path:

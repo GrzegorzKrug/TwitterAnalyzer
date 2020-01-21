@@ -65,7 +65,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterdata_Language('pl'))
         self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.filterdata_Language('en'))
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)        
-        self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterData_ByNonEmptyKey)
+        self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterdata_ByNonEmptyKey)
+        self.pushButton_FilterDF_TweetID.clicked.connect(self.filtedata_ByTweetId)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
@@ -167,9 +168,16 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         app = Analyzer()
         app.collect_new_tweets(n=10, chunk_size=200, interval=60)
 
-    def filterData_ByNonEmptyKey(self):
+    def filterdata_ByNonEmptyKey(self):
         text = self.lineEdit_filterKeyinput.text()
         valid = self.filtrerDF_ByExistingKey(text)
+
+    def filtedata_ByTweetId(self):
+        text = int(self.lineEdit_tweet_id.text())
+        if text >= 0:    
+            self.filteDF_ByTweetId(text)
+        else:
+            self.log_ui("This is not valid ID")
         
     def filterdata_Language(self, lang=None):
         if lang:
