@@ -339,7 +339,7 @@ class Analyzer(TwitterApi):
     def save_current_DF(self, extraText=None):
         if extraText:
             extraText = '_' + extraText
-        filepath = self._data_dir + '\\' + 'dataframe_' + self.nowAsText() + extraText + '.csv'
+        filepath = os.path.join(self._data_dir, + 'dataframe_' + self.nowAsText() + extraText + '.csv')
         self.save_DF(self.DF, filepath)
 
     def save_DF(self, DF, filepath):
@@ -385,8 +385,4 @@ class Analyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = Analyzer(autologin=False)
-    app.load_DF('Home_20191104_23-36-09_060sec_200.csv')
-    print(f'Shape {app.DF.shape}')
-    valid = app.filtrerDF_ByExistingKey('in_reply_to_screen_name')
-    print(f'Valid {valid}, Shape {app.DF.shape}')
     input('Press key....')

@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
-from TwitterAnalyzer.GUI._App import TwitterAnalyzerGUI
+from TwitterAnalyzer.Gui._App import TwitterAnalyzerGUI
 import sys
 import os
 import unittest
