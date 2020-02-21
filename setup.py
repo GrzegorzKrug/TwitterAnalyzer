@@ -8,6 +8,6 @@ setup(
    author='Grzegorz Krug',
    author_email='my mail',
    packages=['TwitterAnalyzer'],  #same as name
-   install_requires=['pandas', 'PyQt5',
-                     'request', 'requests_oauthlib'], #external packages as dependencies
+   install_requires=['pandas==1.0.1', 'PyQt5==5.14.1',
+                     'request==2019.4.13', 'requests_oauthlib==1.3.0'], #external packages as dependencies
 )
