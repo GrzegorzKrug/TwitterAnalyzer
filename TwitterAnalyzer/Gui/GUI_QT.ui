@@ -624,7 +624,7 @@ color: rgb(255, 255, 255);</string>
             <x>10</x>
             <y>70</y>
             <width>371</width>
-            <height>269</height>
+            <height>271</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="Vertical_Filters" stretch="1,1,0">
@@ -890,35 +890,35 @@ color: rgb(255, 255, 255);</string>
              <item row="0" column="2">
               <widget class="QSpinBox" name="spinBox_timefilter_from_day">
                <property name="maximum">
-                <number>1000</number>
+                <number>365</number>
                </property>
               </widget>
              </item>
              <item row="0" column="3">
               <widget class="QSpinBox" name="spinBox_timefilter_from_hour">
                <property name="maximum">
-                <number>1000</number>
+                <number>24</number>
                </property>
               </widget>
              </item>
              <item row="1" column="3">
               <widget class="QSpinBox" name="spinBox_timefilter_to_hour">
                <property name="maximum">
-                <number>1000</number>
+                <number>24</number>
                </property>
               </widget>
              </item>
              <item row="1" column="2">
               <widget class="QSpinBox" name="spinBox_timefilter_to_day">
                <property name="maximum">
-                <number>1000</number>
+                <number>365</number>
                </property>
               </widget>
              </item>
              <item row="1" column="4">
               <widget class="QSpinBox" name="spinBox_timefilter_to_min">
                <property name="maximum">
-                <number>1000</number>
+                <number>60</number>
                </property>
                <property name="value">
                 <number>10</number>
@@ -928,7 +928,7 @@ color: rgb(255, 255, 255);</string>
              <item row="0" column="4">
               <widget class="QSpinBox" name="spinBox_timefilter_from_min">
                <property name="maximum">
-                <number>1000</number>
+                <number>60</number>
                </property>
               </widget>
              </item>
@@ -975,7 +975,7 @@ color: rgb(255, 255, 255);</string>
      <x>0</x>
      <y>0</y>
      <width>1117</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="actionMenuAuth">
