@@ -439,7 +439,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                '\nretweeted_status:        <help>' \
                '\nscopes:                  <help>' \
                '\nsource:                  <help>' \
-               '\nfull_text.1:             <help>' \
                '\ntruncated:               <help>' \
                '\nurls:                    <help>' \
                '\nuser:                    <help>' \

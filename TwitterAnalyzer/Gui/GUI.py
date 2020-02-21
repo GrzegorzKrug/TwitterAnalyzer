@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Greg\Documents\GitHub\TwitterAnalyzer\TwitterAnalyzer\Gui\GUI_QT.ui'
+# Form implementation generated from reading ui file 'GUI_QT.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.1
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -202,7 +202,7 @@ class Ui_MainWindow(object):
         self.lineEdit_DF_comment_3.setAlignment(QtCore.Qt.AlignCenter)
         self.lineEdit_DF_comment_3.setObjectName("lineEdit_DF_comment_3")
         self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.PrepareData)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(10, 70, 371, 269))
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(10, 70, 371, 271))
         self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
         self.Vertical_Filters = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
         self.Vertical_Filters.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
@@ -314,28 +314,28 @@ class Ui_MainWindow(object):
         self.label_7.setObjectName("label_7")
         self.gridLayout_TimeFilters.addWidget(self.label_7, 2, 4, 1, 1)
         self.spinBox_timefilter_from_day = QtWidgets.QSpinBox(self.verticalLayoutWidget_3)
-        self.spinBox_timefilter_from_day.setMaximum(1000)
+        self.spinBox_timefilter_from_day.setMaximum(365)
         self.spinBox_timefilter_from_day.setObjectName("spinBox_timefilter_from_day")
         self.gridLayout_TimeFilters.addWidget(self.spinBox_timefilter_from_day, 0, 2, 1, 1)
         self.spinBox_timefilter_from_hour = QtWidgets.QSpinBox(self.verticalLayoutWidget_3)
-        self.spinBox_timefilter_from_hour.setMaximum(1000)
+        self.spinBox_timefilter_from_hour.setMaximum(24)
         self.spinBox_timefilter_from_hour.setObjectName("spinBox_timefilter_from_hour")
         self.gridLayout_TimeFilters.addWidget(self.spinBox_timefilter_from_hour, 0, 3, 1, 1)
         self.spinBox_timefilter_to_hour = QtWidgets.QSpinBox(self.verticalLayoutWidget_3)
-        self.spinBox_timefilter_to_hour.setMaximum(1000)
+        self.spinBox_timefilter_to_hour.setMaximum(24)
         self.spinBox_timefilter_to_hour.setObjectName("spinBox_timefilter_to_hour")
         self.gridLayout_TimeFilters.addWidget(self.spinBox_timefilter_to_hour, 1, 3, 1, 1)
         self.spinBox_timefilter_to_day = QtWidgets.QSpinBox(self.verticalLayoutWidget_3)
-        self.spinBox_timefilter_to_day.setMaximum(1000)
+        self.spinBox_timefilter_to_day.setMaximum(365)
         self.spinBox_timefilter_to_day.setObjectName("spinBox_timefilter_to_day")
         self.gridLayout_TimeFilters.addWidget(self.spinBox_timefilter_to_day, 1, 2, 1, 1)
         self.spinBox_timefilter_to_min = QtWidgets.QSpinBox(self.verticalLayoutWidget_3)
-        self.spinBox_timefilter_to_min.setMaximum(1000)
+        self.spinBox_timefilter_to_min.setMaximum(60)
         self.spinBox_timefilter_to_min.setProperty("value", 10)
         self.spinBox_timefilter_to_min.setObjectName("spinBox_timefilter_to_min")
         self.gridLayout_TimeFilters.addWidget(self.spinBox_timefilter_to_min, 1, 4, 1, 1)
         self.spinBox_timefilter_from_min = QtWidgets.QSpinBox(self.verticalLayoutWidget_3)
-        self.spinBox_timefilter_from_min.setMaximum(1000)
+        self.spinBox_timefilter_from_min.setMaximum(60)
         self.spinBox_timefilter_from_min.setObjectName("spinBox_timefilter_from_min")
         self.gridLayout_TimeFilters.addWidget(self.spinBox_timefilter_from_min, 0, 4, 1, 1)
         self.gridLayout_TimeFilters.setRowMinimumHeight(0, 5)
@@ -379,7 +379,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.MainGrid, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1117, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1117, 22))
         self.menubar.setObjectName("menubar")
         self.actionMenuAuth = QtWidgets.QMenu(self.menubar)
         self.actionMenuAuth.setObjectName("actionMenuAuth")
@@ -441,7 +441,7 @@ class Ui_MainWindow(object):
         self.lineEdit_JumpToTweet.setToolTip(_translate("MainWindow", "Input index for Jump button."))
         self.pushButton_load_selected_csv_2.setToolTip(_translate("MainWindow", "Loads files from tree."))
         self.pushButton_load_selected_csv_2.setText(_translate("MainWindow", "Load selected"))
-        self.checkBox_DisplayShortQuoteStatus.setText(_translate("MainWindow", "Short Quoted status"))
+        self.checkBox_DisplayShortQuoteStatus.setText(_translate("MainWindow", "Short quote and retweet"))
         self.pushButton_delete100.setToolTip(_translate("MainWindow", "Delete CSV files that have less than 100 Tweets"))
         self.pushButton_delete100.setText(_translate("MainWindow", "Delete < 100"))
         self.pushButton_deleteSelected.setToolTip(_translate("MainWindow", "Delete files selected in Tree"))
