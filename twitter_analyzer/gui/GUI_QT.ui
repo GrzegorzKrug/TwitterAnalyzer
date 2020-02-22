@@ -793,7 +793,7 @@ color: rgb(255, 255, 255);</string>
               <number>2</number>
              </property>
              <item row="1" column="0">
-              <widget class="QPushButton" name="pushButton_export_DF_26">
+              <widget class="QPushButton" name="pushButton_filter_by_Age">
                <property name="toolTip">
                 <string>Save DF to .csv File</string>
                </property>

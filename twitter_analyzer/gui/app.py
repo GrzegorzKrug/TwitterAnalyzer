@@ -1,8 +1,8 @@
 # _run_GUI_mode.py
 # Grzegorz Krug
 from PyQt5 import QtCore, QtWidgets # QtGui
-from TwitterAnalyzer.Analyzer.Analyzer import Analyzer
-from TwitterAnalyzer.Gui.GUI import Ui_MainWindow
+from twitter_analyzer.analyzer.analyzer import Analyzer
+from twitter_analyzer.gui.gui import Ui_MainWindow
 #import random
 #import time
 import datetime
@@ -68,6 +68,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)        
         self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterdata_ByNonEmptyKey)
         self.pushButton_FilterDF_TweetID.clicked.connect(self.filtedata_ByTweetId)
+        self.pushButton_filter_by_Age.clicked.connect(self.filterDF_ByTime_Age)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)

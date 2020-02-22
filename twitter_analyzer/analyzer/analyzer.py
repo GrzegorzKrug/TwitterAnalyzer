@@ -8,9 +8,10 @@ import pandas as pd
 import datetime
 import glob
 import threading
+import locale
 
-from TwitterAnalyzer.Analyzer.TwitterApi import TwitterApi
-from TwitterAnalyzer.Analyzer.TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
+from twitter_analyzer.analyzer.twitter_api import TwitterApi
+from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, TooManyRequests
 
 
 class Analyzer(TwitterApi):
@@ -89,7 +90,7 @@ class Analyzer(TwitterApi):
             # print(text)
 
     def collect_status(self, statusList, filename=None):
-        '''Requests all status from List'''
+        """Requests all status from List"""
         if type(statusList) is not list:
             raise TypeError
         try:
@@ -131,7 +132,7 @@ class Analyzer(TwitterApi):
             pass
             
     def delete_csv(self, filelist):
-        'Removes tweets_ only !'
+        """Removes tweets_ only !"""
         if type(filelist) is not list:            
             filelist = [filelist]
 
@@ -154,7 +155,7 @@ class Analyzer(TwitterApi):
                 self.log_ui(f"File {file_name} is not *.csv")
                     
     def delete_less(self, n=200):
-        'Procedure, Finds Tweets .csv, Removes them.'
+        """Procedure, Finds Tweets .csv, Removes them."""
         filelist = self.find_local_tweets()
         for f in filelist:
             df = pd.read_csv(f, sep=';', encoding='utf8')
@@ -216,11 +217,10 @@ class Analyzer(TwitterApi):
                 file.write('\n')
             return True
         except PermissionError:
-            th = threading.Thread(target=lambda:
-                TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
-
+            th = threading.Thread(target=lambda: Analyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
             th.start()
-            self.log_ui('PermissionError, created background thread to save data')
+
+            Analyzer.log_ui('PermissionError, created background thread to save data')
             return None
 
     def filtrerDF_ByExistingKey(self, key):  # Fix exceptions, bool type
@@ -256,6 +256,15 @@ class Analyzer(TwitterApi):
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
+    def filterDF_ByTime_Age(self, minimum=0, maximum=365):
+        if self.DF is not None:
+            df = self.DF.loc[lambda df: self.read_time_condition(df['created_at'], minimum, maximum)]
+            if self.filter_conditions(df):
+                self.DF = df
+                self.log_ui(f"Filtration by age is ok.")
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
     def filteDF_ByTweetId(self, tweet_id):
         try:
             tweet_id = int(tweet_id)
@@ -271,7 +280,6 @@ class Analyzer(TwitterApi):
                 self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
-        
         
     def find_local_tweets(self, path=None):
         if path:
@@ -313,6 +321,26 @@ class Analyzer(TwitterApi):
               + f'-{now.minute}'.ljust(3, '0') \
               + f'-{now.second}'.ljust(3, '0')
         return text
+
+    @staticmethod
+    def read_time_condition(time_series, minimal, maxmimal):
+        # Fri Feb 21 16:34:43 +0000 2020
+        minimal = int(minimal)
+        maxmimal = int(maxmimal)
+        print(type(time_series))
+        out_bool = []
+        for time_text in time_series:
+            # print(datetime.datetime.strftime(datetime.datetime.today(), "%b"))
+            year = time_text[-4:]
+            month = time_text[4:7]
+            dt = datetime.datetime.strptime(month, '%b')
+            month = datetime.datetime.strftime(dt, "%m")
+            day = time_text[8:10]
+            hour = time_text[11:13]
+            minute = time_text[14:16]
+            second = time_text[17:19]
+            out_bool.append(True)
+        return out_bool
 
     def reloadDF(self):
         self.DF = None

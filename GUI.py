@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GUI_QT.ui'
+# Form implementation generated from reading ui file 'TwitterAnalyzer/Gui/GUI_QT.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -272,9 +272,9 @@ class Ui_MainWindow(object):
         self.gridLayout_TimeFilters.setHorizontalSpacing(5)
         self.gridLayout_TimeFilters.setVerticalSpacing(2)
         self.gridLayout_TimeFilters.setObjectName("gridLayout_TimeFilters")
-        self.pushButton_export_DF_26 = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
-        self.pushButton_export_DF_26.setObjectName("pushButton_export_DF_26")
-        self.gridLayout_TimeFilters.addWidget(self.pushButton_export_DF_26, 1, 0, 1, 1)
+        self.pushButton_filter_by_Age = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
+        self.pushButton_filter_by_Age.setObjectName("pushButton_filter_by_Age")
+        self.gridLayout_TimeFilters.addWidget(self.pushButton_filter_by_Age, 1, 0, 1, 1)
         self.pushButton_export_DF_18 = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
         self.pushButton_export_DF_18.setObjectName("pushButton_export_DF_18")
         self.gridLayout_TimeFilters.addWidget(self.pushButton_export_DF_18, 0, 0, 1, 1)
@@ -488,8 +488,8 @@ class Ui_MainWindow(object):
         self.pushButton_export_DF_9.setText(_translate("MainWindow", "Text"))
         self.lineEdit_filterKeyinput.setToolTip(_translate("MainWindow", "Key input"))
         self.label_6.setText(_translate("MainWindow", "- - - - Filter DF - - - - "))
-        self.pushButton_export_DF_26.setToolTip(_translate("MainWindow", "Save DF to .csv File"))
-        self.pushButton_export_DF_26.setText(_translate("MainWindow", "Age"))
+        self.pushButton_filter_by_Age.setToolTip(_translate("MainWindow", "Save DF to .csv File"))
+        self.pushButton_filter_by_Age.setText(_translate("MainWindow", "Age"))
         self.pushButton_export_DF_18.setToolTip(_translate("MainWindow", "Save DF to .csv File"))
         self.pushButton_export_DF_18.setText(_translate("MainWindow", "Posting Time"))
         self.label_10.setText(_translate("MainWindow", "to:"))
