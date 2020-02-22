@@ -324,35 +324,22 @@ class Analyzer(TwitterApi):
 
     @staticmethod
     def read_time_condition(time_series, time_min, time_max):
-        # Fri Feb 21 16:34:43 +0000 2020
+        """Times series are defined by tweeter,
+        time_min is minimum input in format 'YMDhms'
+        time_max is maxmimal input in format 'YMDhms'"""
         minimum = int(time_min)
         maximum = int(time_max)
-        print(type(time_series))
         out_bool = []
-        for time_text in time_series:
-            # print(datetime.datetime.strftime(datetime.datetime.today(), "%b"))
-            dt = datetime.datetime.strptime(time_text, '%a %b %d %X %z %Y')
-            # year = time_text[-4:]
-            # month = time_text[4:7]
-            # dt = datetime.datetime.strptime(month, '%b')
-            # month = datetime.datetime.strftime(dt, "%m")
-            # day = time_text[8:10]
-            # hour = time_text[11:13]
-            # minute = time_text[14:16]
-            # second = time_text[17:19]
 
+        for time_text in time_series:
+            dt = datetime.datetime.strptime(time_text, '%a %b %d %X %z %Y')
             date_time = datetime.datetime.strftime(dt, "%Y%m%d%H%M%S")
             date_time = int(date_time)
-            print(minimum)
-            print(date_time)
-            print(maximum)
 
             if date_time >= minimum and date_time <= maximum:
                 cond = True
-                print("True")
             else:
                 cond = False
-                print("False")
             out_bool.append(cond)
 
         return out_bool
