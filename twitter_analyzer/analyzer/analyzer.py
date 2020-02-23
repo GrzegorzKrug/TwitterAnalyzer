@@ -1,14 +1,13 @@
 # TwitterAnalyzer.py
 # Grzegorz Krug
-# import twitter
-import json
+
 import time
 import os
 import pandas as pd
 import datetime
 import glob
 import threading
-import locale
+import calendar
 
 from twitter_analyzer.analyzer.twitter_api import TwitterApi
 from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, TooManyRequests
@@ -384,6 +383,37 @@ class Analyzer(TwitterApi):
 
         #    return True
         #self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+
+    @staticmethod
+    def timestamp_offset(tmps=None, year=0, month=0, day=0, hour=0, minute=0):
+        if not tmps:
+            print("NEW TMPS")
+            tmps = int(datetime.datetime.now().timestamp())
+
+        date = datetime.date.fromtimestamp(tmps)
+        date_rest = tmps % (3600*24)  # Capture rest from day 3600 second * 24 hours
+
+
+        year = year + date.year
+        month = month + date.month
+
+        while month < 1:
+            month += 12
+            year -= 1
+
+        while month > 12:
+            month -= 12
+            year += 1
+
+        new_date = datetime.date(year=year, month=month, day=date.day)
+
+        new_timestamp = calendar.timegm(new_date.timetuple())
+        # print(new_timestamp%3600)
+        # assert  new_timestamp + date_rest== 1582466337
+
+        return new_timestamp + minute*60 + hour*3600 + date_rest + day*24*3600
+
+
 
     @staticmethod
     def tweet_strip(tweet):
