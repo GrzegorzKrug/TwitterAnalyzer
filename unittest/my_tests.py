@@ -1,29 +1,32 @@
-import datetime
-
 from twitter_analyzer.analyzer import analyzer
 
 fun = analyzer.Analyzer.read_time_condition
+timestamp_offset = analyzer.Analyzer.timestamp_offset
 series = ['Sat Feb 22 11:24:15 +0000 2020',
           'Sat Feb 26 11:24:15 +0000 2020',
-          'Sat Feb 29 11:24:15 +0000 2020']
-
+          'Sat Feb 29 11:24:15 +0000 2020',
+          'Sat Feb 29 12:24:15 +0000 2020']
+tmps=1582466337
 
 def test_date():
-    out = fun(series, 20200222112415, 20200228112415)
+    timestamp_min = timestamp_offset(tmps=tmps, day=-10)
+    timestamp_max = timestamp_offset(tmps=tmps, day=-1)
+    out = fun(series, timestamp_min, timestamp_max)
     assert  out[0] == True
 
 def test_date2():
-    out = fun(series, 20200220112415, 20200225112415)
+    timestamp_min = timestamp_offset(tmps=tmps, day=-15)
+    out = fun(series, timestamp_min, tmps)
     assert  out[1] == False
 
 def test_date3():
-    out = fun(series, 20200225112415, 20200229112415)
+    timestamp_min = timestamp_offset(tmps=tmps, day=-1)
+    timestamp_max = timestamp_offset(tmps=tmps, day=6, hour=-2)
+    out = fun(series, timestamp_min, timestamp_max)
     assert  out[0] == False
     assert  out[1] == True
     assert  out[2] == True
-
-timestamp_offset = analyzer.Analyzer.timestamp_offset
-tmps=1582466337
+    assert  out[3] == False
 
 def test_timestamp_off1_min():
     out = timestamp_offset(tmps=tmps, minute=1)

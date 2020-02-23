@@ -255,9 +255,9 @@ class Analyzer(TwitterApi):
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
-    def filterDF_ByTime_Age(self, minimum=0, maximum=365):
+    def filterDF_ByTime_Age(self, tmstmp_min=0, tmstmp_max=365):
         if self.DF is not None:
-            df = self.DF.loc[lambda df: self.read_time_condition(df['created_at'], minimum, maximum)]
+            df = self.DF.loc[lambda df: self.read_time_condition(df['created_at'], tmstmp_min, tmstmp_max)]
             if self.filter_conditions(df):
                 self.DF = df
                 self.log_ui(f"Filtration by age is ok.")
@@ -322,21 +322,22 @@ class Analyzer(TwitterApi):
         return text
 
     @staticmethod
-    def read_time_condition(time_series, time_min, time_max):
+    def read_time_condition(time_series, timestamp_min, timestamp_max):
         """Times series are defined by tweeter,
         time_min is minimum input in format 'YMDhms'
         time_max is maxmimal input in format 'YMDhms'"""
-        minimum = int(time_min)
-        maximum = int(time_max)
+        minimum = int(timestamp_min)
+        maximum = int(timestamp_max)
+        if minimum > maximum:
+            minimum, maximum = maximum, minimum
+
         out_bool = []
 
         for time_text in time_series:
             dt = datetime.datetime.strptime(time_text, '%a %b %d %X %z %Y')
-            print(dt.timestamp())
-            date_time = datetime.datetime.strftime(dt, "%Y%m%d%H%M%S")
-            date_time = int(date_time)
+            timstamp = int(dt.timestamp())
 
-            if minimum <= date_time <= maximum:
+            if minimum <= timstamp <= maximum:
                 cond = True
             else:
                 cond = False
