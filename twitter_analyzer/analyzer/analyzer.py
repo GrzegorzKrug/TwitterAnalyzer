@@ -333,6 +333,7 @@ class Analyzer(TwitterApi):
 
         for time_text in time_series:
             dt = datetime.datetime.strptime(time_text, '%a %b %d %X %z %Y')
+            print(dt.timestamp())
             date_time = datetime.datetime.strftime(dt, "%Y%m%d%H%M%S")
             date_time = int(date_time)
 
