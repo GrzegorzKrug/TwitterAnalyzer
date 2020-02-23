@@ -385,7 +385,6 @@ class Analyzer(TwitterApi):
     @staticmethod
     def timestamp_offset(tmps=None, year=0, month=0, day=0, hour=0, minute=0):
         if not tmps:
-            print("NEW TMPS")
             tmps = int(datetime.datetime.now().timestamp())
 
         date = datetime.date.fromtimestamp(tmps)
