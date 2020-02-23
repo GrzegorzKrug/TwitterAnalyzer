@@ -69,8 +69,28 @@ def test_timestamp_neg_off4_month_2months():
     out = timestamp_offset(tmps=tmps, month=-2)
     good = tmps - 31*24*3600 - 31*24*3600
     assert out == good
-#
+
 def test_timestamp_neg_off5_year():
     out = timestamp_offset(tmps=tmps, year=-1)
     good = tmps - 365 * 24 * 3600
+    assert out == good
+
+def test_timestamp_multi_off1():
+    out = timestamp_offset(tmps=tmps, month=12)
+    good = tmps + 366 * 24 * 3600
+    assert out == good
+
+def test_timestamp_multi_off2():
+    out = timestamp_offset(tmps=tmps, month=24)
+    good = tmps + (366 + 365)*24*3600
+    assert out == good
+
+def test_timestamp_multi_off3():
+    out = timestamp_offset(tmps=tmps, year=2)
+    good = tmps + (366 + 365)*24*3600
+    assert out == good
+
+def test_timestamp_multi_off4():
+    out = timestamp_offset(tmps=tmps, year=-2)
+    good = tmps - (365 + 365)*24*3600
     assert out == good
