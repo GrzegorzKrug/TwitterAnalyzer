@@ -314,11 +314,11 @@ class Analyzer(TwitterApi):
     def nowAsText():
         now = datetime.datetime.now()
         text = f'{now.year}'.ljust(4, '0') \
-              + f'{now.month}'.ljust(2, '0') \
-              + f'{now.day}'.ljust(2, '0') \
-              + f'_{now.hour}'.ljust(3, '0') \
-              + f'-{now.minute}'.ljust(3, '0') \
-              + f'-{now.second}'.ljust(3, '0')
+               + f'{now.month}'.ljust(2, '0') \
+               + f'{now.day}'.ljust(2, '0') \
+               + f'_{now.hour}'.ljust(3, '0') \
+               + f'-{now.minute}'.ljust(3, '0') \
+               + f'-{now.second}'.ljust(3, '0')
         return text
 
     @staticmethod
@@ -336,7 +336,7 @@ class Analyzer(TwitterApi):
             date_time = datetime.datetime.strftime(dt, "%Y%m%d%H%M%S")
             date_time = int(date_time)
 
-            if date_time >= minimum and date_time <= maximum:
+            if minimum <= date_time <= maximum:
                 cond = True
             else:
                 cond = False
@@ -363,7 +363,6 @@ class Analyzer(TwitterApi):
             except FileNotFoundError:
                 text += f'Missing file: {file}'
                 continue
-
         self.log_ui(text)
 
     def save_current_DF(self, extraText=None):
@@ -380,9 +379,8 @@ class Analyzer(TwitterApi):
             with open(filepath, 'wt', encoding='utf8') as f:
                 DF.to_csv(f, sep=';', encoding='utf8', index=False)
                 self.log_ui(f'Saved DF to file: {os.path.abspath(filepath)}')
-
         #    return True
-        #self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+        # self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
 
     @staticmethod
     def timestamp_offset(tmps=None, year=0, month=0, day=0, hour=0, minute=0):
@@ -393,27 +391,24 @@ class Analyzer(TwitterApi):
         date = datetime.date.fromtimestamp(tmps)
         date_rest = tmps % (3600*24)  # Capture rest from day 3600 second * 24 hours
 
-
         year = year + date.year
         month = month + date.month
 
+        # Keep month in <1,12> range
         while month < 1:
             month += 12
             year -= 1
-
+        # Keep month in <1,12> range
         while month > 12:
             month -= 12
             year += 1
 
+        # Get timestamp within days
         new_date = datetime.date(year=year, month=month, day=date.day)
-
         new_timestamp = calendar.timegm(new_date.timetuple())
-        # print(new_timestamp%3600)
-        # assert  new_timestamp + date_rest== 1582466337
 
-        return new_timestamp + minute*60 + hour*3600 + date_rest + day*24*3600
-
-
+        # Add minutes, hours, day offset and rest from timestamp
+        return new_timestamp + minute*60 + hour*3600 + day*24*3600 + date_rest
 
     @staticmethod
     def tweet_strip(tweet):
