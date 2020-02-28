@@ -30,7 +30,7 @@ or
 - [ ] ~~Background Queue for requests (twitter limit)~~ not here, in Analyzer
 	
 
-#### Analytic Tools (1 / 3)
+#### Analytic Tools (1 / 4)
 
 - [x] Write Read to file
 	- [x] Hold Temporary Tweets
@@ -39,6 +39,10 @@ or
 	- [x] Cleanup csv
 	- [x] Rearrange csv	
 	- [x] Save DF
+- [ ] Collect Samples
+    - [ ] Random walk
+    - [ ] Snowballing
+    
 - [ ] ML Analysis of Tweets
 	- [ ] Count Comments / Reactions
 	- [ ] Normalize Tweets
@@ -81,9 +85,10 @@ or
 	- [ ] user_id
 	- [ ] post_id
 	- [ ] by time range
-		- [ ] Time collected
-		- [ ] Tweet born time
-	- [ ] Filter by words included
+		- [ ] ~~Time collected~~
+		- [ ] Tweet age
+	- [ ] Find used words in text
+	- [ ] Find exact text
 	- [ ] Filter by other parameter	
 - [x] Display tweets / Dataframe
 	- [x] Display single tweets
@@ -113,4 +118,5 @@ or
 	- [x] Installing modules
 	- [x] Importing
 	- [x] Setup.py
+	- [x] Requirements.txt
 			

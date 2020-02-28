@@ -1,16 +1,16 @@
 # TwitterAnalyzer.py
 # Grzegorz Krug
-# import twitter
-import json
+
 import time
 import os
 import pandas as pd
 import datetime
 import glob
 import threading
+import calendar
 
-from TwitterAnalyzer.Analyzer.TwitterApi import TwitterApi
-from TwitterAnalyzer.Analyzer.TwitterApi import Unauthorized, ApiNotFound, TooManyRequests
+from twitter_analyzer.analyzer.twitter_api import TwitterApi
+from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, TooManyRequests
 
 
 class Analyzer(TwitterApi):
@@ -33,10 +33,32 @@ class Analyzer(TwitterApi):
         '''Adding time stamp to tweet dict'''
         tweet['timestamp'] = round(time.time())
 
+    @staticmethod
+    def check_series_time_condition(time_series, timestamp_min, timestamp_max):
+        """Times series are defined by tweeter,
+        time_min is minimum input in format 'YMDhms'
+        time_max is maxmimal input in format 'YMDhms'"""
+        minimum = int(timestamp_min)
+        maximum = int(timestamp_max)
+        if minimum > maximum:
+            minimum, maximum = maximum, minimum
+
+        out_bool = []
+
+        for time_text in time_series:
+            dt = datetime.datetime.strptime(time_text, '%a %b %d %H:%M:%S %z %Y')
+            timestamp = int(dt.timestamp())
+            if minimum <= timestamp <= maximum:
+                cond = True
+            else:
+                cond = False
+            out_bool.append(cond)
+
+        return out_bool
+
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
         Twitter rate limit is 15 times in 15 mins'''
-        # chunk_size += 1
         try:
             if filename is None:
                 now = datetime.datetime.now()
@@ -89,7 +111,7 @@ class Analyzer(TwitterApi):
             # print(text)
 
     def collect_status(self, statusList, filename=None):
-        '''Requests all status from List'''
+        """Requests all status from List"""
         if type(statusList) is not list:
             raise TypeError
         try:
@@ -131,7 +153,7 @@ class Analyzer(TwitterApi):
             pass
             
     def delete_csv(self, filelist):
-        'Removes tweets_ only !'
+        """Removes tweets_ only !"""
         if type(filelist) is not list:            
             filelist = [filelist]
 
@@ -154,7 +176,7 @@ class Analyzer(TwitterApi):
                 self.log_ui(f"File {file_name} is not *.csv")
                     
     def delete_less(self, n=200):
-        'Procedure, Finds Tweets .csv, Removes them.'
+        """Procedure, Finds Tweets .csv, Removes them."""
         filelist = self.find_local_tweets()
         for f in filelist:
             df = pd.read_csv(f, sep=';', encoding='utf8')
@@ -216,11 +238,10 @@ class Analyzer(TwitterApi):
                 file.write('\n')
             return True
         except PermissionError:
-            th = threading.Thread(target=lambda:
-                TwitterAnalyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
-
+            th = threading.Thread(target=lambda: Analyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
             th.start()
-            self.log_ui('PermissionError, created background thread to save data')
+
+            Analyzer.log_ui('PermissionError, created background thread to save data')
             return None
 
     def filtrerDF_ByExistingKey(self, key):  # Fix exceptions, bool type
@@ -256,6 +277,15 @@ class Analyzer(TwitterApi):
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
+    def filterDF_by_timestamp(self, tmstmp_min, tmstmp_max):
+        if self.DF is not None:
+            df = self.DF.loc[lambda df: self.check_series_time_condition(df['created_at'], tmstmp_min, tmstmp_max)]
+            if self.filter_conditions(df):
+                self.DF = df
+                # self.log_ui(f"Filtration is ok.")
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
     def filteDF_ByTweetId(self, tweet_id):
         try:
             tweet_id = int(tweet_id)
@@ -268,10 +298,9 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: df['id'] == tweet_id]
             if self.filter_conditions(df):
                 self.DF = df
-                self.log_ui(f"Filtration is ok.")
+                # self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
-        
         
     def find_local_tweets(self, path=None):
         if path:
@@ -307,11 +336,11 @@ class Analyzer(TwitterApi):
     def nowAsText():
         now = datetime.datetime.now()
         text = f'{now.year}'.ljust(4, '0') \
-              + f'{now.month}'.ljust(2, '0') \
-              + f'{now.day}'.ljust(2, '0') \
-              + f'_{now.hour}'.ljust(3, '0') \
-              + f'-{now.minute}'.ljust(3, '0') \
-              + f'-{now.second}'.ljust(3, '0')
+               + f'{now.month}'.ljust(2, '0') \
+               + f'{now.day}'.ljust(2, '0') \
+               + f'_{now.hour}'.ljust(3, '0') \
+               + f'-{now.minute}'.ljust(3, '0') \
+               + f'-{now.second}'.ljust(3, '0')
         return text
 
     def reloadDF(self):
@@ -333,7 +362,6 @@ class Analyzer(TwitterApi):
             except FileNotFoundError:
                 text += f'Missing file: {file}'
                 continue
-
         self.log_ui(text)
 
     def save_current_DF(self, extraText=None):
@@ -350,9 +378,44 @@ class Analyzer(TwitterApi):
             with open(filepath, 'wt', encoding='utf8') as f:
                 DF.to_csv(f, sep=';', encoding='utf8', index=False)
                 self.log_ui(f'Saved DF to file: {os.path.abspath(filepath)}')
-
         #    return True
-        #self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+        # self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+
+    @staticmethod
+    def timestamp_from_date(year=1990, month=1, day=1, hour=0, minute=0):
+        # Get timestamp within days
+        new_date = datetime.date(year=year, month=month, day=day)
+        new_timestamp = calendar.timegm(new_date.timetuple())
+
+        # Add minutes, hours, day offset and rest from timestamp
+        return new_timestamp + minute * 60 + hour * 3600
+
+    @staticmethod
+    def timestamp_offset(tmps=None, year=0, month=0, day=0, hour=0, minute=0):
+        if not tmps:
+            tmps = int(datetime.datetime.now().timestamp())
+
+        date = datetime.date.fromtimestamp(tmps)
+        date_rest = tmps % (3600*24)  # Capture rest from day 3600 second * 24 hours
+
+        year = year + date.year
+        month = month + date.month
+
+        # Keep month in <1,12> range
+        while month < 1:
+            month += 12
+            year -= 1
+        # Keep month in <1,12> range
+        while month > 12:
+            month -= 12
+            year += 1
+
+        # Get timestamp within days
+        new_date = datetime.date(year=year, month=month, day=date.day)
+        new_timestamp = calendar.timegm(new_date.timetuple())
+
+        # Add minutes, hours, day offset and rest from timestamp
+        return new_timestamp + minute*60 + hour*3600 + day*24*3600 + date_rest
 
     @staticmethod
     def tweet_strip(tweet):
