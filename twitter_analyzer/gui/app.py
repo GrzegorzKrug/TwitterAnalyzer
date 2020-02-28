@@ -334,8 +334,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         for key, value in self.DF.iloc[self.currTweetDF_ind].items():
             if "str" in key:
                 continue
-            if flag_hide_empty and (value == 0 or value == "0" or value == "none" or value == "None"):
+            value_is_none = value == 0 or value == "0" or value == "none" or value == "None"
+            if flag_hide_empty and value_is_none:
                 continue
+            if value_is_none:
+                text += f'{key}:'.ljust(25) + f'{value}\n'
+                continue
+
             if key == "user" and flag_short_user:
                 user_dict = ast.literal_eval(value)
                 text += f'{key}:'.ljust(25) + ''.join([f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
