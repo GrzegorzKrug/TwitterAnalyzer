@@ -68,7 +68,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)        
         self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterdata_ByNonEmptyKey)
         self.pushButton_FilterDF_TweetID.clicked.connect(self.filtedata_ByTweetId)
-        self.pushButton_filter_by_Age.clicked.connect(self.trigger_fillter_DF_age)
+        self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_DF_age)
+        self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_DF_date)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
@@ -349,7 +350,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                 text += f'{key}:'.ljust(25) + ''.join([f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
                     "id",
                     "full_text"]
-                                                       else "" for deep_key, deep_val in user_dict.items()])
+                else "" for deep_key, deep_val in user_dict.items()])
             else:
                 text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)
@@ -401,7 +402,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
         self.display(text)
 
-    def trigger_fillter_DF_age(self):
+    def trigger_filter_DF_age(self):
         '''Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration'''
         year = self.spinBox_timefilter_from_year.value()
         month = self.spinBox_timefilter_from_month.value()
@@ -418,6 +419,27 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
 
         self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+
+    def trigger_filter_DF_date(self):
+        try:
+            year = self.spinBox_timefilter_from_year.value()
+            month = self.spinBox_timefilter_from_month.value()
+            day = self.spinBox_timefilter_from_day.value()
+            hour = self.spinBox_timefilter_from_hour.value()
+            minute = self.spinBox_timefilter_from_min.value()
+            timestmp_min = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+
+            year = self.spinBox_timefilter_to_year.value()
+            month = self.spinBox_timefilter_to_month.value()
+            day = self.spinBox_timefilter_to_day.value()
+            hour = self.spinBox_timefilter_to_hour.value()
+            minute = self.spinBox_timefilter_to_min.value()
+            timestmp_max = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+
+            self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+
+        except ValueError as ve:
+            self.log_ui(f"Value Error: {ve}")
 
     def update_loginBox(self):
         if self.logged_in:

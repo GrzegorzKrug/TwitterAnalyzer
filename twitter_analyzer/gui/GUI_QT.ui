@@ -948,7 +948,7 @@ color: rgb(255, 255, 255);</string>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QPushButton" name="pushButton_export_DF_18">
+              <widget class="QPushButton" name="pushButton_filter_by_Date">
                <property name="toolTip">
                 <string>Save DF to .csv File</string>
                </property>

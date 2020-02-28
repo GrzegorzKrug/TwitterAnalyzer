@@ -33,10 +33,32 @@ class Analyzer(TwitterApi):
         '''Adding time stamp to tweet dict'''
         tweet['timestamp'] = round(time.time())
 
+    @staticmethod
+    def check_series_time_condition(time_series, timestamp_min, timestamp_max):
+        """Times series are defined by tweeter,
+        time_min is minimum input in format 'YMDhms'
+        time_max is maxmimal input in format 'YMDhms'"""
+        minimum = int(timestamp_min)
+        maximum = int(timestamp_max)
+        if minimum > maximum:
+            minimum, maximum = maximum, minimum
+
+        out_bool = []
+
+        for time_text in time_series:
+            dt = datetime.datetime.strptime(time_text, '%a %b %d %H:%M:%S %z %Y')
+            timestamp = int(dt.timestamp())
+            if minimum <= timestamp <= maximum:
+                cond = True
+            else:
+                cond = False
+            out_bool.append(cond)
+
+        return out_bool
+
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
         Twitter rate limit is 15 times in 15 mins'''
-        # chunk_size += 1
         try:
             if filename is None:
                 now = datetime.datetime.now()
@@ -321,29 +343,6 @@ class Analyzer(TwitterApi):
                + f'-{now.second}'.ljust(3, '0')
         return text
 
-    @staticmethod
-    def check_series_time_condition(time_series, timestamp_min, timestamp_max):
-        """Times series are defined by tweeter,
-        time_min is minimum input in format 'YMDhms'
-        time_max is maxmimal input in format 'YMDhms'"""
-        minimum = int(timestamp_min)
-        maximum = int(timestamp_max)
-        if minimum > maximum:
-            minimum, maximum = maximum, minimum
-
-        out_bool = []
-
-        for time_text in time_series:
-            dt = datetime.datetime.strptime(time_text, '%a %b %d %H:%M:%S %z %Y')
-            timestamp = int(dt.timestamp())
-            if minimum <= timestamp <= maximum:
-                cond = True
-            else:
-                cond = False
-            out_bool.append(cond)
-
-        return out_bool
-
     def reloadDF(self):
         self.DF = None
         text = 'Reloading Tweets:'
@@ -381,6 +380,15 @@ class Analyzer(TwitterApi):
                 self.log_ui(f'Saved DF to file: {os.path.abspath(filepath)}')
         #    return True
         # self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+
+    @staticmethod
+    def timestamp_from_date(year=1990, month=1, day=1, hour=0, minute=0):
+        # Get timestamp within days
+        new_date = datetime.date(year=year, month=month, day=day)
+        new_timestamp = calendar.timegm(new_date.timetuple())
+
+        # Add minutes, hours, day offset and rest from timestamp
+        return new_timestamp + minute * 60 + hour * 3600
 
     @staticmethod
     def timestamp_offset(tmps=None, year=0, month=0, day=0, hour=0, minute=0):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GUI_QT.ui'
+# Form implementation generated from reading ui file 'twitter_analyzer/gui/GUI_QT.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -350,9 +350,9 @@ class Ui_MainWindow(object):
         self.pushButton_filter_by_Age = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
         self.pushButton_filter_by_Age.setObjectName("pushButton_filter_by_Age")
         self.gridLayout_TimeFilters.addWidget(self.pushButton_filter_by_Age, 0, 0, 1, 1)
-        self.pushButton_export_DF_18 = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
-        self.pushButton_export_DF_18.setObjectName("pushButton_export_DF_18")
-        self.gridLayout_TimeFilters.addWidget(self.pushButton_export_DF_18, 1, 0, 1, 1)
+        self.pushButton_filter_by_Date = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
+        self.pushButton_filter_by_Date.setObjectName("pushButton_filter_by_Date")
+        self.gridLayout_TimeFilters.addWidget(self.pushButton_filter_by_Date, 1, 0, 1, 1)
         self.spinBox_timefilter_from_month = QtWidgets.QSpinBox(self.verticalLayoutWidget_3)
         self.spinBox_timefilter_from_month.setMaximum(12)
         self.spinBox_timefilter_from_month.setObjectName("spinBox_timefilter_from_month")
@@ -527,8 +527,8 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "Min"))
         self.pushButton_filter_by_Age.setToolTip(_translate("MainWindow", "Save DF to .csv File"))
         self.pushButton_filter_by_Age.setText(_translate("MainWindow", "Find tweets in age:"))
-        self.pushButton_export_DF_18.setToolTip(_translate("MainWindow", "Save DF to .csv File"))
-        self.pushButton_export_DF_18.setText(_translate("MainWindow", "Posting Date:"))
+        self.pushButton_filter_by_Date.setToolTip(_translate("MainWindow", "Save DF to .csv File"))
+        self.pushButton_filter_by_Date.setText(_translate("MainWindow", "Posting Date:"))
         self.label_2.setText(_translate("MainWindow", "Year"))
         self.label_8.setText(_translate("MainWindow", "Month"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.PrepareData), _translate("MainWindow", "Prepare Data"))
