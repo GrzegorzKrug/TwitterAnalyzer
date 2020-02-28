@@ -243,11 +243,12 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                       + f'-{now.minute}'.ljust(3, '0') \
                       + f'-{now.second}'.ljust(3, '0') \
                       + '.csv'
-        with open(self._data_dir + '\\' + merged_file, 'wt', encoding='utf8') as f:
+
+        file_path = os.path.join(self._data_dir, merged_file)
+        with open(file_path, 'wt', encoding='utf8') as f:
             for i, file in enumerate(filelist):
                 curr_file_path = os.path.join(self._data_dir, file)
                 df = pd.read_csv(curr_file_path, sep=';', encoding='utf8')
-
                 if i == 0:
                     df.to_csv(f, header=True, sep=';', encoding='utf8', index=False)
                 else:
