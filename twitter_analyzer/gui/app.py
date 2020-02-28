@@ -70,6 +70,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_FilterDF_TweetID.clicked.connect(self.filtedata_ByTweetId)
         self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_DF_age)
         self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_DF_date)
+        self.pushButton_filter_search_words.clicked.connect(self.trigger_search_words)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
@@ -445,6 +446,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
         except ValueError as ve:
             self.log_ui(f"Value Error: {ve}")
+
+    def trigger_search_words(self):
+        words = self.lineEdit_filter_words.text()
+        self.filterDF_search_words(words)
 
     def update_loginBox(self):
         if self.logged_in:
