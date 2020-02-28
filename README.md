@@ -84,10 +84,10 @@ or
 		- [x] Other with input parameter
 	- [ ] user_id
 	- [ ] post_id
-	- [ ] by time range
-		- [ ] ~~Time collected~~
-		- [ ] Tweet age
-	- [ ] Find used words in text
+	- [x] by time range
+		- [x] Date Posted
+		- [x] Tweet age
+	- [x] Find used words in text
 	- [ ] Find exact text
 	- [ ] Filter by other parameter	
 - [x] Display tweets / Dataframe
