@@ -255,12 +255,12 @@ class Analyzer(TwitterApi):
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
-    def filterDF_ByTime_Age(self, tmstmp_min=0, tmstmp_max=365):
+    def filterDF_by_timestamp(self, tmstmp_min, tmstmp_max):
         if self.DF is not None:
-            df = self.DF.loc[lambda df: self.read_time_condition(df['created_at'], tmstmp_min, tmstmp_max)]
+            df = self.DF.loc[lambda df: self.check_series_time_condition(df['created_at'], tmstmp_min, tmstmp_max)]
             if self.filter_conditions(df):
                 self.DF = df
-                self.log_ui(f"Filtration by age is ok.")
+                # self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -276,7 +276,7 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: df['id'] == tweet_id]
             if self.filter_conditions(df):
                 self.DF = df
-                self.log_ui(f"Filtration is ok.")
+                # self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
         
@@ -322,7 +322,7 @@ class Analyzer(TwitterApi):
         return text
 
     @staticmethod
-    def read_time_condition(time_series, timestamp_min, timestamp_max):
+    def check_series_time_condition(time_series, timestamp_min, timestamp_max):
         """Times series are defined by tweeter,
         time_min is minimum input in format 'YMDhms'
         time_max is maxmimal input in format 'YMDhms'"""
@@ -334,10 +334,9 @@ class Analyzer(TwitterApi):
         out_bool = []
 
         for time_text in time_series:
-            dt = datetime.datetime.strptime(time_text, '%a %b %d %X %z %Y')
-            timstamp = int(dt.timestamp())
-
-            if minimum <= timstamp <= maximum:
+            dt = datetime.datetime.strptime(time_text, '%a %b %d %H:%M:%S %z %Y')
+            timestamp = int(dt.timestamp())
+            if minimum <= timestamp <= maximum:
                 cond = True
             else:
                 cond = False

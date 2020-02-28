@@ -68,7 +68,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)        
         self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterdata_ByNonEmptyKey)
         self.pushButton_FilterDF_TweetID.clicked.connect(self.filtedata_ByTweetId)
-        self.pushButton_filter_by_Age.clicked.connect(self.filterDF_ByTime_Age)
+        self.pushButton_filter_by_Age.clicked.connect(self.trigger_fillter_DF_age)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
@@ -98,7 +98,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                 self.log_ui(f'{th.__name__} is still alive')
                 self.threads += [th]
             else:
-                self.log_ui(f'{th.__name__} is finished, removing from list')
+                pass
+                # self.log_ui(f'{th.__name__} is finished, removing from list')
                 
         if self.threads == []:
             self.log_ui(f'All tasks are complete')
@@ -131,10 +132,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         for file in files_list:
             if file[-4:] == '.csv' or ignore_extension:
                 good_files += [file]
-##                if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
-##                    good_files += [file]
-##                else:
-##                    self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
+#                if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
+#                    good_files += [file]
+#                else:
+#                    self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
             else:
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
         return good_files
@@ -198,7 +199,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
         subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__        
         subprocess.start()
-        self.log_ui(f'New Thread: {subprocess.__name__}')
+        # self.log_ui(f'New Thread: {subprocess.__name__}')
         self.threads += [subprocess]
         self.th_num += 1
         return subprocess
@@ -233,13 +234,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
         now = datetime.datetime.now()
         merged_file = 'merged_' \
-                    + f'{now.year}'.ljust(4, '0') \
-                    + f'{now.month}'.ljust(2, '0') \
-                    + f'{now.day}'.ljust(2, '0')  \
-                    + f'_{now.hour}'.ljust(3, '0')  \
-                    + f'-{now.minute}'.ljust(3, '0') \
-                    + f'-{now.second}'.ljust(3, '0') \
-                    + '.csv'
+                      + f'{now.year}'.ljust(4, '0') \
+                      + f'{now.month}'.ljust(2, '0') \
+                      + f'{now.day}'.ljust(2, '0')  \
+                      + f'_{now.hour}'.ljust(3, '0')  \
+                      + f'-{now.minute}'.ljust(3, '0') \
+                      + f'-{now.second}'.ljust(3, '0') \
+                      + '.csv'
         with open(self._data_dir + '\\' + merged_file, 'wt', encoding='utf8') as f:
             for i, file in enumerate(filelist):
                 curr_file_path = os.path.join(self._data_dir, file)
@@ -343,7 +344,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                     "location",
                     "favourites_count"]
                     else "" for deep_key, deep_val in user_dict.items()])
-            elif (key == "quoted_status" or key == "retweeted_status")and flag_short_quote:
+            elif (key == "quoted_status" or key == "retweeted_status") and flag_short_quote:
                 user_dict = ast.literal_eval(value)
                 text += f'{key}:'.ljust(25) + ''.join([f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
                     "id",
@@ -399,6 +400,24 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                     'verified', 'lang']:
             text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
         self.display(text)
+
+    def trigger_fillter_DF_age(self):
+        '''Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration'''
+        year = self.spinBox_timefilter_from_year.value()
+        month = self.spinBox_timefilter_from_month.value()
+        day = self.spinBox_timefilter_from_day.value()
+        hour = self.spinBox_timefilter_from_hour.value()
+        minute = self.spinBox_timefilter_from_min.value()
+        timestmp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        year = self.spinBox_timefilter_to_year.value()
+        month = self.spinBox_timefilter_to_month.value()
+        day = self.spinBox_timefilter_to_day.value()
+        hour = self.spinBox_timefilter_to_hour.value()
+        minute = self.spinBox_timefilter_to_min.value()
+        timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        self.filterDF_by_timestamp(timestmp_min, timestmp_max)
 
     def update_loginBox(self):
         if self.logged_in:

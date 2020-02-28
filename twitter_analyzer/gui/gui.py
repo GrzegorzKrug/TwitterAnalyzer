@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../twitter_analyzer/gui/GUI_QT.ui'
+# Form implementation generated from reading ui file 'GUI_QT.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
