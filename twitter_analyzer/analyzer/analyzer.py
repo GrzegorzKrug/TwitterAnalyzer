@@ -8,6 +8,7 @@ import datetime
 import glob
 import threading
 import calendar
+import re
 
 from twitter_analyzer.analyzer.twitter_api import TwitterApi
 from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, TooManyRequests
@@ -55,6 +56,33 @@ class Analyzer(TwitterApi):
             out_bool.append(cond)
 
         return out_bool
+
+    @staticmethod
+    def check_series_used_words(series, words):
+        words = re.split('[; |, |\n]', words)
+        print(words)
+        out = []
+
+        data = series['full_text']
+        for df in data:
+            word_checked = False
+            for word in words:
+                if word.lower() in df.lower():
+                    out.append(True)
+                    word_checked = True
+                    break
+            if word_checked is False:
+                out.append(False)
+
+        data = series['quoted_status']
+        for i, df in enumerate(data):
+            for word in words:
+                if word.lower() in df.lower():
+                    out[i] = True
+                    break
+
+        return out
+
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
@@ -249,7 +277,7 @@ class Analyzer(TwitterApi):
             self.log_ui('Wrong key to filter.')
             return False
         DF = self.DF
-        df = DF.loc[(DF[key] != None) & (DF[key] != 'None')]        
+        df = DF.loc[(DF[key] != None) & (DF[key] != 0) & (DF[key] != 'None')]
         if self.filter_conditions(df):
             self.DF = df
             self.log_ui(f'Found tweets with values in {key}')
@@ -274,6 +302,15 @@ class Analyzer(TwitterApi):
             if self.filter_conditions(df):
                 self.DF = df
                 self.log_ui(f"Filtration by language ({lang}) is ok.")
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
+    def filterDF_search_words(self, words):
+        if self.DF is not None:
+            df = self.DF.loc[lambda df: self.check_series_used_words(df, words)]
+            if self.filter_conditions(df):
+                self.DF = df
+                # self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -367,7 +404,7 @@ class Analyzer(TwitterApi):
     def save_current_DF(self, extraText=None):
         if extraText:
             extraText = '_' + extraText
-        filepath = os.path.join(self._data_dir, + 'dataframe_' + self.nowAsText() + extraText + '.csv')
+        filepath = os.path.join(self._data_dir, 'dataframe_' + self.nowAsText() + extraText + '.csv')
         self.save_DF(self.DF, filepath)
 
     def save_DF(self, DF, filepath):
