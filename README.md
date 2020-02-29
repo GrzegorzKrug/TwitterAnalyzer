@@ -71,6 +71,7 @@ or
 - [ ] Buttons
 	- [x] Login, Status, Load CSVs
 	- [ ] More Buttons
+	- [ ] Download more tweets
 - [x] Display log Console
 - [x] Display CSV File Tree		
 - [ ] Threading background
@@ -83,7 +84,7 @@ or
 		- [x] Polish
 		- [x] Other with input parameter
 	- [ ] user_id
-	- [ ] post_id
+	- [x] post_id
 	- [x] by time range
 		- [x] Date Posted
 		- [x] Tweet age
@@ -99,6 +100,7 @@ or
 - [ ] Manage CSV files
 	- [x] Loading selected CSV
 	- [x] Save current DF to file
+	- [ ] Merge without duplicates
 - [ ] Auto Arrange tweets into files
 	- [ ] Combine CSV  groups
 		- [x] Combine selected
