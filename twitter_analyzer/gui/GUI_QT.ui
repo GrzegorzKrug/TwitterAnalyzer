@@ -152,7 +152,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="12" column="0">
+        <item row="13" column="0">
          <widget class="QPushButton" name="pushButton_PreviousTweet">
           <property name="toolTip">
            <string>Show previous Tweet from DF</string>
@@ -217,7 +217,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </spacer>
         </item>
-        <item row="12" column="1">
+        <item row="13" column="1">
          <widget class="QPushButton" name="pushButton_NextTweet">
           <property name="toolTip">
            <string>Show next Tweet from DF</string>
@@ -237,7 +237,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="13" column="0">
+        <item row="14" column="0">
          <widget class="QPushButton" name="pushButton_JumpToTweet">
           <property name="toolTip">
            <string>Jumps to Tweet in DF, define index in box.</string>
@@ -263,7 +263,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="13" column="1">
+        <item row="14" column="1">
          <widget class="QLineEdit" name="lineEdit_JumpToTweet">
           <property name="toolTip">
            <string>Input index for Jump button.</string>
@@ -287,6 +287,13 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_drop_current_tweet">
+          <property name="text">
+           <string>Drop This Tweet</string>
           </property>
          </widget>
         </item>
@@ -589,7 +596,7 @@ color: rgb(255, 255, 255);</string>
            </rect>
           </property>
           <property name="toolTip">
-           <string>Save DF to .csv File</string>
+           <string>Save DF to .csv File, Name is optional</string>
           </property>
           <property name="text">
            <string>Save DF</string>
@@ -605,7 +612,7 @@ color: rgb(255, 255, 255);</string>
            </rect>
           </property>
           <property name="toolTip">
-           <string>You can Add some comment to file name</string>
+           <string>(optional) You can Add some comment to file name</string>
           </property>
          </widget>
          <widget class="QPushButton" name="pushButton_export_DF_7">
@@ -660,7 +667,7 @@ color: rgb(255, 255, 255);</string>
             <enum>QLayout::SetDefaultConstraint</enum>
            </property>
            <item>
-            <layout class="QGridLayout" name="gridLayout_DataFilters" rowstretch="1,0,0,0,0,0" columnstretch="2,0,0,0">
+            <layout class="QGridLayout" name="gridLayout_DataFilters" rowstretch="1,0,0,0,0" columnstretch="2,0,0,0">
              <property name="sizeConstraint">
               <enum>QLayout::SetNoConstraint</enum>
              </property>
@@ -790,6 +797,26 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="2" column="0">
               <widget class="QLineEdit" name="lineEdit_2"/>
+             </item>
+             <item row="1" column="3">
+              <widget class="QPushButton" name="pushButton_drop_old_duplicates">
+               <property name="toolTip">
+                <string>Keep only oldest tweets</string>
+               </property>
+               <property name="text">
+                <string>Drop old duplicates</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QPushButton" name="pushButton_drop_new_duplicates">
+               <property name="toolTip">
+                <string>Keep only newest tweets</string>
+               </property>
+               <property name="text">
+                <string>Drop new duplicates</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

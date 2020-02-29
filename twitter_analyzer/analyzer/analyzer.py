@@ -400,6 +400,17 @@ class Analyzer(TwitterApi):
                 continue
         self.log_ui(text)
 
+    def remove_duplicates_DF(self, keep_new=True):
+        if self.DF is not None:
+
+            df = self.DF.drop_duplicates(['id','timestamp'])
+            # df = self.DF.loc[lambda df: df['id'] == tweet_id]
+            if self.filter_conditions(df):
+                self.DF = df
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
+
     def save_current_DF(self, extraText=None):
         if extraText:
             extraText = '_' + extraText

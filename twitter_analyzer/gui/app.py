@@ -61,6 +61,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_NextTweet.clicked.connect(self.showNextTweetfromDF)
         self.pushButton_PreviousTweet.clicked.connect(self.showPrevTweetfromDF)
         self.pushButton_JumpToTweet.clicked.connect(self.showTweetJump)
+        self.pushButton_drop_current_tweet.clicked.connect(self.trigger_drop_current)
 
         'Filtration Buttons'
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterdata_Language('pl'))
@@ -71,6 +72,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_DF_age)
         self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_DF_date)
         self.pushButton_filter_search_words.clicked.connect(self.trigger_search_words)
+        self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
+        self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
@@ -451,6 +454,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def trigger_search_words(self):
         words = self.lineEdit_filter_words.text()
         self.filterDF_search_words(words)
+
+    def trigger_drop_current(self):
+        pass
+    
+    def trigger_drop_new_duplicates(self):
+        self.remove_duplicates_DF(keep_new=False)
+
+    def trigger_drop_old_duplicates(self):
+        self.remove_duplicates_DF(keep_new=True)
 
     def update_loginBox(self):
         if self.logged_in:
