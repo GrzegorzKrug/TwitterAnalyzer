@@ -15,8 +15,8 @@ from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, Too
 
 
 class Analyzer(TwitterApi):
-    def __init__(self, autologin=True, log_ui=None):
-        TwitterApi.__init__(self, autologin=False)
+    def __init__(self, autologin=False, log_ui=None):
+        TwitterApi.__init__(self, autologin=False)  # Dont login via api!
 
         self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
@@ -82,7 +82,6 @@ class Analyzer(TwitterApi):
                     break
 
         return out
-
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
@@ -215,6 +214,34 @@ class Analyzer(TwitterApi):
                 pass
         self.log_ui(f'Done removing')
 
+    def drop_tweet_DF(self, index):
+        if self.DF is not None:
+            df = self.DF
+            if 0 > index > len(df):
+                self.log_ui("Invalid index, can not drop tweet")
+                return None
+
+            df = df.drop(df.index[index])
+            if self.filter_conditions(df):
+                self.DF = df
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
+    def drop_duplicates_DF(self, keep_new=True):
+        if keep_new:
+            keep = 'last'
+        else:
+            keep = 'first'
+
+        if self.DF is not None:
+            df = self.DF
+            df = df.sort_values('timestamp').drop_duplicates(subset=['id'], keep=keep)
+            if self.filter_conditions(df):
+                self.DF = df
+                return True
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
     @staticmethod
     def export_tweet_to_database(_data_dir, tweet, filename='default', delay=0):
         if delay > 0:
@@ -224,7 +251,7 @@ class Analyzer(TwitterApi):
         if not os.path.isabs(_data_dir):
             # Parent AbsPath + _data_dir
             _data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), _data_dir)
-            
+
         file_path = os.path.join(_data_dir, filename + '.csv')
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                   'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
@@ -246,7 +273,7 @@ class Analyzer(TwitterApi):
             return True
         try:
             with open(file_path, 'at', encoding='utf8') as file:
-                for i, key in enumerate(header):                    
+                for i, key in enumerate(header):
                     try:
                         text = str(tweet.get(key, None))
                         if text is None:
@@ -255,10 +282,10 @@ class Analyzer(TwitterApi):
                             file.write('None')
                         else:
                             for char in ['\n', ';', '\r']:
-                                text = text.replace(char, '')                       
+                                text = text.replace(char, ' ')
                             file.write(text)
 
-                    except UnicodeEncodeError:                      
+                    except UnicodeEncodeError:
                         file.write('UnicodeEncodeError')
 
                     if i < len(header)-1:
@@ -277,16 +304,16 @@ class Analyzer(TwitterApi):
             self.log_ui('Wrong key to filter.')
             return False
         DF = self.DF
-        df = DF.loc[(DF[key] != None) & (DF[key] != 0) & (DF[key] != 'None')]
+        df = DF.loc[(DF[key] is not None) & (DF[key] != 0) & (DF[key] != 'None')]
         if self.filter_conditions(df):
             self.DF = df
-            self.log_ui(f'Found tweets with values in {key}')
+            # self.log_ui(f'Found tweets with values in {key}')
             return True
         else:
             return False
-    
+
     def filter_conditions(self, df):
-        if df.shape[0] > 0 and df.shape != self.DF.shape:                
+        if df.shape[0] > 0 and df.shape != self.DF.shape:
                 return True
         elif df.shape[0] > 0:
             self.log_ui('Invalid filtration! DF size is the same.')
@@ -301,7 +328,7 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: df['lang'] == lang]
             if self.filter_conditions(df):
                 self.DF = df
-                self.log_ui(f"Filtration by language ({lang}) is ok.")
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -310,7 +337,7 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: self.check_series_used_words(df, words)]
             if self.filter_conditions(df):
                 self.DF = df
-                # self.log_ui(f"Filtration is ok.")
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -319,10 +346,10 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: self.check_series_time_condition(df['created_at'], tmstmp_min, tmstmp_max)]
             if self.filter_conditions(df):
                 self.DF = df
-                # self.log_ui(f"Filtration is ok.")
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
-
+        
     def filteDF_ByTweetId(self, tweet_id):
         try:
             tweet_id = int(tweet_id)
@@ -331,20 +358,19 @@ class Analyzer(TwitterApi):
             return None
 
         if self.DF is not None:
-
             df = self.DF.loc[lambda df: df['id'] == tweet_id]
             if self.filter_conditions(df):
                 self.DF = df
-                # self.log_ui(f"Filtration is ok.")
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
-        
+
     def find_local_tweets(self, path=None):
         if path:
             path = os.path.abspath(path)
         else:
-            path = self._data_dir        
-        files = glob.glob(os.path.join(path, 'Tweets*.csv'))        
+            path = self._data_dir
+        files = glob.glob(os.path.join(path, 'Tweets*.csv'))
         return files
 
     def load_DF(self, file_list):
@@ -361,8 +387,9 @@ class Analyzer(TwitterApi):
             if self.DF is None:
                 self.DF = df
             else:
-                self.DF = pd.concat([self.DF, df])
+                self.DF = pd.concat([self.DF, df], ignore_index=True)
         self.log_ui(text)
+        return True
 
     def log_ui(self, text):
         print(text)
@@ -386,7 +413,7 @@ class Analyzer(TwitterApi):
         if not self.loaded_to_DF:
             self.log_ui('Never loaded anything!')
             return False
-        
+
         for file in self.loaded_to_DF:
             file_path = os.path.join(self._data_dir, file)
             try:
@@ -395,7 +422,7 @@ class Analyzer(TwitterApi):
                 if self.DF is None:
                     self.DF = df
                 else:
-                    self.DF = pd.concat([self.DF, df])
+                    self.DF = pd.concat([self.DF, df], ignore_index=True)
             except FileNotFoundError:
                 text += f'Missing file: {file}'
                 continue
@@ -405,7 +432,8 @@ class Analyzer(TwitterApi):
         if extraText:
             extraText = '_' + extraText
         filepath = os.path.join(self._data_dir, 'dataframe_' + self.nowAsText() + extraText + '.csv')
-        self.save_DF(self.DF, filepath)
+        valid = self.save_DF(self.DF, filepath)
+        return valid
 
     def save_DF(self, DF, filepath):
         if DF is None:
@@ -415,8 +443,7 @@ class Analyzer(TwitterApi):
             with open(filepath, 'wt', encoding='utf8') as f:
                 DF.to_csv(f, sep=';', encoding='utf8', index=False)
                 self.log_ui(f'Saved DF to file: {os.path.abspath(filepath)}')
-        #    return True
-        # self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+                return True
 
     @staticmethod
     def timestamp_from_date(year=1990, month=1, day=1, hour=0, minute=0):

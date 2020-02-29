@@ -20,7 +20,7 @@ class TwitterApi:
 
         if autologin:
             valid, text = self._login_procedure()
-            print(text)
+            # print(text)
 
     def _login_procedure(self):
         valid, self.me, message = self._verifyOAuth()
@@ -33,9 +33,9 @@ class TwitterApi:
         return valid, message
 
     def _verifyOAuth(self):
-        try:
-            file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
+        file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
 
+        try:
             with open(file_path, 'rt') as token_file:
                 data = json.load(token_file)
 
@@ -43,7 +43,6 @@ class TwitterApi:
                 consumer_secret = data['consumer_secret']
                 access_token_key = data['access_token_key']
                 access_token_secret = data['access_token_secret']
-
                 url = self.apiUrl + r'/account/verify_credentials.json'
 
                 auth = OAuth1(consumer_key,
@@ -51,6 +50,7 @@ class TwitterApi:
                               access_token_key,
                               access_token_secret)
                 response = requests.get(url, auth=auth)
+
                 try:
                     self.verify_response(response)
                     self.auth = auth
@@ -58,9 +58,9 @@ class TwitterApi:
                                                   consumer_secret,
                                                   access_token_key,
                                                   access_token_secret)
-                    
                     me = response.json()
                     return True, me, f'Logged in successfully as {me["screen_name"]}'
+
                 except Unauthorized:
                     return False, None, 'Authorization failed! Invalid or expired token.'
 
@@ -76,13 +76,13 @@ class TwitterApi:
             #print("Exception: secret_token.txt is missing!\n"
             	#"Created blank secret_token.txt.")
             with open(file_path, 'wt') as file:
-            	data = 	json.dumps({
+                data = 	json.dumps({
             		"consumer_key" : "ABC",
             		"consumer_secret" : "ABC",
             		"access_token_key" : "ABC",
             		"access_token_secret" : "ABC"},
             		indent=4)
-            	file.write(data)
+                file.write(data)
 
             return False, None, "Exception: secret_token.txt is missing!\n>\tCreated blank secret_token.txt."
         #

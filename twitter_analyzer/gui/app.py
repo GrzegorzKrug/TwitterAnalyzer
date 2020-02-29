@@ -2,9 +2,10 @@
 # Grzegorz Krug
 from PyQt5 import QtCore, QtWidgets # QtGui
 from twitter_analyzer.analyzer.analyzer import Analyzer
+# from twitter_analyzer.analyzer.twitter_api import TwitterApi
 from twitter_analyzer.gui.gui import Ui_MainWindow
-#import random
-#import time
+
+import webbrowser
 import datetime
 import threading
 import traceback
@@ -16,14 +17,16 @@ import time
 
 
 class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
-    def __init__(self, mainWindow, autologin=True):
+    def __init__(self, mainWindow, autologin=False):
         Ui_MainWindow.__init__(self)
         self.setupUi(mainWindow)
         Analyzer.__init__(self, autologin=autologin, log_ui=self.log_ui)
 
         self._init_wrappers()
         self._init_triggers()
+        self._init_settings()
         self.refresh_gui()
+
         self._loaded_files = []  # Last loaded files, for reloading
         self.threads = []  # Thread reference list
         self.th_num = 0  # Thread counter
@@ -34,13 +37,16 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.actionWho_am_I.triggered.connect(self.pop_window)
         self.actionRefresh_GUI.triggered.connect(self.refresh_gui)
         self.actionTweet_Description.triggered.connect(self.whatTweetis)
-        
+
         # self.label_login_status.mousePressEvent = self.update_status
 
         'Requesting methods'
         self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.downloadFullChunk))
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
         self.pushButton_Request_Status.clicked.connect(self.requestStatusFromBox)
+
+        'Settings'
+        self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
 
         'Buttons'
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
@@ -55,25 +61,33 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_showTweets.clicked.connect(self.showDF)
         self.pushButton_reload_DF.clicked.connect(self.resetDF)
         self.pushButton_check_threads.clicked.connect(self.check_threads)
+        self.pushButton_open_in_browser.clicked.connect(self.open_in_broswer)
+        self.pushButton_merge_without_duplicates.clicked.connect(self.merge_without_duplicates_trigger)
 
         'Displaying Tweets'
         self.pushButton_ShowTweet.clicked.connect(self.showTweetfromDF)
         self.pushButton_NextTweet.clicked.connect(self.showNextTweetfromDF)
         self.pushButton_PreviousTweet.clicked.connect(self.showPrevTweetfromDF)
         self.pushButton_JumpToTweet.clicked.connect(self.showTweetJump)
+        self.pushButton_drop_current_tweet.clicked.connect(self.trigger_drop_current_tweet)
 
         'Filtration Buttons'
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterdata_Language('pl'))
         self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.filterdata_Language('en'))
-        self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)        
+        self.pushButton_FilterDF_Lang_Other.clicked.connect(self.filterdata_Language)
         self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.filterdata_ByNonEmptyKey)
         self.pushButton_FilterDF_TweetID.clicked.connect(self.filtedata_ByTweetId)
         self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_DF_age)
         self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_DF_date)
         self.pushButton_filter_search_words.clicked.connect(self.trigger_search_words)
+        self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
+        self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
+
+    def _init_settings(self):
+        self.change_info_settings()
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -93,8 +107,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     #         # time.sleep(0.2)
 
     def check_threads(self):
-        threads = self.threads            
-        self.threads = []        
+        threads = self.threads
+        self.threads = []
         for th in threads:
             if th.isAlive():
                 self.log_ui(f'{th.__name__} is still alive')
@@ -102,15 +116,22 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             else:
                 pass
                 # self.log_ui(f'{th.__name__} is finished, removing from list')
-                
+
         if self.threads == []:
             self.log_ui(f'All tasks are complete')
             return False
 
     @staticmethod
     def downloadFullChunk():
-        app = Analyzer()
-        app.collect_new_tweets(n=1, chunk_size=200, interval=0)        
+        app = Analyzer(autologin=True)
+        app.collect_new_tweets(n=1, chunk_size=200, interval=0)
+
+    def change_info_settings(self):
+        checked = True if self.checkBox_wrap_console.checkState() == 2 else False
+        if checked:
+            self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.WidgetWidth)
+        else:
+            self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
 
     def copyInfoToLog(self):
         text = '=== Info:'
@@ -134,10 +155,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         for file in files_list:
             if file[-4:] == '.csv' or ignore_extension:
                 good_files += [file]
-#                if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
-#                    good_files += [file]
-#                else:
-#                    self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
+            #                if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
+            #                    good_files += [file]
+            #                else:
+            #                    self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
             else:
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
         return good_files
@@ -149,9 +170,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def display(self, text):
         while text[-1] == '\n' \
-        or text[-1] == '\r' \
-        or text[-1] == ' ':
-            text = text[:-1]            
+                or text[-1] == '\r' \
+                or text[-1] == ' ':
+            text = text[:-1]
         self.plainTextEdit_info.setPlainText(text)
 
     def delete_selected(self):
@@ -170,36 +191,41 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     @staticmethod
     def download10_chunks():
-        app = Analyzer()
+        app = Analyzer(autologin=True)
         app.collect_new_tweets(n=10, chunk_size=200, interval=60)
 
     def filterdata_ByNonEmptyKey(self):
         text = self.lineEdit_filterKeyinput.text()
         valid = self.filtrerDF_ByExistingKey(text)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def filtedata_ByTweetId(self):
         text = self.lineEdit_tweet_id.text()
-        if len(text) > 0:
-            self.filteDF_ByTweetId(text)
-        else:
+        if len(text) < 0:
             self.log_ui("This is not valid ID")
-        
+        valid = self.filteDF_ByTweetId(text)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
+
     def filterdata_Language(self, lang=None):
-        if lang:
-            self.filterDF_byLang(lang)
-        else:
+        if not lang:
             lang = self.lineEdit_FilterLangOther.text()
             lang = str(lang)
-            if lang == '':
-                self.log_ui('Box is empty!')
-                return None                
-            self.filterDF_byLang(lang)
-        self.showDF()
-        
+        if lang == '':
+            self.log_ui('Box is empty!')
+            return None
+        valid = self.filterDF_byLang(lang)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
+
     # @staticmethod
-    def fork_method(self, method_to_fork, *args, **kwargs):        
+    def fork_method(self, method_to_fork, *args, **kwargs):
         subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
-        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__        
+        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
         subprocess.start()
         # self.log_ui(f'New Thread: {subprocess.__name__}')
         self.threads += [subprocess]
@@ -211,8 +237,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         files = self.current_tree_selection()
         self.load_DF(files)
         if self.DF is not None:
-            self.display(f'DF size: {self.DF.shape}')
-            self.display_add(str(self.DF.head()))
+            # self.display(f'DF size: {self.DF.shape}')
+            # self.display_add(str(self.DF.head()))
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def log_ui(self, text_line):
         text_line = str(text_line)
@@ -238,8 +266,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         merged_file = 'merged_' \
                       + f'{now.year}'.ljust(4, '0') \
                       + f'{now.month}'.ljust(2, '0') \
-                      + f'{now.day}'.ljust(2, '0')  \
-                      + f'_{now.hour}'.ljust(3, '0')  \
+                      + f'{now.day}'.ljust(2, '0') \
+                      + f'_{now.hour}'.ljust(3, '0') \
                       + f'-{now.minute}'.ljust(3, '0') \
                       + f'-{now.second}'.ljust(3, '0') \
                       + '.csv'
@@ -259,6 +287,36 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                     self.log_ui(f'Merged, but can not remove {file}')
 
         self.log_ui(f'Merged to file: {merged_file}')
+
+    def merge_without_duplicates_trigger(self):
+        files = self.current_tree_selection()
+        self.fork_method(self.merge_without_duplicates, files)
+
+    def merge_without_duplicates(self, files):
+        app = Analyzer()
+        valid = app.load_DF(files)
+        if valid:
+            resp = app.drop_duplicates_DF()
+        if valid and resp is not False:
+            valid = app.save_current_DF('Auto_Merge')
+        if valid:
+            for curr_file in files:
+                try:
+                    curr_file_path = os.path.join(self._data_dir, curr_file)
+                    os.remove(curr_file_path)
+                except PermissionError:
+                    self.log_ui(f'Merged, but can not remove {curr_file_path}')
+
+
+    def open_in_broswer(self):
+        if self.DF is not None:
+            if 0 <= self.currTweetDF_ind < len(self.DF):
+                tweet = self.DF.iloc[self.currTweetDF_ind]
+                # author = tweet['user']
+                author = ast.literal_eval(tweet['user'])['screen_name']
+                status_id = tweet['id']
+
+                webbrowser.open(f'https://twitter.com/{author}/status/{status_id}')
 
     @staticmethod
     def post_action(method, next_method=None):
@@ -285,9 +343,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.show_tree()
 
     def resetDF(self):
-        # self.currTweetDF_ind = -1
+        '''Loads last used files'''
         self.reloadDF()
-        self.showDF()
+        self.currTweetDF_ind = 0
+        self.showTweetfromDF()
 
     def requestStatusFromBox(self):
         text = self.lineEdit_request_statusId.text()
@@ -297,7 +356,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.log_ui('This is not a number')
             return None
         self.collect_status([num])
-        
+
     def show_tree(self):
         path = self._data_dir
         model = QtWidgets.QFileSystemModel()
@@ -351,13 +410,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                     "screen_name",
                     "location",
                     "favourites_count"]
-                    else "" for deep_key, deep_val in user_dict.items()])
+                                                       else "" for deep_key, deep_val in user_dict.items()])
             elif (key == "quoted_status" or key == "retweeted_status") and flag_short_quote:
                 user_dict = ast.literal_eval(value)
                 text += f'{key}:'.ljust(25) + ''.join([f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
                     "id",
                     "full_text"]
-                else "" for deep_key, deep_val in user_dict.items()])
+                                                       else "" for deep_key, deep_val in user_dict.items()])
             else:
                 text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)
@@ -379,7 +438,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = len(self.DF) - 1
 
         self.showTweet(self.currTweetDF_ind)
-                
+
     def showNextTweetfromDF(self):
         if self.DF is None:
             self.log_ui('DF not loaded!')
@@ -389,7 +448,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0  # First Tweet index            
 
         self.showTweet(self.currTweetDF_ind)
-        
+
     def showPrevTweetfromDF(self):
         if self.DF is None:
             self.log_ui('DF not loaded!')
@@ -401,7 +460,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
 
         self.showTweet(self.currTweetDF_ind)
-           
+
     def show_user_info(self, user_data):
         text = ''
         for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
@@ -409,23 +468,21 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
         self.display(text)
 
-    def trigger_filter_DF_age(self):
-        '''Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration'''
-        year = self.spinBox_timefilter_from_year.value()
-        month = self.spinBox_timefilter_from_month.value()
-        day = self.spinBox_timefilter_from_day.value()
-        hour = self.spinBox_timefilter_from_hour.value()
-        minute = self.spinBox_timefilter_from_min.value()
-        timestmp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+    def trigger_drop_current_tweet(self):
+        self.drop_tweet_DF(self.currTweetDF_ind)
+        self.showTweetfromDF()
 
-        year = self.spinBox_timefilter_to_year.value()
-        month = self.spinBox_timefilter_to_month.value()
-        day = self.spinBox_timefilter_to_day.value()
-        hour = self.spinBox_timefilter_to_hour.value()
-        minute = self.spinBox_timefilter_to_min.value()
-        timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+    def trigger_drop_new_duplicates(self):
+        valid = self.drop_duplicates_DF(keep_new=False)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
-        self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+    def trigger_drop_old_duplicates(self):
+        valid = self.drop_duplicates_DF(keep_new=True)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def trigger_filter_DF_date(self):
         try:
@@ -443,14 +500,41 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             minute = self.spinBox_timefilter_to_min.value()
             timestmp_max = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
 
-            self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+            valid = self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+            if valid:
+                self.currTweetDF_ind = 0
+                self.showTweetfromDF()
 
         except ValueError as ve:
             self.log_ui(f"Value Error: {ve}")
 
+    def trigger_filter_DF_age(self):
+        '''Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration'''
+        year = self.spinBox_timefilter_from_year.value()
+        month = self.spinBox_timefilter_from_month.value()
+        day = self.spinBox_timefilter_from_day.value()
+        hour = self.spinBox_timefilter_from_hour.value()
+        minute = self.spinBox_timefilter_from_min.value()
+        timestmp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        year = self.spinBox_timefilter_to_year.value()
+        month = self.spinBox_timefilter_to_month.value()
+        day = self.spinBox_timefilter_to_day.value()
+        hour = self.spinBox_timefilter_to_hour.value()
+        minute = self.spinBox_timefilter_to_min.value()
+        timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        valid = self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
+
     def trigger_search_words(self):
         words = self.lineEdit_filter_words.text()
-        self.filterDF_search_words(words)
+        valid = self.filterDF_search_words(words)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def update_loginBox(self):
         if self.logged_in:
