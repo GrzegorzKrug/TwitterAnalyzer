@@ -83,7 +83,6 @@ class Analyzer(TwitterApi):
 
         return out
 
-
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         '''Loop that runs N times, and collect Tweet x chunk_size
         Twitter rate limit is 15 times in 15 mins'''
@@ -277,7 +276,7 @@ class Analyzer(TwitterApi):
             self.log_ui('Wrong key to filter.')
             return False
         DF = self.DF
-        df = DF.loc[(DF[key] != None) & (DF[key] != 0) & (DF[key] != 'None')]
+        df = DF.loc[(DF[key] is not None) & (DF[key] != 0) & (DF[key] != 'None')]
         if self.filter_conditions(df):
             self.DF = df
             self.log_ui(f'Found tweets with values in {key}')
