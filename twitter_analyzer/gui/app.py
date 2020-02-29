@@ -197,23 +197,25 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def filtedata_ByTweetId(self):
         text = self.lineEdit_tweet_id.text()
-        if len(text) > 0:
-            self.filteDF_ByTweetId(text)
-        else:
+        if len(text) < 0:
             self.log_ui("This is not valid ID")
-        
+        valid = self.filteDF_ByTweetId(text)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
+
     def filterdata_Language(self, lang=None):
-        if lang:
-            self.filterDF_byLang(lang)
-        else:
+        if not lang:
             lang = self.lineEdit_FilterLangOther.text()
             lang = str(lang)
-            if lang == '':
-                self.log_ui('Box is empty!')
-                return None                
-            self.filterDF_byLang(lang)
-        self.showDF()
-        
+        if lang == '':
+            self.log_ui('Box is empty!')
+            return None
+        valid = self.filterDF_byLang(lang)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
+
     # @staticmethod
     def fork_method(self, method_to_fork, *args, **kwargs):        
         subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
@@ -229,8 +231,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         files = self.current_tree_selection()
         self.load_DF(files)
         if self.DF is not None:
-            self.display(f'DF size: {self.DF.shape}')
-            self.display_add(str(self.DF.head()))
+            # self.display(f'DF size: {self.DF.shape}')
+            # self.display_add(str(self.DF.head()))
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def log_ui(self, text_line):
         text_line = str(text_line)
@@ -303,9 +307,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.show_tree()
 
     def resetDF(self):
-        # self.currTweetDF_ind = -1
+        '''Loads last used files'''
         self.reloadDF()
-        self.showDF()
+        self.currTweetDF_ind = 0
+        self.showTweetfromDF()
 
     def requestStatusFromBox(self):
         text = self.lineEdit_request_statusId.text()
@@ -432,10 +437,16 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.showTweetfromDF()
 
     def trigger_drop_new_duplicates(self):
-        self.drop_duplicates_DF(keep_new=False)
+        valid = self.drop_duplicates_DF(keep_new=False)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def trigger_drop_old_duplicates(self):
-        self.drop_duplicates_DF(keep_new=True)
+        valid = self.drop_duplicates_DF(keep_new=True)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def trigger_filter_DF_date(self):
         try:
@@ -453,7 +464,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             minute = self.spinBox_timefilter_to_min.value()
             timestmp_max = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
 
-            self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+            valid = self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+            if valid:
+                self.currTweetDF_ind = 0
+                self.showTweetfromDF()
 
         except ValueError as ve:
             self.log_ui(f"Value Error: {ve}")
@@ -474,11 +488,17 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         minute = self.spinBox_timefilter_to_min.value()
         timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
 
-        self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+        valid = self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def trigger_search_words(self):
         words = self.lineEdit_filter_words.text()
-        self.filterDF_search_words(words)
+        valid = self.filterDF_search_words(words)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.showTweetfromDF()
 
     def update_loginBox(self):
         if self.logged_in:

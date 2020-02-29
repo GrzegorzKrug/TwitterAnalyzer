@@ -238,6 +238,7 @@ class Analyzer(TwitterApi):
             df = df.sort_values('timestamp').drop_duplicates(subset=['id'], keep=keep)
             if self.filter_conditions(df):
                 self.DF = df
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -327,7 +328,7 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: df['lang'] == lang]
             if self.filter_conditions(df):
                 self.DF = df
-                self.log_ui(f"Filtration by language ({lang}) is ok.")
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -336,6 +337,7 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: self.check_series_used_words(df, words)]
             if self.filter_conditions(df):
                 self.DF = df
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -344,7 +346,7 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: self.check_series_time_condition(df['created_at'], tmstmp_min, tmstmp_max)]
             if self.filter_conditions(df):
                 self.DF = df
-                # self.log_ui(f"Filtration is ok.")
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
         
@@ -356,10 +358,10 @@ class Analyzer(TwitterApi):
             return None
 
         if self.DF is not None:
-
             df = self.DF.loc[lambda df: df['id'] == tweet_id]
             if self.filter_conditions(df):
                 self.DF = df
+                return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -385,7 +387,7 @@ class Analyzer(TwitterApi):
             if self.DF is None:
                 self.DF = df
             else:
-                self.DF = pd.concat([self.DF, df])
+                self.DF = pd.concat([self.DF, df], ignore_index=True)
         self.log_ui(text)
 
     def log_ui(self, text):
@@ -419,7 +421,7 @@ class Analyzer(TwitterApi):
                 if self.DF is None:
                     self.DF = df
                 else:
-                    self.DF = pd.concat([self.DF, df])
+                    self.DF = pd.concat([self.DF, df], ignore_index=True)
             except FileNotFoundError:
                 text += f'Missing file: {file}'
                 continue
