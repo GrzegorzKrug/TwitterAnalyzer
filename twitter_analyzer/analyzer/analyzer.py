@@ -214,6 +214,33 @@ class Analyzer(TwitterApi):
                 pass
         self.log_ui(f'Done removing')
 
+    def drop_tweet_DF(self, index):
+        if self.DF is not None:
+            df = self.DF
+            if 0 > index > len(df):
+                self.log_ui("Invalid index, can not drop tweet")
+                return None
+
+            df = df.drop(df.index[index])
+            if self.filter_conditions(df):
+                self.DF = df
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
+    def drop_duplicates_DF(self, keep_new=True):
+        if keep_new:
+            keep = 'last'
+        else:
+            keep = 'first'
+
+        if self.DF is not None:
+            df = self.DF
+            df = df.sort_values('timestamp').drop_duplicates(subset=['id'], keep=keep)
+            if self.filter_conditions(df):
+                self.DF = df
+        else:
+            self.log_ui('DF is empty. Load some tweets first.')
+
     @staticmethod
     def export_tweet_to_database(_data_dir, tweet, filename='default', delay=0):
         if delay > 0:
@@ -223,7 +250,7 @@ class Analyzer(TwitterApi):
         if not os.path.isabs(_data_dir):
             # Parent AbsPath + _data_dir
             _data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), _data_dir)
-            
+
         file_path = os.path.join(_data_dir, filename + '.csv')
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                   'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
@@ -245,7 +272,7 @@ class Analyzer(TwitterApi):
             return True
         try:
             with open(file_path, 'at', encoding='utf8') as file:
-                for i, key in enumerate(header):                    
+                for i, key in enumerate(header):
                     try:
                         text = str(tweet.get(key, None))
                         if text is None:
@@ -254,10 +281,10 @@ class Analyzer(TwitterApi):
                             file.write('None')
                         else:
                             for char in ['\n', ';', '\r']:
-                                text = text.replace(char, '')                       
+                                text = text.replace(char, '')
                             file.write(text)
 
-                    except UnicodeEncodeError:                      
+                    except UnicodeEncodeError:
                         file.write('UnicodeEncodeError')
 
                     if i < len(header)-1:
@@ -279,13 +306,13 @@ class Analyzer(TwitterApi):
         df = DF.loc[(DF[key] is not None) & (DF[key] != 0) & (DF[key] != 'None')]
         if self.filter_conditions(df):
             self.DF = df
-            self.log_ui(f'Found tweets with values in {key}')
+            # self.log_ui(f'Found tweets with values in {key}')
             return True
         else:
             return False
-    
+
     def filter_conditions(self, df):
-        if df.shape[0] > 0 and df.shape != self.DF.shape:                
+        if df.shape[0] > 0 and df.shape != self.DF.shape:
                 return True
         elif df.shape[0] > 0:
             self.log_ui('Invalid filtration! DF size is the same.')
@@ -309,7 +336,6 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: self.check_series_used_words(df, words)]
             if self.filter_conditions(df):
                 self.DF = df
-                # self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
@@ -321,7 +347,7 @@ class Analyzer(TwitterApi):
                 # self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
-
+        
     def filteDF_ByTweetId(self, tweet_id):
         try:
             tweet_id = int(tweet_id)
@@ -334,16 +360,15 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda df: df['id'] == tweet_id]
             if self.filter_conditions(df):
                 self.DF = df
-                # self.log_ui(f"Filtration is ok.")
         else:
             self.log_ui('DF is empty. Load some tweets first.')
-        
+
     def find_local_tweets(self, path=None):
         if path:
             path = os.path.abspath(path)
         else:
-            path = self._data_dir        
-        files = glob.glob(os.path.join(path, 'Tweets*.csv'))        
+            path = self._data_dir
+        files = glob.glob(os.path.join(path, 'Tweets*.csv'))
         return files
 
     def load_DF(self, file_list):
@@ -385,7 +410,7 @@ class Analyzer(TwitterApi):
         if not self.loaded_to_DF:
             self.log_ui('Never loaded anything!')
             return False
-        
+
         for file in self.loaded_to_DF:
             file_path = os.path.join(self._data_dir, file)
             try:
@@ -399,17 +424,6 @@ class Analyzer(TwitterApi):
                 text += f'Missing file: {file}'
                 continue
         self.log_ui(text)
-
-    def remove_duplicates_DF(self, keep_new=True):
-        if self.DF is not None:
-
-            df = self.DF.drop_duplicates(['id','timestamp'])
-            # df = self.DF.loc[lambda df: df['id'] == tweet_id]
-            if self.filter_conditions(df):
-                self.DF = df
-        else:
-            self.log_ui('DF is empty. Load some tweets first.')
-
 
     def save_current_DF(self, extraText=None):
         if extraText:

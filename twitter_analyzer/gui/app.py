@@ -23,7 +23,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
         self._init_wrappers()
         self._init_triggers()
+        self._init_settings()
         self.refresh_gui()
+
         self._loaded_files = []  # Last loaded files, for reloading
         self.threads = []  # Thread reference list
         self.th_num = 0  # Thread counter
@@ -41,6 +43,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.downloadFullChunk))
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
         self.pushButton_Request_Status.clicked.connect(self.requestStatusFromBox)
+
+        'Settings'
+        self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
 
         'Buttons'
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
@@ -61,7 +66,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_NextTweet.clicked.connect(self.showNextTweetfromDF)
         self.pushButton_PreviousTweet.clicked.connect(self.showPrevTweetfromDF)
         self.pushButton_JumpToTweet.clicked.connect(self.showTweetJump)
-        self.pushButton_drop_current_tweet.clicked.connect(self.trigger_drop_current)
+        self.pushButton_drop_current_tweet.clicked.connect(self.trigger_drop_current_tweet)
 
         'Filtration Buttons'
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.filterdata_Language('pl'))
@@ -77,6 +82,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
+
+    def _init_settings(self):
+        self.change_info_settings()
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -114,6 +122,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def downloadFullChunk():
         app = Analyzer()
         app.collect_new_tweets(n=1, chunk_size=200, interval=0)        
+
+    def change_info_settings(self):
+        checked = True if self.checkBox_wrap_console.checkState() == 2 else False
+        if checked:
+            self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.WidgetWidth)
+        else:
+            self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
 
     def copyInfoToLog(self):
         text = '=== Info:'
@@ -412,23 +427,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
         self.display(text)
 
-    def trigger_filter_DF_age(self):
-        '''Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration'''
-        year = self.spinBox_timefilter_from_year.value()
-        month = self.spinBox_timefilter_from_month.value()
-        day = self.spinBox_timefilter_from_day.value()
-        hour = self.spinBox_timefilter_from_hour.value()
-        minute = self.spinBox_timefilter_from_min.value()
-        timestmp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+    def trigger_drop_current_tweet(self):
+        self.drop_tweet_DF(self.currTweetDF_ind)
+        self.showTweetfromDF()
 
-        year = self.spinBox_timefilter_to_year.value()
-        month = self.spinBox_timefilter_to_month.value()
-        day = self.spinBox_timefilter_to_day.value()
-        hour = self.spinBox_timefilter_to_hour.value()
-        minute = self.spinBox_timefilter_to_min.value()
-        timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+    def trigger_drop_new_duplicates(self):
+        self.drop_duplicates_DF(keep_new=False)
 
-        self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+    def trigger_drop_old_duplicates(self):
+        self.drop_duplicates_DF(keep_new=True)
 
     def trigger_filter_DF_date(self):
         try:
@@ -451,18 +458,27 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         except ValueError as ve:
             self.log_ui(f"Value Error: {ve}")
 
+    def trigger_filter_DF_age(self):
+        '''Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration'''
+        year = self.spinBox_timefilter_from_year.value()
+        month = self.spinBox_timefilter_from_month.value()
+        day = self.spinBox_timefilter_from_day.value()
+        hour = self.spinBox_timefilter_from_hour.value()
+        minute = self.spinBox_timefilter_from_min.value()
+        timestmp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        year = self.spinBox_timefilter_to_year.value()
+        month = self.spinBox_timefilter_to_month.value()
+        day = self.spinBox_timefilter_to_day.value()
+        hour = self.spinBox_timefilter_to_hour.value()
+        minute = self.spinBox_timefilter_to_min.value()
+        timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+
     def trigger_search_words(self):
         words = self.lineEdit_filter_words.text()
         self.filterDF_search_words(words)
-
-    def trigger_drop_current(self):
-        pass
-    
-    def trigger_drop_new_duplicates(self):
-        self.remove_duplicates_DF(keep_new=False)
-
-    def trigger_drop_old_duplicates(self):
-        self.remove_duplicates_DF(keep_new=True)
 
     def update_loginBox(self):
         if self.logged_in:
