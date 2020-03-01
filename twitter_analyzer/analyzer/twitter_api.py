@@ -20,7 +20,7 @@ class TwitterApi:
 
         if autologin:
             valid, text = self._login_procedure()
-            print(text)
+            # print(text)
 
     def _login_procedure(self):
         valid, self.me, message = self._verifyOAuth()
@@ -43,7 +43,6 @@ class TwitterApi:
                 consumer_secret = data['consumer_secret']
                 access_token_key = data['access_token_key']
                 access_token_secret = data['access_token_secret']
-
                 url = self.apiUrl + r'/account/verify_credentials.json'
 
                 auth = OAuth1(consumer_key,
@@ -51,6 +50,7 @@ class TwitterApi:
                               access_token_key,
                               access_token_secret)
                 response = requests.get(url, auth=auth)
+
                 try:
                     self.verify_response(response)
                     self.auth = auth
@@ -58,9 +58,9 @@ class TwitterApi:
                                                   consumer_secret,
                                                   access_token_key,
                                                   access_token_secret)
-                    
                     me = response.json()
                     return True, me, f'Logged in successfully as {me["screen_name"]}'
+
                 except Unauthorized:
                     return False, None, 'Authorization failed! Invalid or expired token.'
 

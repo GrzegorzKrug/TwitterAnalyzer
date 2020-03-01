@@ -15,8 +15,8 @@ from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, Too
 
 
 class Analyzer(TwitterApi):
-    def __init__(self, autologin=True, log_ui=None):
-        TwitterApi.__init__(self, autologin=False)
+    def __init__(self, autologin=False, log_ui=None):
+        TwitterApi.__init__(self, autologin=False)  # Dont login via api!
 
         self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
@@ -282,7 +282,7 @@ class Analyzer(TwitterApi):
                             file.write('None')
                         else:
                             for char in ['\n', ';', '\r']:
-                                text = text.replace(char, '')
+                                text = text.replace(char, ' ')
                             file.write(text)
 
                     except UnicodeEncodeError:
@@ -389,6 +389,7 @@ class Analyzer(TwitterApi):
             else:
                 self.DF = pd.concat([self.DF, df], ignore_index=True)
         self.log_ui(text)
+        return True
 
     def log_ui(self, text):
         print(text)
@@ -431,7 +432,8 @@ class Analyzer(TwitterApi):
         if extraText:
             extraText = '_' + extraText
         filepath = os.path.join(self._data_dir, 'dataframe_' + self.nowAsText() + extraText + '.csv')
-        self.save_DF(self.DF, filepath)
+        valid = self.save_DF(self.DF, filepath)
+        return valid
 
     def save_DF(self, DF, filepath):
         if DF is None:
@@ -441,8 +443,7 @@ class Analyzer(TwitterApi):
             with open(filepath, 'wt', encoding='utf8') as f:
                 DF.to_csv(f, sep=';', encoding='utf8', index=False)
                 self.log_ui(f'Saved DF to file: {os.path.abspath(filepath)}')
-        #    return True
-        # self.log_ui(f'Error when saving to file, {os.path.abspath(filepath)}')
+                return True
 
     @staticmethod
     def timestamp_from_date(year=1990, month=1, day=1, hour=0, minute=0):
