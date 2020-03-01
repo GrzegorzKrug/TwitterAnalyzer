@@ -33,9 +33,9 @@ class TwitterApi:
         return valid, message
 
     def _verifyOAuth(self):
-        try:
-            file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
+        file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
 
+        try:
             with open(file_path, 'rt') as token_file:
                 data = json.load(token_file)
 
@@ -76,13 +76,13 @@ class TwitterApi:
             #print("Exception: secret_token.txt is missing!\n"
             	#"Created blank secret_token.txt.")
             with open(file_path, 'wt') as file:
-            	data = 	json.dumps({
+                data = 	json.dumps({
             		"consumer_key" : "ABC",
             		"consumer_secret" : "ABC",
             		"access_token_key" : "ABC",
             		"access_token_secret" : "ABC"},
             		indent=4)
-            	file.write(data)
+                file.write(data)
 
             return False, None, "Exception: secret_token.txt is missing!\n>\tCreated blank secret_token.txt."
         #
