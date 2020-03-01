@@ -133,13 +133,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         else:
             self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
 
-    def change_info_settings(self):
-        checked = True if self.checkBox_wrap_console.checkState() == 2 else False
-        if checked:
-            self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.WidgetWidth)
-        else:
-            self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
-
     def copyInfoToLog(self):
         text = '=== Info:'
         for line in self.plainTextEdit_info.toPlainText().split('\n'):

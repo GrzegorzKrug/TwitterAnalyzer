@@ -954,7 +954,6 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="11" column="0" colspan="2">
-        <item row="10" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_HideEmptyValues">
           <property name="text">
            <string>Hide empty values</string>
@@ -997,7 +996,6 @@ color: rgb(255, 255, 255);</string>
          </spacer>
         </item>
         <item row="14" column="1">
-        <item row="13" column="1">
          <widget class="QPushButton" name="pushButton_NextTweet">
           <property name="toolTip">
            <string>Show next Tweet from DF</string>
@@ -1028,7 +1026,6 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="10" column="0" colspan="2">
-        <item row="9" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
