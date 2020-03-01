@@ -9,7 +9,7 @@ import glob
 import threading
 import calendar
 import re
-
+from pandas.errors import ParserError
 from twitter_analyzer.analyzer.twitter_api import TwitterApi
 from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, TooManyRequests
 
@@ -381,7 +381,11 @@ class Analyzer(TwitterApi):
         text = 'Loading Tweets:'
         for file in file_list:
             file_path = os.path.abspath(os.path.join(self._data_dir, file))
-            df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
+            try:
+                df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
+            except ParserError as pe:
+                self.log_ui(f"Pandas Error: Can not load this file {file}")
+                continue
             self.loaded_to_DF += [file]
             text += f'\n\t {file}'
             if self.DF is None:
