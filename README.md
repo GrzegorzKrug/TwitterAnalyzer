@@ -97,10 +97,10 @@ or
 - [ ] Display Tweet activity
 	- [ ] show comments quantity
 	- [ ] show classification prediction
-- [ ] Manage CSV files
+- [x] Manage CSV files
 	- [x] Loading selected CSV
 	- [x] Save current DF to file
-	- [ ] Merge without duplicates
+	- [x] Merge without duplicates
 - [ ] Auto Arrange tweets into files
 	- [ ] Combine CSV  groups
 		- [x] Combine selected
