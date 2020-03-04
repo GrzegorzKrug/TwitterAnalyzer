@@ -89,9 +89,9 @@ or
 		- [x] Date Posted
 		- [x] Tweet age
 	- [x] Find used words in text
-	- [ ] Find exact text
-	- [ ] Filter by other parameter	
-- [x] Display tweets / Dataframe
+	- [x] Find exact text (space is not a delimiter)
+	- [x] Find non empty values
+- [x] Display tweets / Dataframes
 	- [x] Display single tweets
 	- [x] Browse tweets in current data frame
 - [ ] Display Tweet activity
@@ -108,7 +108,7 @@ or
 		- [ ] Auto Combine/Filter by User
 		- [ ] Popular
 		- [ ] Other features
-	- [ ] Remove
+	- [ ] Delete / AutoClean
 		- [ ] Old
 		- [ ] prioritize new files if limit is reached. (1GB ? defined by user)
 		- [ ] already used
