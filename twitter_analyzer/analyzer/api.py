@@ -27,9 +27,9 @@ class TwitterApi:
         if valid:
             self.logged_in = True
         else:
-            input(f'Error: {message}\n'+
-                  'Check "Analyzer\\Readme.md" if you got problems, press enter to exit...')
-            sys.exit()
+            print(f'Error: {message}\n'
+                  'Check "Analyzer\\Readme.md" if you got problems')
+            sys.exit(1)
         return valid, message
 
     def _verifyOAuth(self):

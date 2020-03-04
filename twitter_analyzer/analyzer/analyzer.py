@@ -10,8 +10,8 @@ import threading
 import calendar
 import re
 from pandas.errors import ParserError
-from twitter_analyzer.analyzer.twitter_api import TwitterApi
-from twitter_analyzer.analyzer.twitter_api import Unauthorized, ApiNotFound, TooManyRequests
+from twitter_analyzer.analyzer.api import TwitterApi
+from twitter_analyzer.analyzer.api import Unauthorized, ApiNotFound, TooManyRequests
 
 
 class Analyzer(TwitterApi):
@@ -59,10 +59,10 @@ class Analyzer(TwitterApi):
 
     @staticmethod
     def check_series_used_words(series, words):
-        words = re.split('[; |, |\n]', words)
-        print(words)
+        words = re.split('[|+,\n\r]', words)
+        words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]  # Remove start-end spaces
         out = []
-
+        print(f"Filtration: {words}")
         data = series['full_text']
         for df in data:
             word_checked = False
@@ -80,7 +80,6 @@ class Analyzer(TwitterApi):
                 if word.lower() in df.lower():
                     out[i] = True
                     break
-
         return out
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
@@ -334,7 +333,11 @@ class Analyzer(TwitterApi):
 
     def filterDF_search_words(self, words):
         if self.DF is not None:
-            df = self.DF.loc[lambda df: self.check_series_used_words(df, words)]
+            stages = re.split(';', words)
+            df = self.DF
+            for filtration_stage in stages:
+                df = self.DF.loc[lambda df: self.check_series_used_words(df, filtration_stage)]
+
             if self.filter_conditions(df):
                 self.DF = df
                 return True
