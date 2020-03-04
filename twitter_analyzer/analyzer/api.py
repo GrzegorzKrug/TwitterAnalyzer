@@ -93,8 +93,8 @@ class TwitterApi:
         # return True, api, message
 
     def collectHomeLine(self, chunk_size=200):
-        if not self.logged_in:
-            raise Unauthorized('Authentication not verified!')
+        # if not self.logged_in:
+        #     raise Unauthorized('Authentication not verified!')
         if chunk_size < 0:
             chunk_size = 1
         elif chunk_size > 200:
