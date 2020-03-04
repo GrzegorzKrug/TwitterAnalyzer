@@ -83,11 +83,17 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
         self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
 
+        'DEBUG'
+        self.pushButton_Magic_Debug.clicked.connect(self.go_debug)
     def _init_wrappers(self):
         self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
 
     def _init_settings(self):
         self.change_info_settings()
+
+    def go_debug(self):
+        for x in range(100):
+            self.showNextTweetfromDF()
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -301,12 +307,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             valid = app.save_current_DF('Auto_Merge')
         if valid:
             for curr_file in files:
+                curr_file_path = os.path.join(self._data_dir, curr_file)
                 try:
-                    curr_file_path = os.path.join(self._data_dir, curr_file)
                     os.remove(curr_file_path)
                 except PermissionError:
                     self.log_ui(f'Merged, but can not remove {curr_file_path}')
-
 
     def open_in_broswer(self):
         if self.DF is not None:
@@ -315,8 +320,12 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                 # author = tweet['user']
                 author = ast.literal_eval(tweet['user'])['screen_name']
                 status_id = tweet['id']
+                url = f'https://twitter.com/{author}/status/{status_id}'
+                self.fork_method(self._open_browser, url)
 
-                webbrowser.open(f'https://twitter.com/{author}/status/{status_id}')
+    def _open_browser(self, url):
+        webbrowser.open(url)
+        return True
 
     @staticmethod
     def post_action(method, next_method=None):
@@ -413,10 +422,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                                                        else "" for deep_key, deep_val in user_dict.items()])
             elif (key == "quoted_status" or key == "retweeted_status") and flag_short_quote:
                 user_dict = ast.literal_eval(value)
-                text += f'{key}:'.ljust(25) + ''.join([f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
+                text += f'{key}:'.ljust(25) + ''.join(
+                    [f"{deep_key}: {deep_val}, ".replace('\n', '') if deep_key in [
                     "id",
                     "full_text"]
-                                                       else "" for deep_key, deep_val in user_dict.items()])
+                     else "" for deep_key, deep_val in user_dict.items()])
+                # if "quoted_status" in user_dict: # and key == "quoted_status":
+                #     print("FOUND", self.currTweetDF_ind)
             else:
                 text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)

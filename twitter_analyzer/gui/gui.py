@@ -109,12 +109,16 @@ class Ui_MainWindow(object):
         self.lineEdit_DF_comment_3.setGeometry(QtCore.QRect(120, 80, 31, 23))
         self.lineEdit_DF_comment_3.setAlignment(QtCore.Qt.AlignCenter)
         self.lineEdit_DF_comment_3.setObjectName("lineEdit_DF_comment_3")
+        self.pushButton_Magic_Debug = QtWidgets.QPushButton(self.Files)
+        self.pushButton_Magic_Debug.setGeometry(QtCore.QRect(400, 30, 161, 25))
+        self.pushButton_Magic_Debug.setObjectName("pushButton_Magic_Debug")
         self.frame.raise_()
         self.pushButton_delete100.raise_()
         self.pushButton_delete500.raise_()
         self.pushButton_load_selected_csv.raise_()
         self.pushButton_export_DF_7.raise_()
         self.lineEdit_DF_comment_3.raise_()
+        self.pushButton_Magic_Debug.raise_()
         self.tabWidget.addTab(self.Files, "")
         self.Request = QtWidgets.QWidget()
         self.Request.setObjectName("Request")
@@ -464,7 +468,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -488,6 +492,7 @@ class Ui_MainWindow(object):
         self.pushButton_export_DF_7.setText(_translate("MainWindow", "Split DF"))
         self.lineEdit_DF_comment_3.setToolTip(_translate("MainWindow", "Number of pieces to split."))
         self.lineEdit_DF_comment_3.setText(_translate("MainWindow", "2"))
+        self.pushButton_Magic_Debug.setText(_translate("MainWindow", "Magic Debug"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Files), _translate("MainWindow", "Unused"))
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.Files), _translate("MainWindow", "Manage Tweet Files in \'tweets\' directory"))
         self.pushButton_collect1.setText(_translate("MainWindow", "1 Chunk"))

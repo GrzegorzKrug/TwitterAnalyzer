@@ -9,6 +9,8 @@ import glob
 import threading
 import calendar
 import re
+import ast
+
 from pandas.errors import ParserError
 from twitter_analyzer.analyzer.api import TwitterApi
 from twitter_analyzer.analyzer.api import Unauthorized, ApiNotFound, TooManyRequests
@@ -59,10 +61,10 @@ class Analyzer(TwitterApi):
 
     @staticmethod
     def check_series_used_words(series, words):
-        words = re.split('[|+,\n\r]', words)
+        words = re.split('[|+,\n\r]', words)  # split phrases but ignore spaces
         words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]  # Remove start-end spaces
-        out = []
-        print(f"Filtration: {words}")
+        out = []  # Empty out list
+
         data = series['full_text']
         for df in data:
             word_checked = False
@@ -76,10 +78,13 @@ class Analyzer(TwitterApi):
 
         data = series['quoted_status']
         for i, df in enumerate(data):
-            for word in words:
-                if word.lower() in df.lower():
-                    out[i] = True
-                    break
+            quote_dict = ast.literal_eval(df)
+            if quote_dict:
+                data = quote_dict['full_text']
+                for word in words:
+                    if word.lower() in data.lower():
+                        out[i] = True
+                        break
         return out
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
@@ -388,7 +393,8 @@ class Analyzer(TwitterApi):
                 df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
             except ParserError as pe:
                 self.log_ui(f"Pandas Error: Can not load this file {file}")
-                continue
+                return False
+
             self.loaded_to_DF += [file]
             text += f'\n\t {file}'
             if self.DF is None:

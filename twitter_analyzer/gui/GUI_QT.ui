@@ -147,7 +147,7 @@ p, li { white-space: pre-wrap; }
          <number>-1</number>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="Files">
          <attribute name="title">
@@ -286,12 +286,26 @@ p, li { white-space: pre-wrap; }
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
+         <widget class="QPushButton" name="pushButton_Magic_Debug">
+          <property name="geometry">
+           <rect>
+            <x>400</x>
+            <y>30</y>
+            <width>161</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Magic Debug</string>
+          </property>
+         </widget>
          <zorder>frame</zorder>
          <zorder>pushButton_delete100</zorder>
          <zorder>pushButton_delete500</zorder>
          <zorder>pushButton_load_selected_csv</zorder>
          <zorder>pushButton_export_DF_7</zorder>
          <zorder>lineEdit_DF_comment_3</zorder>
+         <zorder>pushButton_Magic_Debug</zorder>
         </widget>
         <widget class="QWidget" name="Request">
          <attribute name="title">
