@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'twitter_analyzer/gui/GUI_QT.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -418,14 +420,16 @@ class Ui_MainWindow(object):
         self.MainGrid.setColumnMinimumWidth(0, 600)
         self.MainGrid.setColumnMinimumWidth(1, 50)
         self.MainGrid.setColumnMinimumWidth(2, 50)
-        self.MainGrid.setColumnMinimumWidth(3, 150)
-        self.MainGrid.setColumnMinimumWidth(4, 150)
+        self.MainGrid.setColumnMinimumWidth(3, 100)
+        self.MainGrid.setColumnMinimumWidth(4, 100)
+        self.MainGrid.setColumnMinimumWidth(5, 100)
         self.MainGrid.setRowMinimumHeight(0, 370)
         self.MainGrid.setRowMinimumHeight(1, 20)
         self.MainGrid.setRowMinimumHeight(2, 300)
         self.MainGrid.setColumnStretch(0, 4)
         self.MainGrid.setColumnStretch(3, 1)
         self.MainGrid.setColumnStretch(4, 1)
+        self.MainGrid.setColumnStretch(5, 1)
         self.MainGrid.setRowStretch(0, 1)
         self.MainGrid.setRowStretch(2, 2)
         self.gridLayout.addLayout(self.MainGrid, 0, 0, 1, 1)
@@ -581,4 +585,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
