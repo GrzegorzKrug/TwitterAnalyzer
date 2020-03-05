@@ -88,8 +88,8 @@ class Analyzer(TwitterApi):
         return out
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
-        '''Loop that runs N times, and collect Tweet x chunk_size
-        Twitter rate limit is 15 times in 15 mins'''
+        """Loop that runs N times, and collect Tweet x chunk_size
+        Twitter rate limit is 15 times in 15 mins"""
         try:
             if filename is None:
                 now = datetime.datetime.now()
@@ -379,6 +379,15 @@ class Analyzer(TwitterApi):
             path = self._data_dir
         files = glob.glob(os.path.join(path, 'Tweets*.csv'))
         return files
+
+    def get_distinct_from_DF(self, key):
+        if self.DF is None:
+            return None
+        if key not in self.DF:
+            return None
+
+        unique = self.DF[key].unique()
+        return unique
 
     def load_DF(self, file_list):
         if type(file_list) is str:

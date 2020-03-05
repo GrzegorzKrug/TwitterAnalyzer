@@ -83,6 +83,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
         self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
 
+        'Analyze Buttons'
+        self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
+
         'DEBUG'
         self.pushButton_Magic_Debug.clicked.connect(self.go_debug)
 
@@ -93,8 +96,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.change_info_settings()
 
     def go_debug(self):
-        num = [1235520130588737537, 1235622185189994498]
-        self.collect_status(num)
+        print(self.get_distinct_from_DF('lang'))
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -176,9 +178,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.plainTextEdit_info.setPlainText(text)
 
     def display(self, text):
-        while text[-1] == '\n' \
-                or text[-1] == '\r' \
-                or text[-1] == ' ':
+        while len(text) > 1 and\
+                (text[-1] == '\n'
+                 or text[-1] == '\r'
+                 or text[-1] == ' '):
             text = text[:-1]
         self.plainTextEdit_info.setPlainText(text)
 
@@ -479,6 +482,16 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
                     'verified', 'lang']:
             text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
+        self.display(text)
+
+    def trigger_analyze_unique(self):
+        key = self.lineEdit_analyze_unique_key.text()
+        unique = self.get_distinct_from_DF(key)
+        text = ''
+        if unique.any():
+            for val in unique:
+                text += (str(val)+',').ljust(10)
+        print(f"'{text}'")
         self.display(text)
 
     def trigger_drop_current_tweet(self):

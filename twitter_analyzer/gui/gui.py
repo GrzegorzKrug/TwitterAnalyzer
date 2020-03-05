@@ -355,6 +355,18 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.PrepareData, "")
         self.Analyze = QtWidgets.QWidget()
         self.Analyze.setObjectName("Analyze")
+        self.gridLayoutWidget = QtWidgets.QWidget(self.Analyze)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(20, 10, 160, 80))
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.gridLayoutWidget)
+        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.pushButton_analyze_unique_vals = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.pushButton_analyze_unique_vals.setObjectName("pushButton_analyze_unique_vals")
+        self.gridLayout_2.addWidget(self.pushButton_analyze_unique_vals, 0, 0, 1, 1)
+        self.lineEdit_analyze_unique_key = QtWidgets.QLineEdit(self.gridLayoutWidget)
+        self.lineEdit_analyze_unique_key.setObjectName("lineEdit_analyze_unique_key")
+        self.gridLayout_2.addWidget(self.lineEdit_analyze_unique_key, 1, 0, 1, 1)
         self.tabWidget.addTab(self.Analyze, "")
         self.Model = QtWidgets.QWidget()
         self.Model.setObjectName("Model")
@@ -468,7 +480,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -549,6 +561,8 @@ class Ui_MainWindow(object):
         self.pushButton_merge_without_duplicates.setText(_translate("MainWindow", "Merge without duplicates"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.PrepareData), _translate("MainWindow", "Prepare Data"))
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.PrepareData), _translate("MainWindow", "Analyze loaded DF"))
+        self.pushButton_analyze_unique_vals.setText(_translate("MainWindow", "Display unique vals"))
+        self.lineEdit_analyze_unique_key.setToolTip(_translate("MainWindow", "(optional) You can Add some comment to file name"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Analyze), _translate("MainWindow", "Analyze"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Model), _translate("MainWindow", "NN Model"))
         self.pushButton_reload_DF.setToolTip(_translate("MainWindow", "Reload DF from the same files again."))
@@ -582,7 +596,7 @@ class Ui_MainWindow(object):
         self.actionLogin.setText(_translate("MainWindow", "Login"))
         self.actionRefresh_GUI.setText(_translate("MainWindow", "Refresh"))
         self.actionWho_am_I.setText(_translate("MainWindow", "Who am I?"))
-        self.actionTweet_Description.setText(_translate("MainWindow", "Tweet Description"))
+        self.actionTweet_Description.setText(_translate("MainWindow", "Tweet Keys"))
 
 
 if __name__ == "__main__":
