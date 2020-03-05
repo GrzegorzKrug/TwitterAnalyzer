@@ -85,15 +85,16 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
         'DEBUG'
         self.pushButton_Magic_Debug.clicked.connect(self.go_debug)
+
     def _init_wrappers(self):
-        self._login_procedure = self.post_action(self._login_procedure, self.update_loginBox)
+        self.login_procedure = self.post_action(self.login_procedure, self.update_loginBox)
 
     def _init_settings(self):
         self.change_info_settings()
 
     def go_debug(self):
-        for x in range(100):
-            self.showNextTweetfromDF()
+        num = [1235520130588737537, 1235622185189994498]
+        self.collect_status(num)
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -256,7 +257,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.textEdit_log.setPlainText(text)
 
     def login_to_twitter_ui(self):
-        valid, message = self._login_procedure()
+        valid, message = self.login_procedure()
         self.log_ui(message)
 
     def merge_selected(self):
@@ -610,7 +611,7 @@ sys.excepthook = excepthook
 def runGUI():
     ui = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    app = TwitterAnalyzerGUI(MainWindow)
+    app = TwitterAnalyzerGUI(MainWindow, autologin=True)
     # ui.setupUi(MainWindow)  # moved to class init
     error_dialog = QtWidgets.QErrorMessage()
     MainWindow.show()

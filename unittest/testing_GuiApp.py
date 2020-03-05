@@ -11,7 +11,7 @@ app = TwitterAnalyzerGUI(MainWindow, autologin=False)
 
 global tweet_dir
 tweet_dir = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))),
-                        'TwitterAnalyzer', 'tweets')
+                         'TwitterAnalyzer', 'tweets')
 
 
 class UnitTest(unittest.TestCase):
@@ -20,7 +20,7 @@ class UnitTest(unittest.TestCase):
         valid = app.collect_new_tweets(n=1)
         self.assertFalse(valid)
         
-        valid, _= app._login_procedure()
+        valid,_= app.login_procedure()
         self.assertTrue(valid)
         
         valid = app.collect_new_tweets(filename='unittest_Home', n=1)
@@ -35,5 +35,5 @@ class UnitTest(unittest.TestCase):
         app.delete_csv(filepath)
         self.assertFalse(os.path.isfile(filepath))
 
-#unittest.sortTestMethodsUsing = None
+# unittest.sortTestMethodsUsing = None
 unittest.main()

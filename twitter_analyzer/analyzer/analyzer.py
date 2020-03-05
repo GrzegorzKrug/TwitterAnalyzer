@@ -28,7 +28,7 @@ class Analyzer(TwitterApi):
         self.loaded_to_DF = []
 
         if autologin:
-            valid, text = self._login_procedure()
+            valid, text = self.login_procedure()
             self.log_ui(text)
 
     @staticmethod
@@ -167,7 +167,6 @@ class Analyzer(TwitterApi):
                     print('Repeating {} / {} after 10s.'.format(st+1, n))
                     time.sleep(10)
                     continue
-
                 except ApiNotFound as e:
                     self.log_ui(f'{e} Not Found this tweet')
                                     
