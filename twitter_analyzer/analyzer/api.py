@@ -11,7 +11,6 @@ from requests_oauthlib import OAuth1, OAuth1Session
 
 class TwitterApi:
     def __init__(self, autologin=True):
-        # self._overrider(False)
         self.apiUrl = r'https://api.twitter.com/1.1/'
         self.apiUpload = r'https://upload.twitter.com/1.1/'
         self.logged_in = False
@@ -24,7 +23,6 @@ class TwitterApi:
 
         if autologin:
             valid, text = self.login_procedure()
-            # print(text)
 
     def login_procedure(self):
         valid, self.me, message = self._verifyOAuth()
@@ -107,7 +105,7 @@ class TwitterApi:
         if params is None:
             params = {}
         if extended:
-            params.update({'tweet_mode':'extended'})
+            params.update({'tweet_mode': 'extended'})
         response = requests.get(fullUrl, headers=header, params=params, auth=self.auth)
         
         if self.verify_response(response):
