@@ -33,7 +33,7 @@ class Analyzer(TwitterApi):
 
     @staticmethod
     def add_timestamp_attr(tweet):
-        '''Adding time stamp to tweet dict'''
+        """Adding time stamp to tweet dict"""
         tweet['timestamp'] = round(time.time())
 
     @staticmethod
@@ -58,6 +58,21 @@ class Analyzer(TwitterApi):
             out_bool.append(cond)
 
         return out_bool
+
+    @staticmethod
+    def check_series_users_id(series, user_id):
+        out = []  # Empty out
+        user_id = str(int(user_id))
+        data = series['user']
+        for df in data:
+            user_dict = ast.literal_eval(df)
+            if user_dict:
+                current_user = user_dict['id']
+                if user_id in current_user:
+                    out.append(True)
+                else:
+                    out.append(False)
+        return out
 
     @staticmethod
     def check_series_used_words(series, words):
@@ -356,7 +371,22 @@ class Analyzer(TwitterApi):
                 return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
-        
+
+    # def filte_df_by_user_id(self, user_id):
+    #     try:
+    #         user_id = int(user_id)
+    #     except ValueError as e:
+    #         self.log_ui("Invalid user id")
+    #         return None
+    #
+    #     if self.DF is not None:
+    #         df = self.DF.loc[lambda df: df['user_id'] == user_id]
+    #         if self.filter_conditions(df):
+    #             self.DF = df
+    #             return True
+    #     else:
+    #         self.log_ui('DF is empty. Load some tweets first.')
+
     def filteDF_ByTweetId(self, tweet_id):
         try:
             tweet_id = int(tweet_id)
@@ -373,6 +403,7 @@ class Analyzer(TwitterApi):
             self.log_ui('DF is empty. Load some tweets first.')
 
     def find_local_tweets(self, path=None):
+        """Find local tweets files"""
         if path:
             path = os.path.abspath(path)
         else:
@@ -381,6 +412,7 @@ class Analyzer(TwitterApi):
         return files
 
     def get_distinct_from_DF(self, key):
+        """Retrive unique values from currently loaded DF"""
         if self.DF is None:
             return None
         if key not in self.DF:
