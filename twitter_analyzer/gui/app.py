@@ -487,10 +487,12 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def trigger_analyze_unique(self):
         key = self.lineEdit_analyze_unique_key.text()
         unique = self.get_distinct_from_DF(key)
-        text = ''
-        if unique.any():
+        text = f"Unique values [{key}]:\n"
+        if unique is None:
+            return False
+        else:
             for val in unique:
-                text += (str(val)+',').ljust(10)
+                text += f"'{val}'\n"
         print(f"'{text}'")
         self.display(text)
 
