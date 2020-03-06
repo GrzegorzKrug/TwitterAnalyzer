@@ -56,7 +56,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
         self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
         self.pushButton_merge_selected.clicked.connect(self.merge_selected)
-        self.pushButton_export_DF.clicked.connect(lambda: self.save_current_DF(self.lineEdit_DF_comment.text()))
+        self.pushButton_export_DF.clicked.connect(lambda: self.save_current_df(self.lineEdit_DF_comment.text()))
         self.pushButton_Info_screenLog.clicked.connect(self.copyInfoToLog)
         self.pushButton_showTweets.clicked.connect(self.showDF)
         self.pushButton_reload_DF.clicked.connect(self.resetDF)
@@ -96,7 +96,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.change_info_settings()
 
     def go_debug(self):
-        print(self.get_distinct_from_DF('lang'))
+        print(self.get_distinct_values_from_df('lang'))
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -206,7 +206,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def filterdata_ByNonEmptyKey(self):
         text = self.lineEdit_filterKeyinput.text()
-        valid = self.filtrerDF_ByExistingKey(text)
+        valid = self.filter_by_existing_key(text)
         if valid:
             self.currTweetDF_ind = 0
             self.showTweetfromDF()
@@ -215,7 +215,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         text = self.lineEdit_tweet_id.text()
         if len(text) < 0:
             self.log_ui("This is not valid ID")
-        valid = self.filteDF_ByTweetId(text)
+        valid = self.filter_df_by_tweet_id(text)
         if valid:
             self.currTweetDF_ind = 0
             self.showTweetfromDF()
@@ -227,7 +227,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         if lang == '':
             self.log_ui('Box is empty!')
             return None
-        valid = self.filterDF_byLang(lang)
+        valid = self.filter_df_by_lang(lang)
         if valid:
             self.currTweetDF_ind = 0
             self.showTweetfromDF()
@@ -245,7 +245,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def load_selected(self):
         self.currTweetDF_ind = -1
         files = self.current_tree_selection()
-        self.load_DF(files)
+        self.load_df(files)
         if self.DF is not None:
             # self.display(f'DF size: {self.DF.shape}')
             # self.display_add(str(self.DF.head()))
@@ -304,11 +304,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def merge_without_duplicates(self, files):
         app = Analyzer()
-        valid = app.load_DF(files)
+        valid = app.load_df(files)
         if valid:
-            resp = app.drop_duplicates_DF()
+            resp = app.drop_duplicates_from_df()
         if valid and resp is not False:
-            valid = app.save_current_DF('Auto_Merge')
+            valid = app.save_current_df('Auto_Merge')
         if valid:
             for curr_file in files:
                 curr_file_path = os.path.join(self._data_dir, curr_file)
@@ -357,7 +357,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def resetDF(self):
         '''Loads last used files'''
-        self.reloadDF()
+        self.reload_df()
         self.currTweetDF_ind = 0
         self.showTweetfromDF()
 
@@ -486,7 +486,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def trigger_analyze_unique(self):
         key = self.lineEdit_analyze_unique_key.text()
-        unique = self.get_distinct_from_DF(key)
+        unique = self.get_distinct_values_from_df(key)
         text = f"Unique values [{key}]:\n"
         if unique is None:
             return False
@@ -497,17 +497,17 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.display(text)
 
     def trigger_drop_current_tweet(self):
-        self.drop_tweet_DF(self.currTweetDF_ind)
+        self.drop_tweet_in_df(self.currTweetDF_ind)
         self.showTweetfromDF()
 
     def trigger_drop_new_duplicates(self):
-        valid = self.drop_duplicates_DF(keep_new=False)
+        valid = self.drop_duplicates_from_df(keep_new=False)
         if valid:
             self.currTweetDF_ind = 0
             self.showTweetfromDF()
 
     def trigger_drop_old_duplicates(self):
-        valid = self.drop_duplicates_DF(keep_new=True)
+        valid = self.drop_duplicates_from_df(keep_new=True)
         if valid:
             self.currTweetDF_ind = 0
             self.showTweetfromDF()
@@ -528,7 +528,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             minute = self.spinBox_timefilter_to_min.value()
             timestmp_max = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
 
-            valid = self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+            valid = self.filter_df_by_timestamp(timestmp_min, timestmp_max)
             if valid:
                 self.currTweetDF_ind = 0
                 self.showTweetfromDF()
@@ -552,14 +552,14 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         minute = self.spinBox_timefilter_to_min.value()
         timestmp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
 
-        valid = self.filterDF_by_timestamp(timestmp_min, timestmp_max)
+        valid = self.filter_df_by_timestamp(timestmp_min, timestmp_max)
         if valid:
             self.currTweetDF_ind = 0
             self.showTweetfromDF()
 
     def trigger_search_words(self):
         words = self.lineEdit_filter_words.text()
-        valid = self.filterDF_search_words(words)
+        valid = self.filter_df_search_phrases(words)
         if valid:
             self.currTweetDF_ind = 0
             self.showTweetfromDF()
