@@ -7,7 +7,7 @@ import time
 
 ui = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
-app = TwitterAnalyzerGUI(MainWindow, autologin=False)
+app = TwitterAnalyzerGUI(MainWindow, auto_login=False)
 
 global tweet_dir
 tweet_dir = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))),
@@ -16,7 +16,7 @@ tweet_dir = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file_
 
 class UnitTest(unittest.TestCase):
     def test_Login_Collect_Home(self):
-        app = TwitterAnalyzerGUI(MainWindow, autologin=False)
+        app = TwitterAnalyzerGUI(MainWindow, auto_login=False)
         valid = app.collect_new_tweets(n=1)
         self.assertFalse(valid)
         

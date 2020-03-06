@@ -10,7 +10,7 @@ from requests_oauthlib import OAuth1, OAuth1Session
 
 
 class TwitterApi:
-    def __init__(self, autologin=True):
+    def __init__(self, auto_login=True):
         self.apiUrl = r'https://api.twitter.com/1.1/'
         self.apiUpload = r'https://upload.twitter.com/1.1/'
         self.logged_in = False
@@ -21,7 +21,7 @@ class TwitterApi:
 
         self._set_auth()
 
-        if autologin:
+        if auto_login:
             valid, text = self.login_procedure()
 
     def login_procedure(self):

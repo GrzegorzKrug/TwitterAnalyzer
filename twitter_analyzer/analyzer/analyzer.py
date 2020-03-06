@@ -17,8 +17,8 @@ from twitter_analyzer.analyzer.api import Unauthorized, ApiNotFound, TooManyRequ
 
 
 class Analyzer(TwitterApi):
-    def __init__(self, autologin=False, log_ui=None):
-        TwitterApi.__init__(self, autologin=False)  # Dont login via api!
+    def __init__(self, auto_login=False, log_ui=None):
+        TwitterApi.__init__(self, auto_login=False)  # Dont login via api!
 
         self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
@@ -27,7 +27,7 @@ class Analyzer(TwitterApi):
         self.DF = None
         self.loaded_to_DF = []
 
-        if autologin:
+        if auto_login:
             valid, text = self.login_procedure()
             self.log_ui(text)
 
@@ -568,5 +568,5 @@ class Analyzer(TwitterApi):
 
 
 if __name__ == "__main__":
-    app = Analyzer(autologin=False)
+    app = Analyzer(auto_login=False)
     input('Press key....')
