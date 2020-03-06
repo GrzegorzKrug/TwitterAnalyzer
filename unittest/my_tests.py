@@ -10,25 +10,25 @@ series = ['Sat Feb 22 11:24:15 +0000 2020',
           'Sat Feb 26 11:24:15 +0000 2020',
           'Sat Feb 29 11:24:15 +0000 2020',
           'Sat Feb 29 12:24:15 +0000 2020']
-tmps = 1582466337
+timestamp = 1582466337
 
 
 def test_date():
-    timestamp_min = timestamp_offset(tmps=tmps, day=-10)
-    timestamp_max = timestamp_offset(tmps=tmps, day=-1)
+    timestamp_min = timestamp_offset(timestamp=timestamp, day=-10)
+    timestamp_max = timestamp_offset(timestamp=timestamp, day=-1)
     out = fun(series, timestamp_min, timestamp_max)
     assert out[0] is True
 
 
 def test_date2():
-    timestamp_min = timestamp_offset(tmps=tmps, day=-15)
-    out = fun(series, timestamp_min, tmps)
+    timestamp_min = timestamp_offset(timestamp=timestamp, day=-15)
+    out = fun(series, timestamp_min, timestamp)
     assert out[1] is False
 
 
 def test_date3():
-    timestamp_min = timestamp_offset(tmps=tmps, day=-1)
-    timestamp_max = timestamp_offset(tmps=tmps, day=6, hour=-2)
+    timestamp_min = timestamp_offset(timestamp=timestamp, day=-1)
+    timestamp_max = timestamp_offset(timestamp=timestamp, day=6, hour=-2)
     out = fun(series, timestamp_min, timestamp_max)
     assert out[0] is False
     assert out[1] is True
@@ -37,88 +37,88 @@ def test_date3():
 
 
 def test_timestamp_off1_min():
-    out = timestamp_offset(tmps=tmps, minute=1)
-    assert out == tmps + 60
+    out = timestamp_offset(timestamp=timestamp, minute=1)
+    assert out == timestamp + 60
 
 
 def test_timestamp_off2_hour():
-    out = timestamp_offset(tmps=tmps, hour=1)
-    assert out == tmps + 3600
+    out = timestamp_offset(timestamp=timestamp, hour=1)
+    assert out == timestamp + 3600
 
 
 def test_timestamp_off3_day():
-    out = timestamp_offset(tmps=tmps, day=1)
-    assert out == tmps + 24*3600
+    out = timestamp_offset(timestamp=timestamp, day=1)
+    assert out == timestamp + 24*3600
 
 
 def test_timestamp_off4_month_feb29():
-    out = timestamp_offset(tmps=tmps, month=1)
-    assert out == tmps + 29*24*3600
+    out = timestamp_offset(timestamp=timestamp, month=1)
+    assert out == timestamp + 29*24*3600
 
 
 def test_timestamp_off4_month_2months():
-    out = timestamp_offset(tmps=tmps, month=2)
-    assert out == tmps + 29*24*3600 + 31*24*3600
+    out = timestamp_offset(timestamp=timestamp, month=2)
+    assert out == timestamp + 29*24*3600 + 31*24*3600
 
 
 def test_timestamp_off5_year():
-    out = timestamp_offset(tmps=tmps, year=1)
-    assert out == tmps + 366 * 24 * 3600
+    out = timestamp_offset(timestamp=timestamp, year=1)
+    assert out == timestamp + 366 * 24 * 3600
 
 
 def test_timestamp_neg_off1_min():
-    out = timestamp_offset(tmps=tmps, minute=-1)
-    assert out == tmps - 60
+    out = timestamp_offset(timestamp=timestamp, minute=-1)
+    assert out == timestamp - 60
 
 
 def test_timestamp_neg_off2_hour():
-    out = timestamp_offset(tmps=tmps, hour=-1)
-    assert out == tmps - 3600
+    out = timestamp_offset(timestamp=timestamp, hour=-1)
+    assert out == timestamp - 3600
 
 
 def test_timestamp_neg_off3_day():
-    out = timestamp_offset(tmps=tmps, day=-1)
-    assert out == tmps - 24*3600
+    out = timestamp_offset(timestamp=timestamp, day=-1)
+    assert out == timestamp - 24*3600
 
 
 def test_timestamp_neg_off4_month_feb29():
-    out = timestamp_offset(tmps=tmps, month=-1)
-    assert out == tmps - 31*24*3600
+    out = timestamp_offset(timestamp=timestamp, month=-1)
+    assert out == timestamp - 31*24*3600
 
 
 def test_timestamp_neg_off4_month_2months():
-    out = timestamp_offset(tmps=tmps, month=-2)
-    good = tmps - 31*24*3600 - 31*24*3600
+    out = timestamp_offset(timestamp=timestamp, month=-2)
+    good = timestamp - 31*24*3600 - 31*24*3600
     assert out == good
 
 
 def test_timestamp_neg_off5_year():
-    out = timestamp_offset(tmps=tmps, year=-1)
-    good = tmps - 365 * 24 * 3600
+    out = timestamp_offset(timestamp=timestamp, year=-1)
+    good = timestamp - 365 * 24 * 3600
     assert out == good
 
 
 def test_timestamp_multi_off1():
-    out = timestamp_offset(tmps=tmps, month=12)
-    good = tmps + 366 * 24 * 3600
+    out = timestamp_offset(timestamp=timestamp, month=12)
+    good = timestamp + 366 * 24 * 3600
     assert out == good
 
 
 def test_timestamp_multi_off2():
-    out = timestamp_offset(tmps=tmps, month=24)
-    good = tmps + (366 + 365)*24*3600
+    out = timestamp_offset(timestamp=timestamp, month=24)
+    good = timestamp + (366 + 365)*24*3600
     assert out == good
 
 
 def test_timestamp_multi_off3():
-    out = timestamp_offset(tmps=tmps, year=2)
-    good = tmps + (366 + 365)*24*3600
+    out = timestamp_offset(timestamp=timestamp, year=2)
+    good = timestamp + (366 + 365)*24*3600
     assert out == good
 
 
 def test_timestamp_multi_off4():
-    out = timestamp_offset(tmps=tmps, year=-2)
-    good = tmps - (365 + 365)*24*3600
+    out = timestamp_offset(timestamp=timestamp, year=-2)
+    good = timestamp - (365 + 365)*24*3600
     assert out == good
 
 

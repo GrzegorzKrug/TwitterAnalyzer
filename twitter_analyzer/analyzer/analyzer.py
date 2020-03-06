@@ -428,16 +428,23 @@ class Analyzer(TwitterApi):
     def load_df(self, file_list):
         if type(file_list) is str:
             file_list = [file_list]
+        valid_load = True
         self.DF = None
         self.loaded_to_DF = []
         text = 'Loading Tweets:'
         for file in file_list:
             file_path = os.path.abspath(os.path.join(self._data_dir, file))
             try:
-                df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
+                df = pd.read_csv(str(file_path), sep=';', encoding='utf-8')
             except ParserError as pe:
                 self.log_ui(f"Pandas Error: Can not load this file {file}.{pe}")
-                return False
+                valid_load = False
+                continue
+
+            except UnicodeDecodeError as ue:
+                self.log_ui(f"Decode Error in: {file}. {ue}")
+                valid_load = False
+                continue
 
             self.loaded_to_DF += [file]
             text += f'\n\t {file}'
@@ -446,7 +453,7 @@ class Analyzer(TwitterApi):
             else:
                 self.DF = pd.concat([self.DF, df], ignore_index=True)
         self.log_ui(text)
-        return True
+        return valid_load
 
     def log_ui(self, text):
         print(text)
@@ -456,12 +463,12 @@ class Analyzer(TwitterApi):
     @staticmethod
     def now_as_text():
         now = datetime.datetime.now()
-        text = f'{now.year}'.ljust(4, '0') \
-               + f'{now.month}'.ljust(2, '0') \
-               + f'{now.day}'.ljust(2, '0') \
-               + f'_{now.hour}'.ljust(3, '0') \
-               + f'-{now.minute}'.ljust(3, '0') \
-               + f'-{now.second}'.ljust(3, '0')
+        text = f'{now.year}'.rjust(4, '0') \
+               + f'{now.month}'.rjust(2, '0') \
+               + f'{now.day}'.rjust(2, '0') \
+               + f'_{now.hour}'.rjust(3, '0') \
+               + f'-{now.minute}'.rjust(3, '0') \
+               + f'-{now.second}'.rjust(3, '0')
         return text
 
     def reload_df(self):
