@@ -435,7 +435,7 @@ class Analyzer(TwitterApi):
         for file in file_list:
             file_path = os.path.abspath(os.path.join(self._data_dir, file))
             try:
-                df = pd.read_csv(str(file_path), sep=';', encoding='utf-8')
+                df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
             except ParserError as pe:
                 self.log_ui(f"Pandas Error: Can not load this file {file}.{pe}")
                 valid_load = False
@@ -466,9 +466,9 @@ class Analyzer(TwitterApi):
         text = f'{now.year}'.rjust(4, '0') \
                + f'{now.month}'.rjust(2, '0') \
                + f'{now.day}'.rjust(2, '0') \
-               + f'_{now.hour}'.rjust(3, '0') \
-               + f'-{now.minute}'.rjust(3, '0') \
-               + f'-{now.second}'.rjust(3, '0')
+               + '_' + f'{now.hour}'.rjust(2, '0') \
+               + '-' + f'{now.minute}'.rjust(2, '0') \
+               + '-' + f'{now.second}'.rjust(2, '0')
         return text
 
     def reload_df(self):
@@ -494,8 +494,10 @@ class Analyzer(TwitterApi):
 
     def save_current_df(self, extra_text=None):
         if extra_text:
-            extra_text = '_' + extra_text
-        file_path = os.path.join(self._data_dir, 'dataframe_' + self.now_as_text() + extra_text + '.csv')
+            text = extra_text + '_'
+        else:
+            text = 'DataFrame_'
+        file_path = os.path.join(self._data_dir, text + self.now_as_text() + '.csv')
         valid = self.save_df(self.DF, file_path)
         return valid
 

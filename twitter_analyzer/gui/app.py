@@ -264,27 +264,27 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.log_ui(message)
 
     def merge_selected(self):
-        filelist = self.current_tree_selection()
-        if not filelist:
+        file_list = self.current_tree_selection()
+        if not file_list:
             self.log_ui('Error. Select files!')
             return None
-        if len(filelist) <= 1:
+        if len(file_list) <= 1:
             self.log_ui('You can not merge this.')
             return None
 
         now = datetime.datetime.now()
         merged_file = 'merged_' \
-                      + f'{now.year}'.ljust(4, '0') \
-                      + f'{now.month}'.ljust(2, '0') \
-                      + f'{now.day}'.ljust(2, '0') \
-                      + f'_{now.hour}'.ljust(3, '0') \
-                      + f'-{now.minute}'.ljust(3, '0') \
-                      + f'-{now.second}'.ljust(3, '0') \
+                      + f'{now.year}'.rjust(4, '0') \
+                      + f'{now.month}'.rjust(2, '0') \
+                      + f'{now.day}'.rjust(2, '0') \
+                      + '_' + f'{now.hour}'.rjust(2, '0') \
+                      + '-' + f'{now.minute}'.rjust(2, '0') \
+                      + '-' + f'{now.second}'.rjust(2, '0') \
                       + '.csv'
 
         file_path = os.path.join(self._data_dir, merged_file)
         with open(file_path, 'wt', encoding='utf8') as f:
-            for i, file in enumerate(filelist):
+            for i, file in enumerate(file_list):
                 curr_file_path = os.path.join(self._data_dir, file)
                 df = pd.read_csv(curr_file_path, sep=';', encoding='utf8')
                 if i == 0:
