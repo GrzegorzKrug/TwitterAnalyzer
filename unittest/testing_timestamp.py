@@ -129,10 +129,8 @@ def test_check_local_language():
     timestamp_max = timestamp_offset(day=5)
     fun(series, timestamp_min, timestamp_max)
 
+
 def test_timestamp_date():
-    import calendar
-    # date = '2020-02-28 14:53:38.483896'
-    date = 'Thu Feb 28 14:53:38 +0000 2020'
     year = 2020
     month = 2
     day = 28
@@ -140,8 +138,9 @@ def test_timestamp_date():
     minute = 53
 
     good_timestamp = 1582897980 + timezone_offset
-    timestamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
-    assert  good_timestamp == timestamp
+    time_stamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+    assert good_timestamp == time_stamp
+
 
 def test_timestamp_date_2():
     # 2020-02-28 15:17:38.244787
@@ -153,8 +152,9 @@ def test_timestamp_date_2():
     minute = 0
     good_timestamp = 1582899458 - 15*3600 - 17*60 - 38 + timezone_offset
 
-    timestamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
-    assert good_timestamp == timestamp
+    time_stamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+    assert good_timestamp == time_stamp
+
 
 def test_timestamp_old():
     year = 1970
@@ -164,9 +164,10 @@ def test_timestamp_old():
     minute = 0
 
     dt = datetime.date(year=year, month=month, day=day)
-    timestamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+    time_stamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
     good = 9 * 24 * 3600
-    assert timestamp == good
+    assert time_stamp == good
+
 
 def test_timestamp_old_2():
     year = 1970
@@ -176,6 +177,6 @@ def test_timestamp_old_2():
     minute = 10
 
     dt = datetime.date(year=year, month=month, day=day)
-    timestamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+    time_stamp = timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
     good = 9 * 24 * 3600 + 10*60
-    assert timestamp == good
+    assert time_stamp == good

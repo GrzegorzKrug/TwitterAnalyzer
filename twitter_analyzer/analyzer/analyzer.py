@@ -403,7 +403,7 @@ class Analyzer(TwitterApi):
         else:
             method = Analyzer.check_series_words_anywhere
 
-        stages = re.split(';', words)  # Seperating stages
+        stages = re.split(';', words)  # Separating stages
         df = self.DF
         for filtration_stage in stages:
             df = df.loc[lambda _df: method(_df, filtration_stage)]
@@ -509,7 +509,10 @@ class Analyzer(TwitterApi):
         self.loaded_to_DF = []
         text = 'Loading Tweets:'
         for file in file_list:
-            file_path = os.path.abspath(os.path.join(self._data_dir, file))
+            if os.path.isabs(file):
+                file_path = file
+            else:
+                file_path = os.path.abspath(os.path.join(self._data_dir, file))
             try:
                 df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
             except ParserError as pe:
@@ -654,7 +657,7 @@ class Analyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = Analyzer(auto_login=False)
-    app.load_df(['Auto_Merge_20200308_21-31-23.csv'])
+    app.load_df(['unittest_auto.csv'])
     app.filter_df_search_phrases(["tweet1"], only_in_text=True)
     # app.load_df(['Auto_Merge_20200308_21-31-23.csv'])
     # app.filter_df_search_phrases(["tweet1"], only_in_text=False)
