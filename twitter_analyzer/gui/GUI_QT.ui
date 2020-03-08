@@ -19,7 +19,7 @@
      <enum>QLayout::SetMinimumSize</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QGridLayout" name="MainGrid" rowstretch="0,0,0,0,0" columnstretch="20,0,0,0,0,0">
+     <layout class="QGridLayout" name="MainGrid" rowstretch="0,0,0,0,0" columnstretch="20,0,0,0,2,1" columnminimumwidth="500,0,0,150,150,150">
       <property name="sizeConstraint">
        <enum>QLayout::SetNoConstraint</enum>
       </property>

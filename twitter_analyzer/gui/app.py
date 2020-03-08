@@ -17,9 +17,9 @@ import time
 
 
 class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
-    def __init__(self, mainWindow, auto_login=False):
+    def __init__(self, main_window, auto_login=False):
         Ui_MainWindow.__init__(self)
-        self.setupUi(mainWindow)
+        self.setupUi(main_window)
         Analyzer.__init__(self, auto_login=auto_login, log_ui=self.log_ui)
 
         self._init_wrappers()
@@ -28,7 +28,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.refresh_gui()
 
         self._loaded_files = []  # Last loaded files, for reloading
-        self.currTweetDF_ind = -1 # Current tweet index from DF
+        self.currTweetDF_ind = -1  # Current tweet index from DF
 
     def _init_triggers(self):
         self.actionLogin.triggered.connect(self.login_to_twitter_ui)
@@ -81,8 +81,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_FilterDF_TweetID.clicked.connect(self.trigger_filter_by_tweet_id)
         self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_df_by_age)
         self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_df_by_date)
-        self.pushButton_filter_search_words.clicked.connect(self.trigger_search_words)
-        # self.pushButton_filter_search_words_anywhere.clicked.connect()
+        self.pushButton_filter_search_words.clicked.connect(
+            lambda: self.trigger_search_words(only_in_text=True))
+        self.pushButton_filter_search_words_anywhere.clicked.connect(
+            lambda: self.trigger_search_words(only_in_text=False))
         self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
         self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
 
@@ -209,7 +211,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         app.load_df(file_list)
         status_list = app.find_parent_tweets()
         app.collect_status(status_list=status_list, filename=f'Parent_{Analyzer.now_as_text()}')
-
 
     def trigger_filter_by_non_empty_key(self):
         text = self.lineEdit_filterKeyinput.text()
@@ -551,9 +552,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
-    def trigger_search_words(self):
+    def trigger_search_words(self, only_in_text=True):
         words = self.lineEdit_filter_words.text()
-        valid = self.filter_df_search_phrases(words)
+        valid = self.filter_df_search_phrases(words, only_in_text=only_in_text)
         if valid:
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
@@ -620,11 +621,11 @@ if QtCore.QT_VERSION >= 0x50501:  # Showing traceback from crashes
 
 def run_gui():
     ui = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    app = TwitterAnalyzerGUI(MainWindow, auto_login=True)
+    main_window = QtWidgets.QMainWindow()
+    app = TwitterAnalyzerGUI(main_window, auto_login=True)
     # ui.setupUi(MainWindow)  # moved to class init
     error_dialog = QtWidgets.QErrorMessage()
-    MainWindow.show()
+    main_window.show()
     sys.exit(ui.exec_())
 
 

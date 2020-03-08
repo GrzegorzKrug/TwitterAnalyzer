@@ -77,7 +77,28 @@ class Analyzer(TwitterApi):
         return out
 
     @staticmethod
-    def check_series_used_words(series, words):
+    def check_series_words_anywhere(series, words):
+        words = re.split('[|+,\n\r]', words)  # split phrases but ignore spaces
+        words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
+        out = []  # Empty out list
+
+        for row in series.iterrows():
+            # print(f"Text {row}")
+            # print(f"Text {str(row)}")
+            word_checked = False
+            for key, val in df.items():
+                for word in words:
+                    if word.lower() in val or word.lower() in key:
+                        out.append(True)
+                        word_checked = True
+                        break
+                if word_checked is False:
+                    out.append(False)
+
+        return out
+
+    @staticmethod
+    def check_series_words_in_text(series, words):
         words = re.split('[|+,\n\r]', words)  # split phrases but ignore spaces
         # Remove start-end spaces
         words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
@@ -372,18 +393,24 @@ class Analyzer(TwitterApi):
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
-    def filter_df_search_phrases(self, words):
-        if self.DF is not None:
-            stages = re.split(';', words)
-            df = self.DF
-            for filtration_stage in stages:
-                df = self.DF.loc[lambda _df: self.check_series_used_words(_df, filtration_stage)]
-
-            if self.filter_conditions(df):
-                self.DF = df
-                return True
-        else:
+    def filter_df_search_phrases(self, words, only_in_text=True):
+        if self.DF is None:
             self.log_ui('DF is empty. Load some tweets first.')
+            return False
+
+        if only_in_text:
+            method = Analyzer.check_series_words_in_text
+        else:
+            method = Analyzer.check_series_words_anywhere
+
+        stages = re.split(';', words)  # Seperating stages
+        df = self.DF
+        for filtration_stage in stages:
+            df = df.loc[lambda _df: method(_df, filtration_stage)]
+
+        if self.filter_conditions(df):
+            self.DF = df
+            return True
 
     def filter_df_by_timestamp(self, time_stamp_min, time_stamp_max):
         if self.DF is not None:
@@ -627,6 +654,8 @@ class Analyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = Analyzer(auto_login=False)
-    app.load_df(['Auto_Merge_20200308_19-55-10.csv'])
-    app.find_parent_tweets()
+    app.load_df(['Auto_Merge_20200308_21-31-23.csv'])
+    app.filter_df_search_phrases(["tweet1"], only_in_text=True)
+    # app.load_df(['Auto_Merge_20200308_21-31-23.csv'])
+    # app.filter_df_search_phrases(["tweet1"], only_in_text=False)
     print('End...')

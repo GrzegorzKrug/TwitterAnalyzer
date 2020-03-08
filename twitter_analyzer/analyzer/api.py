@@ -179,9 +179,9 @@ class TwitterApi:
         valid, data = self.post_request(fullUrl, params=params)
          
     def request_status(self, statusID):        
-        full_Url = self.apiUrl + r'/statuses/show.json'
+        full_url = self.apiUrl + r'/statuses/show.json'
         params = {'id': int(statusID)}
-        valid, data = self.make_request(full_Url, params=params)
+        valid, data = self.make_request(full_url, params=params)
         return data
         
     @staticmethod
