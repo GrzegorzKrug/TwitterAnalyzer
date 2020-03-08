@@ -25,4 +25,5 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest unittest/my_tests.py
+        pytest unittest/testing_timestamp.py
+        pytest unittest/test_searching.py
