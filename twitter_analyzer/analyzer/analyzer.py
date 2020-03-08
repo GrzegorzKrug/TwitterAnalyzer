@@ -82,18 +82,18 @@ class Analyzer(TwitterApi):
         words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
         out = []  # Empty out list
 
-        for row in series.iterrows():
-            # print(f"Text {row}")
-            # print(f"Text {str(row)}")
-            word_checked = False
-            for key, val in df.items():
-                for word in words:
-                    if word.lower() in val or word.lower() in key:
-                        out.append(True)
-                        word_checked = True
-                        break
-                if word_checked is False:
-                    out.append(False)
+        # for row in series.iterrows():
+        #     # print(f"Text {row}")
+        #     # print(f"Text {str(row)}")
+        #     word_checked = False
+            # for key, val in df.items():
+            #     for word in words:
+            #         if word.lower() in val or word.lower() in key:
+            #             out.append(True)
+            #             word_checked = True
+            #             break
+            #     if word_checked is False:
+            #         out.append(False)
 
         return out
 
@@ -127,6 +127,11 @@ class Analyzer(TwitterApi):
 
     @staticmethod
     def check_series_quoted_status_recurrent(tweet, words):
+        tweet_str = str(tweet)
+        if tweet_str.lower() == 'none' \
+                or tweet_str.lower() == 'nan' \
+                or tweet_str == "":
+            return False
         tweet_dict = ast.literal_eval(tweet)
         if tweet_dict:
             data = tweet_dict['full_text']
@@ -397,7 +402,6 @@ class Analyzer(TwitterApi):
         if self.DF is None:
             self.log_ui('DF is empty. Load some tweets first.')
             return False
-
         if only_in_text:
             method = Analyzer.check_series_words_in_text
         else:
