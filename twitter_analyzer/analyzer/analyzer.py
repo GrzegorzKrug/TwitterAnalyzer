@@ -25,6 +25,8 @@ class Analyzer(TwitterApi):
 
         self.log_ui_ref = log_ui
         self.DF = None
+        self.threads = []  # Thread reference list
+        self.th_num = 0  # Thread counter
         self.loaded_to_DF = []
 
         if auto_login:
@@ -39,8 +41,8 @@ class Analyzer(TwitterApi):
     @staticmethod
     def check_series_time_condition(time_series, timestamp_min, timestamp_max):
         """Times series are defined by tweeter,
-        time_min is minimum input in format 'YMDhms'
-        time_max is maxmimal input in format 'YMDhms'"""
+        time_min is minimum input in format 'YMDhhmmss'
+        time_max is maxmimum input in format 'YMDhhmmss'"""
         minimum = int(timestamp_min)
         maximum = int(timestamp_max)
         if minimum > maximum:
@@ -135,13 +137,13 @@ class Analyzer(TwitterApi):
             ch = 1
             while ch < n + 1:
                 try:
-                    home_twetts = self.collectHomeLine(chunk_size=chunk_size)
+                    home_tweets = self.collectHomeLine(chunk_size=chunk_size)
                     if ch == 1:
                         self.log_ui('New tweets -> {}'.format(filename + '.csv'))
-                    if len(home_twetts) != chunk_size:
-                        self.log_ui('\tMissing Tweets! Got {}, expected {}'.format(len(home_twetts), str(chunk_size)))
-                    if home_twetts:
-                        for i, tweet in enumerate(home_twetts):
+                    if len(home_tweets) != chunk_size:
+                        self.log_ui('\tMissing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size)))
+                    if home_tweets:
+                        for i, tweet in enumerate(home_tweets):
                             # if tweet['id_str'][-1] == '0':
                             #     print(tweet)
                             self.add_timestamp_attr(tweet)
@@ -149,7 +151,7 @@ class Analyzer(TwitterApi):
                     else:
                         self.log_ui("No tweets, None object received.")
                 except TooManyRequests as e:
-                    self.log_ui(e)
+                    self.log_ui(f"Too many requests: {e}")
                     print('Repeating chunk {} / {} after 21s.'.format(ch, n))
                     time.sleep(21)
                     continue
@@ -189,42 +191,43 @@ class Analyzer(TwitterApi):
                 try:
                     this_st = self.request_status(status_list[st])
                     if st == 0:
-                        self.log_ui('Tweets -> {}'.format(filename + '.csv'))                    
+                        self.log_ui('Tweets -> {}'.format(filename + '.csv'))
                     if this_st:
                         self.add_timestamp_attr(this_st)
                         self.export_tweet_to_database(self._data_dir, this_st, filename)
-                        
                     else:
                         self.log_ui("No tweets, None object received.")
-                except TooManyRequests as e:
-                    self.log_ui(e)
+
+                except TooManyRequests as tmr:
+                    self.log_ui(f"Too many requests: {tmr}")
                     print('Repeating {} / {} after 10s.'.format(st+1, n))
                     time.sleep(10)
                     continue
+
                 except ApiNotFound as e:
                     self.log_ui(f'{e} Not Found this tweet')
-                                    
-                except Unauthorized as e:
-                    self.log_ui(str(e))
-                    return False
 
-                text = ('\tStatus saved: {} / {}'.format(st+1, n))                
-                self.log_ui(text)                
+                except Unauthorized as un:
+                    self.log_ui(f"{un}: {status_list[st]}")
+                    # return False
+
+                text = ('\tStatus saved: {} / {}'.format(st+1, n))
+                self.log_ui(text)
                 st += 1
             return True
-        
+
         finally:
             pass
-            
-    def delete_csv(self, filelist):
-        """Removes tweets_ only !"""
-        if type(filelist) is not list:            
-            filelist = [filelist]
 
-        for file_path in filelist:            
+    def delete_csv(self, file_list):
+        """Removes tweets_ only !"""
+        if type(file_list) is not list:
+            file_list = [file_list]
+
+        for file_path in file_list:
             file_name = os.path.basename(file_path)
-            
-            if not os.path.isabs(file_path):           
+
+            if not os.path.isabs(file_path):
                 file_path = os.path.abspath(os.path.join(self._data_dir, file_path))
 
             if file_name[-4:] == '.csv':
@@ -238,7 +241,7 @@ class Analyzer(TwitterApi):
                     self.log_ui(f'File does not exists {file_path}')
             else:
                 self.log_ui(f"File {file_name} is not *.csv")
-                    
+
     def delete_less(self, n=200):
         """Procedure, Finds Tweets .csv, Removes them."""
         file_list = self.find_local_tweets()
@@ -433,6 +436,26 @@ class Analyzer(TwitterApi):
         files = glob.glob(os.path.join(path, 'Tweets*.csv'))
         return files
 
+    def find_parent_tweets(self, retweets=True, quoted=True):
+        """Method will search quoted status ids and retweets id in current DF"""
+        if self.DF is None:
+            self.log_ui("Load DF first")
+            return False
+        parent_ids = []
+
+        if quoted:  # Search parents in quoted tweets
+            for tweet in self.DF['quoted_status_id']:
+                if tweet != "None":
+                    parent_ids.append(tweet)
+
+        if retweets:  # Search parents in retweets
+            for tweet in self.DF['retweeted_status']:
+                if tweet != 'None':
+                    tweet_dict = ast.literal_eval(tweet)
+                    parent_ids.append(tweet_dict['id'])
+
+        return parent_ids
+
     def get_distinct_values_from_df(self, key):
         """Retrieve unique values from currently loaded DF"""
         if self.DF is None:
@@ -442,6 +465,14 @@ class Analyzer(TwitterApi):
 
         unique = self.DF[key].unique()
         return unique
+
+    def fork_method(self, method_to_fork, *args, **kwargs):
+        subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
+        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
+        subprocess.start()
+        self.threads += [subprocess]
+        self.th_num += 1
+        return subprocess
 
     def load_df(self, file_list):
         if type(file_list) is str:
@@ -596,4 +627,6 @@ class Analyzer(TwitterApi):
 
 if __name__ == "__main__":
     app = Analyzer(auto_login=False)
-    input('Press key....')
+    app.load_df(['Auto_Merge_20200308_19-55-10.csv'])
+    app.find_parent_tweets()
+    print('End...')

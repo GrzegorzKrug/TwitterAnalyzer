@@ -1,13 +1,13 @@
 # _run_GUI_mode.py
 # Grzegorz Krug
-from PyQt5 import QtCore, QtWidgets # QtGui
+
+from PyQt5 import QtCore, QtWidgets  # QtGui
 from twitter_analyzer.analyzer.analyzer import Analyzer
 # from twitter_analyzer.analyzer.twitter_api import TwitterApi
 from twitter_analyzer.gui.gui import Ui_MainWindow
 
 import webbrowser
 import datetime
-import threading
 import traceback
 import sys
 import os
@@ -28,8 +28,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.refresh_gui()
 
         self._loaded_files = []  # Last loaded files, for reloading
-        self.threads = []  # Thread reference list
-        self.th_num = 0  # Thread counter
         self.currTweetDF_ind = -1 # Current tweet index from DF
 
     def _init_triggers(self):
@@ -44,6 +42,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.download_full_chunk))
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
         self.pushButton_Request_Status.clicked.connect(self.request_status_from_box)
+        self.pushButton_request_parent_tweets.clicked.connect(lambda: self.fork_method(
+            method_to_fork=self.download_parent_tweets,
+            file_list=self.current_tree_selection()
+        ))
 
         'Settings'
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
@@ -80,6 +82,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_df_by_age)
         self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_df_by_date)
         self.pushButton_filter_search_words.clicked.connect(self.trigger_search_words)
+        # self.pushButton_filter_search_words_anywhere.clicked.connect()
         self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
         self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
 
@@ -96,7 +99,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.change_info_settings()
 
     def go_debug(self):
-        print(self.get_distinct_values_from_df('lang'))
+        print(self.find_parent_tweets())
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -115,6 +118,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     #         self.log_ui(str('x :{}'.format(x)))
     #         # time.sleep(0.2)
 
+    @staticmethod
+    def download_full_chunk():
+        app = Analyzer(auto_login=True)
+        app.collect_new_tweets(n=1, chunk_size=200, interval=0)
+
     def check_threads(self):
         threads = self.threads
         self.threads = []
@@ -129,11 +137,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         if not self.threads:
             self.log_ui(f'All tasks are complete')
             return False
-
-    @staticmethod
-    def download_full_chunk():
-        app = Analyzer(auto_login=True)
-        app.collect_new_tweets(n=1, chunk_size=200, interval=0)
 
     def change_info_settings(self):
         checked = True if self.checkBox_wrap_console.checkState() == 2 else False
@@ -159,15 +162,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         for i, item in enumerate(selected_list):
             if item.column() == 0:
                 files_list += [item.data()]
-        # files_list = [item.data() if item.column() == 0 else None for item in selected_list]
         good_files = []
         for file in files_list:
             if file[-4:] == '.csv' or ignore_extension:
                 good_files += [file]
-               # if file[:7] == 'tweets_' or file[:7] == 'merged_' or file[:10] == 'dataframe_' or ignore_name:
-               #     good_files += [file]
-               # else:
-               #     self.log_ui("Invalid file name, missing 'tweets_': {}".format(file))
             else:
                 self.log_ui("Invalid extension, not CSV: {}".format(file))
         return good_files
@@ -187,7 +185,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def delete_selected(self):
         file_list = self.current_tree_selection(ignore_name=True, ignore_extension=True)
-        if file_list == []:
+        if file_list is []:
             self.log_ui('Make selection!')
             return None
 
@@ -203,6 +201,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def download10_chunks():
         app = Analyzer(auto_login=True)
         app.collect_new_tweets(n=10, chunk_size=200, interval=60)
+
+    @staticmethod
+    def download_parent_tweets(file_list):
+        # list = self.current_tree_selection()
+        app = Analyzer(auto_login=True)
+        app.load_df(file_list)
+        status_list = app.find_parent_tweets()
+        app.collect_status(status_list=status_list, filename=f'Parent_{Analyzer.now_as_text()}')
+
 
     def trigger_filter_by_non_empty_key(self):
         text = self.lineEdit_filterKeyinput.text()
@@ -232,23 +239,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
-    # @staticmethod
-    def fork_method(self, method_to_fork, *args, **kwargs):
-        subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
-        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
-        subprocess.start()
-        # self.log_ui(f'New Thread: {subprocess.__name__}')
-        self.threads += [subprocess]
-        self.th_num += 1
-        return subprocess
-
     def load_selected(self):
         self.currTweetDF_ind = -1
         files = self.current_tree_selection()
         self.load_df(files)
         if self.DF is not None:
-            # self.display(f'DF size: {self.DF.shape}')
-            # self.display_add(str(self.DF.head()))
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
@@ -307,9 +302,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         valid = app.load_df(files)
         if valid:
             resp = app.drop_duplicates_from_df()
-        if valid and resp is not False:
+        if valid and resp is not False:  # In case drop duplicates fails process further
             valid = app.save_current_df('Auto_Merge')
-        if valid:
+        if valid:  # Delete only if chain is valid
             for curr_file in files:
                 curr_file_path = os.path.join(self._data_dir, curr_file)
                 try:
@@ -352,45 +347,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             msg.setText('Currently not logged in.')
         msg.exec()
 
-    def refresh_gui(self):
-        self.update_login_box()
-        self.show_tree()
-
-    def reset_df(self):
-        """Loads last used files"""
-        self.reload_df()
-        self.currTweetDF_ind = 0
-        self.show_current_tweet_from_df()
-
-    def request_status_from_box(self):
-        text = self.lineEdit_request_statusId.text()
-        try:
-            num = int(text)
-        except ValueError:
-            self.log_ui('This is not a number')
-            return None
-        self.collect_status([num])
-
-    def show_tree(self):
-        path = self._data_dir
-        model = QtWidgets.QFileSystemModel()
-        model.setRootPath(path)
-        self.treeView.setModel(model)
-        self.treeView.setRootIndex(model.index(path))
-        self.treeView.setColumnWidth(0, 40*8)
-        self.treeView.setColumnWidth(1, 10*8)
-        self.treeView.setColumnWidth(2, 10*8)
-        self.treeView.setColumnWidth(3, 15*8)
-        # self.treeView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)  # its defined in GUI.py
-
-    def show_df_info(self):
-        if self.DF is None:
-            self.log_ui('DF is None!')
-            return None
-        else:
-            self.display(f'DF size: {self.DF.shape}')
-            self.display_add(str(self.DF.head()))
-
     def print_tweet_to_info(self, ind):
         try:
             ind = int(ind)
@@ -432,11 +388,48 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                         "id",
                         "full_text"]
                      else "" for deep_key, deep_val in user_dict.items()])
-                # if "quoted_status" in user_dict: # and key == "quoted_status":
-                #     print("FOUND", self.currTweetDF_ind)
             else:
                 text += f'{key}:'.ljust(25) + f'{value}\n'
         self.display(text)
+
+    def refresh_gui(self):
+        self.update_login_box()
+        self.show_tree()
+
+    def reset_df(self):
+        """Loads last used files"""
+        self.reload_df()
+        self.currTweetDF_ind = 0
+        self.show_current_tweet_from_df()
+
+    def request_status_from_box(self):
+        text = self.lineEdit_request_statusId.text()
+        try:
+            num = int(text)
+        except ValueError:
+            self.log_ui('This is not a number')
+            return None
+        self.collect_status([num])
+
+    def show_tree(self):
+        path = self._data_dir
+        model = QtWidgets.QFileSystemModel()
+        model.setRootPath(path)
+        self.treeView.setModel(model)
+        self.treeView.setRootIndex(model.index(path))
+        self.treeView.setColumnWidth(0, 40*8)
+        self.treeView.setColumnWidth(1, 10*8)
+        self.treeView.setColumnWidth(2, 10*8)
+        self.treeView.setColumnWidth(3, 15*8)
+        # self.treeView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)  # its defined in GUI.py
+
+    def show_df_info(self):
+        if self.DF is None:
+            self.log_ui('DF is None!')
+            return None
+        else:
+            self.display(f'DF size: {self.DF.shape}')
+            self.display_add(str(self.DF.head()))
 
     def show_tweet_jump_to(self):
         if self.DF is None:

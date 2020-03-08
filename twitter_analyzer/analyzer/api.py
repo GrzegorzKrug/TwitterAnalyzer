@@ -97,16 +97,16 @@ class TwitterApi:
             chunk_size = 200
 
         params = {'count': chunk_size}
-        fullUrl = self.apiUrl + r'/statuses/home_timeline.json'
-        valid, data = self.make_request(fullUrl, params=params)
+        full_url = self.apiUrl + r'/statuses/home_timeline.json'
+        valid, data = self.make_request(full_url, params=params)
         return data
 
-    def make_request(self, fullUrl, params=None, header=None, extended=True):
+    def make_request(self, full_url, params=None, header=None, extended=True):
         if params is None:
             params = {}
         if extended:
             params.update({'tweet_mode': 'extended'})
-        response = requests.get(fullUrl, headers=header, params=params, auth=self.auth)
+        response = requests.get(full_url, headers=header, params=params, auth=self.auth)
         
         if self.verify_response(response):
             return True, response.json()
@@ -114,12 +114,12 @@ class TwitterApi:
             return False, None
 
     def post_image(self, imageBinary):
-        fullUrl = self.apiUpload + r'/media/upload.json'
+        full_url = self.apiUpload + r'/media/upload.json'
         if imageBinary:
             files = {'media': imageBinary}
         else:
             raise ValueError('No image is given, can not post tweet')        
-        data = self.authSess.post(fullUrl, files=files)
+        data = self.authSess.post(full_url, files=files)
         return data.json()['media_id']
 
 #    def postLarge_image(self, imagePath):
@@ -179,9 +179,9 @@ class TwitterApi:
         valid, data = self.post_request(fullUrl, params=params)
          
     def request_status(self, statusID):        
-        fullUrl = self.apiUrl + r'/statuses/show.json'
+        full_Url = self.apiUrl + r'/statuses/show.json'
         params = {'id': int(statusID)}
-        valid, data = self.make_request(fullUrl, params=params)    
+        valid, data = self.make_request(full_Url, params=params)
         return data
         
     @staticmethod
