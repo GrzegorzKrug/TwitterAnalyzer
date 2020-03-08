@@ -94,14 +94,32 @@ class Analyzer(TwitterApi):
 
         data = series['quoted_status']
         for i, df in enumerate(data):
-            quote_dict = ast.literal_eval(df)
-            if quote_dict:
-                data = quote_dict['full_text']
-                for word in words:
-                    if word.lower() in data.lower():
-                        out[i] = True
-                        break
+            if out[i]:
+                continue
+            resp = Analyzer.check_series_quoted_status_recurrent(df, words)
+            if resp:
+                out[i] = True
+
         return out
+
+    @staticmethod
+    def check_series_quoted_status_recurrent(tweet, words):
+        tweet_dict = ast.literal_eval(tweet)
+        if tweet_dict:
+            data = tweet_dict['full_text']
+            for word in words:  # If word is in text, return True
+                if word.lower() in data.lower():
+                    return True
+            try:
+                quoted_tweet = tweet_dict['quoted_status']
+            except KeyError:
+                return False
+
+            if quoted_tweet:  # If quoted tweet exists go deeper
+                resp = Analyzer.check_series_quoted_status_recurrent(quoted_tweet, words)
+                return resp
+            return False
+        pass
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         """Loop that runs N times, and collect Tweet x chunk_size
