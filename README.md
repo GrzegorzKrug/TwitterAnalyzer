@@ -2,6 +2,7 @@
 
 Application for analyzing and processing text information in tweets using Machine learning techniques.
 
+## Python 3.8.1
 
 ## Install Package in editable state
 Download files. 

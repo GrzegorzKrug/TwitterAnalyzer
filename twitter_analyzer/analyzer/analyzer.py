@@ -82,19 +82,19 @@ class Analyzer(TwitterApi):
         words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
         out = []  # Empty out list
 
-        # for row in series.iterrows():
-        #     # print(f"Text {row}")
-        #     # print(f"Text {str(row)}")
-        #     word_checked = False
-            # for key, val in df.items():
-            #     for word in words:
-            #         if word.lower() in val or word.lower() in key:
-            #             out.append(True)
-            #             word_checked = True
-            #             break
-            #     if word_checked is False:
-            #         out.append(False)
-
+        for ind, row in series.iterrows():  # Find phrases in key or value
+            word_checked = False
+            for key, value in row.items():
+                value = str(value)
+                for word in words:
+                    if word.lower() in value or word.lower() in key:
+                        out.append(True)
+                        word_checked = True
+                        break
+                if word_checked:
+                    break
+            if word_checked is False:
+                out.append(False)
         return out
 
     @staticmethod

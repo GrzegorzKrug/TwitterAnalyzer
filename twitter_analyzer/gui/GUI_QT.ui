@@ -721,7 +721,7 @@ color: rgb(255, 255, 255);</string>
              <item row="3" column="1">
               <widget class="QPushButton" name="pushButton_filter_search_words">
                <property name="toolTip">
-                <string>Split words with ',' To use multiple searches split with ';'</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split words with ','.&lt;/p&gt;&lt;p&gt;To make sequential search split phrases with ';'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
                 <string>Find in text</string>
@@ -751,7 +751,7 @@ color: rgb(255, 255, 255);</string>
              <item row="3" column="0">
               <widget class="QPushButton" name="pushButton_filter_search_words_anywhere">
                <property name="toolTip">
-                <string/>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split words with ','.&lt;/p&gt;&lt;p&gt;To make sequential search split phrases with ';'.&lt;/p&gt;&lt;p&gt;Use this to search in keys and all fields available(lang, location etc.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
                 <string>Find in any field</string>

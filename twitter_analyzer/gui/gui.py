@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'twitter_analyzer/gui/GUI_QT.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -260,7 +262,6 @@ class Ui_MainWindow(object):
         self.pushButton_FilterDF_Lang_Other.setObjectName("pushButton_FilterDF_Lang_Other")
         self.gridLayout_DataFilters.addWidget(self.pushButton_FilterDF_Lang_Other, 3, 2, 1, 1)
         self.pushButton_filter_search_words_anywhere = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
-        self.pushButton_filter_search_words_anywhere.setToolTip("")
         self.pushButton_filter_search_words_anywhere.setObjectName("pushButton_filter_search_words_anywhere")
         self.gridLayout_DataFilters.addWidget(self.pushButton_filter_search_words_anywhere, 3, 0, 1, 1)
         self.lineEdit_filterKeyinput = QtWidgets.QLineEdit(self.verticalLayoutWidget_3)
@@ -548,12 +549,13 @@ class Ui_MainWindow(object):
         self.pushButton_FilterDF_by_NonEmptyKey.setText(_translate("MainWindow", "Non Empty"))
         self.pushButton_export_DF_6.setText(_translate("MainWindow", "User"))
         self.lineEdit_FilterLangOther.setToolTip(_translate("MainWindow", "input for Lang Button"))
-        self.pushButton_filter_search_words.setToolTip(_translate("MainWindow", "Split words with \',\' To use multiple searches split with \';\'"))
+        self.pushButton_filter_search_words.setToolTip(_translate("MainWindow", "<html><head/><body><p>Split words with \',\'.</p><p>To make sequential search split phrases with \';\'.</p></body></html>"))
         self.pushButton_filter_search_words.setText(_translate("MainWindow", "Find in text"))
         self.pushButton_FilterDF_Lang_English.setToolTip(_translate("MainWindow", "Filter DF, english"))
         self.pushButton_FilterDF_Lang_English.setText(_translate("MainWindow", "Lang En"))
         self.pushButton_FilterDF_Lang_Other.setToolTip(_translate("MainWindow", "Filter DF, put language below"))
         self.pushButton_FilterDF_Lang_Other.setText(_translate("MainWindow", "Lang"))
+        self.pushButton_filter_search_words_anywhere.setToolTip(_translate("MainWindow", "<html><head/><body><p>Split words with \',\'.</p><p>To make sequential search split phrases with \';\'.</p><p>Use this to search in keys and all fields available(lang, location etc.)</p></body></html>"))
         self.pushButton_filter_search_words_anywhere.setText(_translate("MainWindow", "Find in any field"))
         self.lineEdit_filterKeyinput.setToolTip(_translate("MainWindow", "Key input"))
         self.label_6.setText(_translate("MainWindow", "- - - - - - - - Filter DF - - - - - - - - "))
@@ -603,4 +605,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

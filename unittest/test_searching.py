@@ -41,3 +41,42 @@ def test_search_in_files_6():
     app = Analyzer(auto_login=False)
     app.load_df([file_parent])
     app.filter_df_search_phrases(words, only_in_text=False)
+
+
+words_2 = ''
+
+
+def test_search_empty_files_1():
+    app = Analyzer(auto_login=False)
+    app.load_df([file_auto])
+    app.filter_df_search_phrases(words_2, only_in_text=True)
+
+
+def test_search_empty_files_2():
+    app = Analyzer(auto_login=False)
+    app.load_df([file_home])
+    app.filter_df_search_phrases(words_2, only_in_text=True)
+
+
+def test_search_empty_files_3():
+    app = Analyzer(auto_login=False)
+    app.load_df([file_parent])
+    app.filter_df_search_phrases(words_2, only_in_text=True)
+
+
+def test_search_empty_files_4():
+    app = Analyzer(auto_login=False)
+    app.load_df([file_auto])
+    app.filter_df_search_phrases(words_2, only_in_text=False)
+
+
+def test_search_empty_files_5():
+    app = Analyzer(auto_login=False)
+    app.load_df([file_home])
+    app.filter_df_search_phrases(words_2, only_in_text=False)
+
+
+def test_search_empty_files_6():
+    app = Analyzer(auto_login=False)
+    app.load_df([file_parent])
+    app.filter_df_search_phrases(words_2, only_in_text=False)
