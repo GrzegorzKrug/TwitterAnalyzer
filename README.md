@@ -22,7 +22,7 @@ Run this command to install dependencies from `setup.py`
 
 ## Usage
 Gui has 3 main tabs
- - Tweet requesting
- - Filtrating tweets
- - Analysis
+ - Tweet request
+ - Tweet filtration
+ - Tweet analysis
  
