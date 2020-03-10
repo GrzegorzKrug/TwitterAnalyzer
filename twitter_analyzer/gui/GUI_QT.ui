@@ -19,9 +19,9 @@
      <enum>QLayout::SetMinimumSize</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QGridLayout" name="MainGrid" rowstretch="0,0,0,0,0" columnstretch="20,0,0,0,2,1" columnminimumwidth="500,0,0,150,150,150">
+     <layout class="QGridLayout" name="MainGrid" rowstretch="0,0,0,0,0" columnstretch="20,0,0,0,2,1" columnminimumwidth="700,0,0,150,150,150">
       <property name="sizeConstraint">
-       <enum>QLayout::SetNoConstraint</enum>
+       <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -694,10 +694,10 @@ color: rgb(255, 255, 255);</string>
              <item row="3" column="3">
               <widget class="QPushButton" name="pushButton_FilterDF_by_NonEmptyKey">
                <property name="toolTip">
-                <string>Filter Tweets with non empty fields. Display field in Help menu</string>
+                <string>Filter Tweets with non empty fields. Display fields in Help menu</string>
                </property>
                <property name="text">
-                <string>Non Empty</string>
+                <string>Find keys</string>
                </property>
               </widget>
              </item>
@@ -1090,6 +1090,22 @@ color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
            <string>Merge without duplicates</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="checkBox_filtration_keep_drop">
+          <property name="geometry">
+           <rect>
+            <x>550</x>
+            <y>150</y>
+            <width>131</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Filtration: keep</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </widget>

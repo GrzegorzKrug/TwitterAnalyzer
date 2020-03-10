@@ -49,6 +49,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
         'Settings'
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
+        self.checkBox_filtration_keep_drop.clicked.connect(self.change_box_text)
 
         'Buttons'
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
@@ -140,6 +141,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.log_ui(f'All tasks are complete')
             return False
 
+    def change_box_text(self):
+        checked = True if self.checkBox_filtration_keep_drop.checkState() == 2 else False
+        if checked:
+            self.checkBox_filtration_keep_drop.setText("Filtration: keep")
+        else:
+            self.checkBox_filtration_keep_drop.setText("Filtration: drop")
+
     def change_info_settings(self):
         checked = True if self.checkBox_wrap_console.checkState() == 2 else False
         if checked:
@@ -211,34 +219,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         app.load_df(file_list)
         status_list = app.find_parent_tweets()
         app.collect_status(status_list=status_list, filename=f'Parent_{Analyzer.now_as_text()}')
-
-    def trigger_filter_by_non_empty_key(self):
-        text = self.lineEdit_filterKeyinput.text()
-        valid = self.filter_by_existing_key(text)
-        if valid:
-            self.currTweetDF_ind = 0
-            self.show_current_tweet_from_df()
-
-    def trigger_filter_by_tweet_id(self):
-        text = self.lineEdit_tweet_id.text()
-        if len(text) < 0:
-            self.log_ui("This is not valid ID")
-        valid = self.filter_df_by_tweet_id(text)
-        if valid:
-            self.currTweetDF_ind = 0
-            self.show_current_tweet_from_df()
-
-    def trigger_filter_by_lang(self, lang=None):
-        if not lang:
-            lang = self.lineEdit_FilterLangOther.text()
-            lang = str(lang)
-        if lang == '':
-            self.log_ui('Box is empty!')
-            return None
-        valid = self.filter_df_by_lang(lang)
-        if valid:
-            self.currTweetDF_ind = 0
-            self.show_current_tweet_from_df()
 
     def load_selected(self):
         self.currTweetDF_ind = -1
@@ -456,7 +436,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             return None
         self.currTweetDF_ind += 1
         if self.currTweetDF_ind < 0 or self.currTweetDF_ind >= len(self.DF):
-            self.currTweetDF_ind = 0  # First Tweet index            
+            self.currTweetDF_ind = 0  # First Tweet index
 
         self.print_tweet_to_info(self.currTweetDF_ind)
 
@@ -503,6 +483,37 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def trigger_drop_old_duplicates(self):
         valid = self.drop_duplicates_from_df(keep_new=True)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.show_current_tweet_from_df()
+
+    def trigger_filter_by_lang(self, lang=None):
+        if not lang:
+            lang = self.lineEdit_FilterLangOther.text()
+            lang = str(lang)
+        if lang == '':
+            self.log_ui('Box is empty!')
+            return None
+        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
+        valid = self.filter_df_by_lang(lang, inverted=inverted)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.show_current_tweet_from_df()
+
+    def trigger_filter_by_tweet_id(self):
+        text = self.lineEdit_tweet_id.text()
+        if len(text) < 0:
+            self.log_ui("This is not valid ID")
+        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
+        valid = self.filter_df_by_tweet_id(text, inverted=inverted)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.show_current_tweet_from_df()
+
+    def trigger_filter_by_non_empty_key(self):
+        text = self.lineEdit_filterKeyinput.text()
+        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
+        valid = self.filter_by_existing_key(text, inverted=inverted)
         if valid:
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
@@ -554,7 +565,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def trigger_search_words(self, only_in_text=True):
         words = self.lineEdit_filter_words.text()
-        valid = self.filter_df_search_phrases(words, only_in_text=only_in_text)
+        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
+        valid = self.filter_df_search_phrases(words, only_in_text=only_in_text, inverted=inverted)
         if valid:
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()

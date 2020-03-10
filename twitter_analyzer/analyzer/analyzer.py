@@ -77,7 +77,7 @@ class Analyzer(TwitterApi):
         return out
 
     @staticmethod
-    def check_series_words_anywhere(series, words):
+    def check_series_words_anywhere(series, words, inverted=False):
         words = re.split('[|+,\n\r]', words)  # split phrases but ignore spaces
         words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
         out = []  # Empty out list
@@ -88,17 +88,23 @@ class Analyzer(TwitterApi):
                 value = str(value)
                 for word in words:
                     if word.lower() in value or word.lower() in key:
-                        out.append(True)
+                        if inverted:
+                            out.append(False)
+                        else:
+                            out.append(True)
                         word_checked = True
                         break
                 if word_checked:
                     break
             if word_checked is False:
-                out.append(False)
+                if inverted:
+                    out.append(True)
+                else:
+                    out.append(False)
         return out
 
     @staticmethod
-    def check_series_words_in_text(series, words):
+    def check_series_words_in_text(series, words, inverted=False):
         words = re.split('[|+,\n\r]', words)  # split phrases but ignore spaces
         # Remove start-end spaces
         words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
@@ -109,11 +115,18 @@ class Analyzer(TwitterApi):
             word_checked = False
             for word in words:
                 if word.lower() in df.lower():
-                    out.append(True)
+                    if inverted:
+                        out.append(False)
+                    else:
+                        out.append(True)
+
                     word_checked = True
                     break
-            if word_checked is False:
-                out.append(False)
+            if not word_checked:
+                if inverted:
+                    out.append(True)
+                else:
+                    out.append(False)
 
         data = series['quoted_status']
         for i, df in enumerate(data):
@@ -121,8 +134,10 @@ class Analyzer(TwitterApi):
                 continue
             resp = Analyzer.check_series_quoted_status_recurrent(df, words)
             if resp:
-                out[i] = True
-
+                if inverted:
+                    out[i] = False
+                else:
+                    out[i] = True
         return out
 
     @staticmethod
@@ -365,12 +380,19 @@ class Analyzer(TwitterApi):
             Analyzer.log_ui(Analyzer(), 'PermissionError, created background thread to save data')
             return None
 
-    def filter_by_existing_key(self, key):  # Fix exceptions, bool type
+    def filter_by_existing_key(self, key, inverted=False):  # Fix exceptions, bool type
         if not key or key == '' or key not in self.DF.keys():
             self.log_ui('Wrong key to filter.')
             return False
         df = self.DF
-        df = df.loc[(df[key] is not None) & (df[key] != 0) & (df[key] != 'None')]
+        if df is None:
+            return False
+
+        if inverted:
+            df = df.loc[(df[key] is None) | (df[key] == 0) | (df[key] == 'None')]
+        else:
+            df = df.loc[(df[key] is not None) & (df[key] != 0) & (df[key] != 'None')]
+
         if self.filter_conditions(df):
             self.DF = df
             # self.log_ui(f'Found tweets with values in {key}')
@@ -388,20 +410,24 @@ class Analyzer(TwitterApi):
             self.log_ui('Invalid filtration! DF is empty.')
             return False
 
-    def filter_df_by_lang(self, lang):
+    def filter_df_by_lang(self, lang, inverted=False):
         lang = str(lang)
         if self.DF is not None:
-            df = self.DF.loc[lambda _df: _df['lang'] == lang]
+            if inverted:
+                df = self.DF.loc[lambda _df: not _df['lang'] == lang]
+            else:
+                df = self.DF.loc[lambda _df: _df['lang'] == lang]
             if self.filter_conditions(df):
                 self.DF = df
                 return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
-    def filter_df_search_phrases(self, words, only_in_text=True):
+    def filter_df_search_phrases(self, words, only_in_text=True, inverted=False):
         if self.DF is None:
             self.log_ui('DF is empty. Load some tweets first.')
             return False
+
         if only_in_text:
             method = Analyzer.check_series_words_in_text
         else:
@@ -409,8 +435,12 @@ class Analyzer(TwitterApi):
 
         stages = re.split(';', words)  # Separating stages
         df = self.DF
+
         for filtration_stage in stages:
-            df = df.loc[lambda _df: method(_df, filtration_stage)]
+            if inverted:
+                df = df.loc[lambda _df: method(_df, filtration_stage, inverted=inverted)]
+            else:
+                df = df.loc[lambda _df: method(_df, filtration_stage, inverted=inverted)]
 
         if self.filter_conditions(df):
             self.DF = df
@@ -428,7 +458,7 @@ class Analyzer(TwitterApi):
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
-    def filter_df_by_tweet_id(self, tweet_id):
+    def filter_df_by_tweet_id(self, tweet_id, inverted=False):
         try:
             tweet_id = int(tweet_id)
         except ValueError as ve:
@@ -436,14 +466,18 @@ class Analyzer(TwitterApi):
             return None
 
         if self.DF is not None:
-            df = self.DF.loc[lambda _df: _df['id'] == tweet_id]
+            if inverted:
+                df = self.DF.loc[lambda _df: _df['id'] != tweet_id]
+            else:
+                df = self.DF.loc[lambda _df: _df['id'] == tweet_id]
+
             if self.filter_conditions(df):
                 self.DF = df
                 return True
         else:
             self.log_ui('DF is empty. Load some tweets first.')
 
-    def filter_df_by_user_id(self, user_id):
+    def filter_df_by_user_id(self, user_id, inverted=False):
         try:
             user_id = int(user_id)
         except ValueError as ve:
@@ -451,7 +485,11 @@ class Analyzer(TwitterApi):
             return None
 
         if self.DF is not None:
-            df = self.DF.loc[lambda _df: _df['user_id'] == user_id]
+            if inverted:
+                df = self.DF.loc[lambda _df: _df['user_id'] != user_id]
+            else:
+                df = self.DF.loc[lambda _df: _df['user_id'] == user_id]
+
             if self.filter_conditions(df):
                 self.DF = df
                 return True
