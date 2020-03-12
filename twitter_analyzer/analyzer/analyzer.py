@@ -399,7 +399,7 @@ class Analyzer(TwitterApi):
         lang = str(lang)
         if self.DF is not None:
             if inverted:
-                df = self.DF.loc[lambda _df: not _df['lang'] == lang]
+                df = self.DF.loc[lambda _df: _df['lang'] != lang]
             else:
                 df = self.DF.loc[lambda _df: _df['lang'] == lang]
 
