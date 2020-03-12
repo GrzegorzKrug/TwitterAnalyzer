@@ -83,24 +83,18 @@ class Analyzer(TwitterApi):
         out = []  # Empty out list
 
         for ind, row in series.iterrows():  # Find phrases in key or value
-            word_checked = False
+            tweet_row_checked = False
             for key, value in row.items():
                 value = str(value)
                 for word in words:
-                    if word.lower() in value or word.lower() in key:
-                        if inverted:
-                            out.append(False)
-                        else:
-                            out.append(True)
-                        word_checked = True
+                    if word.lower() in value.lower() or word.lower() in key.lower():
+                        out.append(False if inverted else True)
+                        tweet_row_checked = True
                         break
-                if word_checked:
+                if tweet_row_checked:
                     break
-            if word_checked is False:
-                if inverted:
-                    out.append(True)
-                else:
-                    out.append(False)
+            if tweet_row_checked is False:
+                out.append(True if inverted else False)
         return out
 
     @staticmethod
@@ -115,18 +109,12 @@ class Analyzer(TwitterApi):
             word_checked = False
             for word in words:
                 if word.lower() in df.lower():
-                    if inverted:
-                        out.append(False)
-                    else:
-                        out.append(True)
+                    out.append(False if inverted else True)
 
                     word_checked = True
                     break
             if not word_checked:
-                if inverted:
-                    out.append(True)
-                else:
-                    out.append(False)
+                out.append(True if inverted else False)
 
         data = series['quoted_status']
         for i, df in enumerate(data):
@@ -134,10 +122,7 @@ class Analyzer(TwitterApi):
                 continue
             resp = Analyzer.check_series_quoted_status_recurrent(df, words)
             if resp:
-                if inverted:
-                    out[i] = False
-                else:
-                    out[i] = True
+                out[i] = False if inverted else True
         return out
 
     @staticmethod
@@ -417,6 +402,7 @@ class Analyzer(TwitterApi):
                 df = self.DF.loc[lambda _df: not _df['lang'] == lang]
             else:
                 df = self.DF.loc[lambda _df: _df['lang'] == lang]
+
             if self.filter_conditions(df):
                 self.DF = df
                 return True
@@ -437,10 +423,7 @@ class Analyzer(TwitterApi):
         df = self.DF
 
         for filtration_stage in stages:
-            if inverted:
-                df = df.loc[lambda _df: method(_df, filtration_stage, inverted=inverted)]
-            else:
-                df = df.loc[lambda _df: method(_df, filtration_stage, inverted=inverted)]
+            df = df.loc[lambda _df: method(_df, filtration_stage, inverted=inverted)]
 
         if self.filter_conditions(df):
             self.DF = df
