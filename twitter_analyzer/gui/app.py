@@ -1,4 +1,4 @@
-# _run_GUI_mode.py
+# app.py
 # Grzegorz Krug
 
 from PyQt5 import QtCore, QtWidgets  # QtGui
@@ -20,7 +20,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def __init__(self, main_window, auto_login=False):
         Ui_MainWindow.__init__(self)
         self.setupUi(main_window)
-        Analyzer.__init__(self, auto_login=auto_login, log_ui=self.log_ui)
+        Analyzer.__init__(self, auto_login=auto_login)
 
         self._init_wrappers()
         self._init_triggers()
@@ -104,6 +104,12 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def go_debug(self):
         print(self.find_parent_tweets())
 
+    def add_log(self, text_line):
+        text_line = str(text_line)
+        text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
+        text = self.add_timestamp_to_text(text)
+        self.textEdit_log.setPlainText(text)
+
     @staticmethod
     def add_timestamp_to_text(text):
         text = str(text)
@@ -113,13 +119,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         s = now.second
         timestamp = str(h).rjust(2, '0') + '-' + str(m).rjust(2, '0') + '-' + str(s).rjust(2, '0') + ': '
         return timestamp + text
-
-    # # @staticmethod
-    # def afk(self, *args, **kwargs):
-    #     print("AFK_fork: ", args)
-    #     for x in range(10):
-    #         self.log_ui(str('x :{}'.format(x)))
-    #         # time.sleep(0.2)
 
     @staticmethod
     def download_full_chunk():
@@ -131,14 +130,14 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.threads = []
         for th in threads:
             if th.isAlive():
-                self.log_ui(f'{th.__name__} is still alive')
+                self.add_log(f'{th.__name__} is still alive')
                 self.threads += [th]
             else:
                 pass
-                # self.log_ui(f'{th.__name__} is finished, removing from list')
+                # self.add_log(f'{th.__name__} is finished, removing from list')
 
         if not self.threads:
-            self.log_ui(f'All tasks are complete')
+            self.add_log(f'All tasks are complete')
             return False
 
     def change_box_text(self):
@@ -159,7 +158,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         text = '=== Info:'
         for line in self.plainTextEdit_info.toPlainText().split('\n'):
             text += '\n\t' + line
-        self.log_ui(text)
+        self.add_log(text)
         time.sleep(0.8)
 
     def clear_log(self):
@@ -177,7 +176,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             if file[-4:] == '.csv' or ignore_extension:
                 good_files += [file]
             else:
-                self.log_ui("Invalid extension, not CSV: {}".format(file))
+                self.add_log("Invalid extension, not CSV: {}".format(file))
         return good_files
 
     def display_add(self, text):
@@ -196,16 +195,16 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def delete_selected(self):
         file_list = self.current_tree_selection(ignore_name=True, ignore_extension=True)
         if file_list is []:
-            self.log_ui('Make selection!')
+            self.add_log('Make selection!')
             return None
 
         for f in file_list:
             try:
                 os.remove(os.path.join(self._data_dir, f))
-                self.log_ui(f'Removed {f}')
+                self.add_log(f'Removed {f}')
 
             except PermissionError:
-                self.log_ui(f'PermissionError!!!: Close Files {f}')
+                self.add_log(f'PermissionError!!!: Close Files {f}')
 
     @staticmethod
     def download10_chunks():
@@ -228,24 +227,17 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
-    def log_ui(self, text_line):
-        text_line = str(text_line)
-        print(text_line)
-        text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
-        text = self.add_timestamp_to_text(text)
-        self.textEdit_log.setPlainText(text)
-
     def login_to_twitter_ui(self):
         valid, message = self.login_procedure()
-        self.log_ui(message)
+        self.add_log(message)
 
     def merge_selected(self):
         file_list = self.current_tree_selection()
         if not file_list:
-            self.log_ui('Error. Select files!')
+            self.add_log('Error. Select files!')
             return None
         if len(file_list) <= 1:
-            self.log_ui('You can not merge this.')
+            self.add_log('You can not merge this.')
             return None
 
         now = datetime.datetime.now()
@@ -270,9 +262,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                 try:
                     os.remove(curr_file_path)
                 except PermissionError:
-                    self.log_ui(f'Merged, but can not remove {file}')
+                    self.add_log(f'Merged, but can not remove {file}')
 
-        self.log_ui(f'Merged to file: {merged_file}')
+        self.add_log(f'Merged to file: {merged_file}')
 
     def merge_without_duplicates_trigger(self):
         files = self.current_tree_selection()
@@ -291,7 +283,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                 try:
                     os.remove(curr_file_path)
                 except PermissionError:
-                    self.log_ui(f'Merged, but can not remove {curr_file_path}')
+                    self.add_log(f'Merged, but can not remove {curr_file_path}')
 
     def open_in_browser(self):
         if self.DF is not None:
@@ -332,13 +324,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         try:
             ind = int(ind)
         except ValueError:
-            self.log_ui('This is not a number')
+            self.add_log('This is not a number')
             return None
         flag_hide_empty = True if self.checkBox_HideEmptyValues.checkState() == 2 else False
         flag_short_user = True if self.checkBox_DisplayShortUserinfo.checkState() == 2 else False
         flag_short_quote = True if self.checkBox_DisplayShortQuoteStatus.checkState() == 2 else False
         if ind < 0 or ind >= len(self.DF):
-            self.log_ui(f'Index is not correct!')
+            self.add_log(f'Index is not correct!')
             return None
         self.currTweetDF_ind = ind
 
@@ -388,7 +380,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         try:
             num = int(text)
         except ValueError:
-            self.log_ui('This is not a number')
+            self.add_log('This is not a number')
             return None
         self.collect_status([num])
 
@@ -406,7 +398,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def show_df_info(self):
         if self.DF is None:
-            self.log_ui('DF is None!')
+            self.add_log('DF is None!')
             return None
         else:
             self.display(f'DF size: {self.DF.shape}')
@@ -414,14 +406,14 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def show_tweet_jump_to(self):
         if self.DF is None:
-            self.log_ui('DF not loaded!')
+            self.add_log('DF not loaded!')
             return None
         ind_str = self.lineEdit_JumpToTweet.text()
         self.print_tweet_to_info(ind_str)
 
     def show_current_tweet_from_df(self):
         if self.DF is None:
-            self.log_ui('DF not loaded!')
+            self.add_log('DF not loaded!')
             return None
         if self.currTweetDF_ind < 0:
             self.currTweetDF_ind = 0
@@ -432,7 +424,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def show_next_tweet_from_df(self):
         if self.DF is None:
-            self.log_ui('DF not loaded!')
+            self.add_log('DF not loaded!')
             return None
         self.currTweetDF_ind += 1
         if self.currTweetDF_ind < 0 or self.currTweetDF_ind >= len(self.DF):
@@ -442,7 +434,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
 
     def show_prev_tweet_from_df(self):
         if self.DF is None:
-            self.log_ui('DF not loaded!')
+            self.add_log('DF not loaded!')
             return None
         self.currTweetDF_ind -= 1
         if self.currTweetDF_ind < 0:
@@ -492,7 +484,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             lang = self.lineEdit_FilterLangOther.text()
             lang = str(lang)
         if lang == '':
-            self.log_ui('Box is empty!')
+            self.add_log('Box is empty!')
             return None
         inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
         valid = self.filter_df_by_lang(lang, inverted=inverted)
@@ -503,7 +495,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def trigger_filter_by_tweet_id(self):
         text = self.lineEdit_tweet_id.text()
         if len(text) < 0:
-            self.log_ui("This is not valid ID")
+            self.add_log("This is not valid ID")
         inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
         valid = self.filter_df_by_tweet_id(text, inverted=inverted)
         if valid:
@@ -540,7 +532,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
                 self.show_current_tweet_from_df()
 
         except ValueError as ve:
-            self.log_ui(f"Value Error: {ve}")
+            self.add_log(f"Value Error: {ve}")
 
     def trigger_filter_df_by_age(self):
         """Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration"""

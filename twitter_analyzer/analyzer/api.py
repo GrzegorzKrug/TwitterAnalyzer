@@ -1,4 +1,4 @@
-# TwitterApi.py
+# api.py
 # Grzegorz Krug
 
 import requests
@@ -6,6 +6,7 @@ import json
 import sys
 import os
 
+from .custom_logger import define_logger
 from requests_oauthlib import OAuth1, OAuth1Session
 
 
@@ -18,24 +19,25 @@ class TwitterApi:
         self.authSess = None
         self.following = None
         self.me = None
+        self.logger_api = define_logger("Api")
 
         self._set_auth()
-
         if auto_login:
-            valid, text = self.login_procedure()
+            valid = self.login_procedure()
 
     def login_procedure(self):
-        valid, self.me, message = self._verifyOAuth()
+        valid, self.me = self._verifyOAuth()
         if valid:
             self.logged_in = True
+            self.logger_api.info("Verified OAuth successfully")
         else:
-            print(f'Error: {message}\n'
-                  'Check "Analyzer\\Readme.md" if you got problems')
+            self.logger_api.error("Check 'analyzer\\Readme.md' if you got problems")
             sys.exit(1)
-        return valid, message
+        return valid
 
     def _set_auth(self):
         file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
+        self.logger_api.debug("Loading credentials")
         try:
             with open(file_path, 'rt') as token_file:
                 data = json.load(token_file)
@@ -54,7 +56,7 @@ class TwitterApi:
                                               consumer_secret,
                                               access_token_key,
                                               access_token_secret)
-                return True, "Its ok"
+                return True
 
         except FileNotFoundError:
             with open(file_path, 'wt') as file:
@@ -65,32 +67,36 @@ class TwitterApi:
                     "access_token_secret": "ABC"},
                     indent=4)
                 file.write(data)
-                return True, "Created blank secret file."
+                self.logger_api.error('File not found. Created blank secret file.')
+                return True
 
         except json.decoder.JSONDecodeError:
-            message = "Exception: secret_token.txt is not in json format!"
-            return False, message
+            msg = "Exception: secret_token.txt is not in json format!"
+            self.logger_api.error(msg)
+            return False
 
         except KeyError:
-            message = "Exception: secret_token.txt is missing some keys!"
-            return False, message
+            msg = "Exception: secret_token.txt is missing some keys!"
+            self.logger_api.error(msg)
+            return False
 
     def _verifyOAuth(self):
         try:
-            valid, message = self._set_auth()
+            valid = self._set_auth()
             if not valid:
-                return False, None, message
+                return False, None
             url = self.apiUrl + r'/account/verify_credentials.json'
+            self.logger_api.debug('Checking credentials')
             response = requests.get(url, auth=self.auth)
+
             self.verify_response(response)
             me = response.json()
-            return True, me, f'Logged in successfully as {me["screen_name"]}'
+            return True, me
         except Unauthorized:
-            return False, None, 'Authorization failed! Invalid or expired token.'
+            self.logger_api.error("Authorization failed! Invalid or expired token.")
+            return False, None
 
     def collectHomeLine(self, chunk_size=200):
-        # if not self.logged_in:
-        #     raise Unauthorized('Authentication not verified!')
         if chunk_size < 0:
             chunk_size = 1
         elif chunk_size > 200:
@@ -98,6 +104,7 @@ class TwitterApi:
 
         params = {'count': chunk_size}
         full_url = self.apiUrl + r'/statuses/home_timeline.json'
+        self.logger_api.debug("Requesting home timeline")
         valid, data = self.make_request(full_url, params=params)
         return data
 
@@ -106,6 +113,7 @@ class TwitterApi:
             params = {}
         if extended:
             params.update({'tweet_mode': 'extended'})
+
         response = requests.get(full_url, headers=header, params=params, auth=self.auth)
         
         if self.verify_response(response):
@@ -118,7 +126,8 @@ class TwitterApi:
         if imageBinary:
             files = {'media': imageBinary}
         else:
-            raise ValueError('No image is given, can not post tweet')        
+            raise ValueError('No image is given, can not post tweet')
+        self.logger_api.debug(f"Posting image")
         data = self.authSess.post(full_url, files=files)
         return data.json()['media_id']
 
@@ -175,12 +184,14 @@ class TwitterApi:
         if text:
             params.update({'status': str(text)})
                     
-        fullUrl = self.apiUrl + r'/statuses/update.json'        
+        fullUrl = self.apiUrl + r'/statuses/update.json'
+        self.logger_api.debug(f"Posing status")
         valid, data = self.post_request(fullUrl, params=params)
          
-    def request_status(self, statusID):        
+    def request_status(self, status_id):
         full_url = self.apiUrl + r'/statuses/show.json'
-        params = {'id': int(statusID)}
+        params = {'id': int(status_id)}
+        self.logger_api.debug(f"Requesting status: {status_id}")
         valid, data = self.make_request(full_url, params=params)
         return data
         
@@ -203,48 +214,6 @@ class TwitterApi:
             raise TooManyRequests('Error 429, too many requests.')
         else:            
             raise Exception(f'Error {resp_code}: {response.json()}')
-
-    # def CollectHome(self, count=200):
-    #     try:
-    #         home = self.api.GetHomeTimeline(count=count)
-    #         return home
-    #
-    #     except AttributeError:
-    #         raise TwitterLoginFailed("Error! Login status: {}".format(self.logged_in))
-
-    # @staticmethod
-    # def _overrider(display=True):
-    #     text = []
-    #
-    #     def add_items_method(self):
-    #         return self.__dict__.items()
-    #
-    #     def __getitem__(cls, x, missing=None):
-    #         return getattr(cls, x, missing)
-    #
-    #     # @classmethod
-    #     # def __getitem_class__(cls, x):
-    #     #     return getattr(cls, x)
-    #
-    #     twitter.User.items = add_items_method
-    #     text += ["New Method twitter.User.items"]
-    #
-    #     twitter.User.__getitem__ = __getitem__
-    #     text += ["User is subscriptable twitter.User.__getitem__"]
-    #
-    #     twitter.Status.items = add_items_method
-    #     text += ["New Method twitter.Status.items"]
-    #
-    #     twitter.Status.__getitem__ = __getitem__
-    #     text += ["Status is subscriptable twitter.Status.__getitem__"]
-    #
-    #     twitter.Status.get = __getitem__
-    #     text += ["New Method twitter.Status.get"]
-    #
-    #     if display:
-    #         for comment in text:
-    #             print('\t', comment)
-    #         print('#' * 20, 'End of overloading.', '#' * 20, '\n')
 
 
 class Unauthorized(Exception):  # 401
