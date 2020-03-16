@@ -28,3 +28,4 @@ jobs:
         pytest unittest/testing_timestamp.py
         pytest unittest/testing_search.py
         pytest unittest/testing_inverted_filtration.py
+        pytest unittest/testing_filter_user.py

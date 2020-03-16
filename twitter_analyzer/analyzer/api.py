@@ -32,7 +32,6 @@ class TwitterApi:
             self.logger_api.info("Verified OAuth successfully")
         else:
             self.logger_api.error("Check 'analyzer\\Readme.md' if you got problems")
-            sys.exit(1)
         return valid
 
     def _set_auth(self):
