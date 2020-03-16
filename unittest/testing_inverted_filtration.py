@@ -82,10 +82,10 @@ user_id = '1194893840'
 # def test_9():
 #     app = Analyzer(auto_login=False)
 #     app.load_df([file_home])
-#     app.filter_df_by_user_id(user_id, inverted=False)
+#     app.filter_df_by_user(user_id, inverted=False)
 #
 #
 # def test_10():
 #     app = Analyzer(auto_login=False)
 #     app.load_df([file_home])
-#     app.filter_df_by_user_id(user_id, inverted=True)
+#     app.filter_df_by_user(user_id, inverted=True)

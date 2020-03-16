@@ -80,14 +80,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.trigger_filter_by_lang)
         self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.trigger_filter_by_non_empty_key)
         self.pushButton_FilterDF_TweetID.clicked.connect(self.trigger_filter_by_tweet_id)
-        self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_df_by_age)
-        self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_df_by_date)
+        self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_by_age)
+        self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_by_date)
         self.pushButton_filter_search_words.clicked.connect(
-            lambda: self.trigger_search_words(only_in_text=True))
+            lambda: self.trigger_filter_by_search_words(only_in_text=True))
         self.pushButton_filter_search_words_anywhere.clicked.connect(
-            lambda: self.trigger_search_words(only_in_text=False))
+            lambda: self.trigger_filter_by_search_words(only_in_text=False))
         self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
         self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
+        self.pushButton_FilterDF_user.clicked.connect(self.trigger_filter_by_user)
 
         'Analyze Buttons'
         self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
@@ -124,6 +125,9 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def download_full_chunk():
         app = Analyzer(auto_login=True)
         app.collect_new_tweets(n=1, chunk_size=200, interval=0)
+
+    def check_settings_inverted(self):
+        return False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
 
     def check_threads(self):
         threads = self.threads
@@ -228,8 +232,11 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.show_current_tweet_from_df()
 
     def login_to_twitter_ui(self):
-        valid, message = self.login_procedure()
-        self.add_log(message)
+        valid = self.login_procedure()
+        if valid:
+            self.add_log(f"Credentials are valid")
+        else:
+            self.add_log(f"Credentials are invalid")
 
     def merge_selected(self):
         file_list = self.current_tree_selection()
@@ -366,7 +373,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.display(text)
 
     def refresh_gui(self):
-        self.update_login_box()
         self.show_tree()
 
     def reset_df(self):
@@ -479,38 +485,28 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
-    def trigger_filter_by_lang(self, lang=None):
-        if not lang:
-            lang = self.lineEdit_FilterLangOther.text()
-            lang = str(lang)
-        if lang == '':
-            self.add_log('Box is empty!')
-            return None
-        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
-        valid = self.filter_df_by_lang(lang, inverted=inverted)
+    def trigger_filter_by_age(self):
+        """Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration"""
+        year = self.spinBox_timefilter_from_year.value()
+        month = self.spinBox_timefilter_from_month.value()
+        day = self.spinBox_timefilter_from_day.value()
+        hour = self.spinBox_timefilter_from_hour.value()
+        minute = self.spinBox_timefilter_from_min.value()
+        timestamp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        year = self.spinBox_timefilter_to_year.value()
+        month = self.spinBox_timefilter_to_month.value()
+        day = self.spinBox_timefilter_to_day.value()
+        hour = self.spinBox_timefilter_to_hour.value()
+        minute = self.spinBox_timefilter_to_min.value()
+        timestamp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+        valid = self.filter_df_by_timestamp(timestamp_min, timestamp_max)
         if valid:
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
-    def trigger_filter_by_tweet_id(self):
-        text = self.lineEdit_tweet_id.text()
-        if len(text) < 0:
-            self.add_log("This is not valid ID")
-        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
-        valid = self.filter_df_by_tweet_id(text, inverted=inverted)
-        if valid:
-            self.currTweetDF_ind = 0
-            self.show_current_tweet_from_df()
-
-    def trigger_filter_by_non_empty_key(self):
-        text = self.lineEdit_filterKeyinput.text()
-        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
-        valid = self.filter_by_existing_key(text, inverted=inverted)
-        if valid:
-            self.currTweetDF_ind = 0
-            self.show_current_tweet_from_df()
-
-    def trigger_filter_df_by_date(self):
+    def trigger_filter_by_date(self):
         try:
             year = self.spinBox_timefilter_from_year.value()
             month = self.spinBox_timefilter_from_month.value()
@@ -534,31 +530,49 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         except ValueError as ve:
             self.add_log(f"Value Error: {ve}")
 
-    def trigger_filter_df_by_age(self):
-        """Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration"""
-        year = self.spinBox_timefilter_from_year.value()
-        month = self.spinBox_timefilter_from_month.value()
-        day = self.spinBox_timefilter_from_day.value()
-        hour = self.spinBox_timefilter_from_hour.value()
-        minute = self.spinBox_timefilter_from_min.value()
-        timestamp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
-
-        year = self.spinBox_timefilter_to_year.value()
-        month = self.spinBox_timefilter_to_month.value()
-        day = self.spinBox_timefilter_to_day.value()
-        hour = self.spinBox_timefilter_to_hour.value()
-        minute = self.spinBox_timefilter_to_min.value()
-        timestamp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
-
-        valid = self.filter_df_by_timestamp(timestamp_min, timestamp_max)
+    def trigger_filter_by_non_empty_key(self):
+        text = self.lineEdit_filterKeyinput.text()
+        inverted = self.check_settings_inverted()
+        valid = self.filter_by_existing_key(text, inverted=inverted)
         if valid:
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
-    def trigger_search_words(self, only_in_text=True):
+    def trigger_filter_by_lang(self, lang=None):
+        if not lang:
+            lang = self.lineEdit_FilterLangOther.text()
+            lang = str(lang)
+        if lang == '':
+            self.add_log('Box is empty!')
+            return None
+        inverted = self.check_settings_inverted()
+        valid = self.filter_df_by_lang(lang, inverted=inverted)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.show_current_tweet_from_df()
+
+    def trigger_filter_by_search_words(self, only_in_text=True):
         words = self.lineEdit_filter_words.text()
-        inverted = False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
+        inverted = self.check_settings_inverted()
         valid = self.filter_df_search_phrases(words, only_in_text=only_in_text, inverted=inverted)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.show_current_tweet_from_df()
+
+    def trigger_filter_by_tweet_id(self):
+        text = self.lineEdit_tweet_id.text()
+        if len(text) < 0:
+            self.add_log("This is not valid ID")
+        inverted = self.check_settings_inverted()
+        valid = self.filter_df_by_tweet_id(text, inverted=inverted)
+        if valid:
+            self.currTweetDF_ind = 0
+            self.show_current_tweet_from_df()
+
+    def trigger_filter_by_user(self):
+        user_text = self.lineEdit_user_input.text()
+        inverted = self.check_settings_inverted()
+        valid = self.filter_df_by_user(user_text, inverted)
         if valid:
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
@@ -626,7 +640,7 @@ if QtCore.QT_VERSION >= 0x50501:  # Showing traceback from crashes
 def run_gui():
     ui = QtWidgets.QApplication(sys.argv)
     main_window = QtWidgets.QMainWindow()
-    app = TwitterAnalyzerGUI(main_window, auto_login=True)
+    app = TwitterAnalyzerGUI(main_window, auto_login=False)
     # ui.setupUi(MainWindow)  # moved to class init
     error_dialog = QtWidgets.QErrorMessage()
     main_window.show()

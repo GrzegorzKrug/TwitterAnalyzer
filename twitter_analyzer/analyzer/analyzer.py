@@ -64,21 +64,6 @@ class Analyzer(TwitterApi):
         return out_bool
 
     @staticmethod
-    def check_series_users_id(series, user_id):
-        out = []  # Empty out
-        user_id = str(int(user_id))
-        data = series['user']
-        for df in data:
-            user_dict = ast.literal_eval(df)
-            if user_dict:
-                current_user = user_dict['id']
-                if user_id in current_user:
-                    out.append(True)
-                else:
-                    out.append(False)
-        return out
-
-    @staticmethod
     def check_series_words_anywhere(series, words, inverted=False):
         words = re.split('[|+,\n\r]', words)  # split phrases but ignore spaces
         words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
@@ -128,6 +113,37 @@ class Analyzer(TwitterApi):
         return out
 
     @staticmethod
+    def check_series_user_text(series, user_text, inverted=False):
+        user_text = user_text.lower()
+        words = re.split('[|+,\n\r]', user_text)  # split phrases but ignore spaces
+        Analyzer().logger.debug(f"filter words: '{words}'")
+        # Remove start-end spaces
+        words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
+        out = []  # Empty out list
+        data = series['user']
+        for row in data:
+            word_checked = False
+            if str(row).lower() == 'nan':
+                out.append(False)
+                continue
+
+            user_dict = ast.literal_eval(row)
+
+            if user_dict:
+                user_id = str(user_dict['id'])
+                name = user_dict['name'].lower()
+                alias = user_dict['screen_name'].lower()
+                # Analyzer().logger.debug(f"User: '{name}','{alias}', '{user_id}'")
+                for word in words:
+                    if word in name or word in alias or word in user_id:
+                        out.append(False if inverted else True)
+                        word_checked = True
+                        break
+            if not word_checked:
+                out.append(True if inverted else False)
+        return out
+
+    @staticmethod
     def check_series_quoted_status_recurrent(tweet, words):
         tweet_str = str(tweet)
         if tweet_str.lower() == 'none' \
@@ -149,7 +165,6 @@ class Analyzer(TwitterApi):
                 resp = Analyzer.check_series_quoted_status_recurrent(quoted_tweet, words)
                 return resp
             return False
-        pass
 
     def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
         """Loop that runs N times, and collect Tweet x chunk_size
@@ -387,6 +402,7 @@ class Analyzer(TwitterApi):
 
     def filter_conditions(self, df):
         if df.shape[0] > 0 and df.shape != self.DF.shape:
+            self.logger.debug("Filter completed successfully")
             return True
         elif df.shape[0] > 0:
             self.logger.debug('DF size is the same.')
@@ -460,19 +476,9 @@ class Analyzer(TwitterApi):
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
 
-    def filter_df_by_user_id(self, user_id, inverted=False):
-        try:
-            user_id = int(user_id)
-        except ValueError as ve:
-            self.logger.warning(f"Invalid user id. {ve}")
-            return None
-
+    def filter_df_by_user(self, user_text, inverted=False):
         if self.DF is not None:
-            if inverted:
-                df = self.DF.loc[lambda _df: _df['user_id'] != user_id]
-            else:
-                df = self.DF.loc[lambda _df: _df['user_id'] == user_id]
-
+            df = self.DF.loc[lambda _df: self.check_series_user_text(_df, user_text, inverted=inverted)]
             if self.filter_conditions(df):
                 self.DF = df
                 return True

@@ -339,7 +339,7 @@ p, li { white-space: pre-wrap; }
          <number>-1</number>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="Files">
          <attribute name="title">
@@ -542,7 +542,7 @@ p, li { white-space: pre-wrap; }
            </rect>
           </property>
           <property name="text">
-           <string>Logged in:</string>
+           <string>Verified:</string>
           </property>
          </widget>
          <widget class="QLabel" name="label_login_status">
@@ -558,11 +558,11 @@ p, li { white-space: pre-wrap; }
            <bool>false</bool>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: rgb(255, 149, 151);
+           <string notr="true">background-color: rgb(190, 170, 170);
 color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
-           <string>Not logged in</string>
+           <string>Not yet</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -702,7 +702,7 @@ color: rgb(255, 255, 255);</string>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QPushButton" name="pushButton_export_DF_6">
+              <widget class="QPushButton" name="pushButton_FilterDF_user">
                <property name="toolTip">
                 <string/>
                </property>
@@ -779,7 +779,7 @@ color: rgb(255, 255, 255);</string>
               <widget class="QLineEdit" name="lineEdit_tweet_id"/>
              </item>
              <item row="2" column="0">
-              <widget class="QLineEdit" name="lineEdit_2"/>
+              <widget class="QLineEdit" name="lineEdit_user_input"/>
              </item>
              <item row="1" column="3">
               <widget class="QPushButton" name="pushButton_drop_old_duplicates">
