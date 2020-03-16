@@ -1,4 +1,4 @@
-# TwitterAnalyzer.py
+# analyzer.py
 # Grzegorz Krug
 
 import time
@@ -11,27 +11,29 @@ import calendar
 import re
 import ast
 
+from .custom_logger import define_logger
 from pandas.errors import ParserError
 from twitter_analyzer.analyzer.api import TwitterApi
 from twitter_analyzer.analyzer.api import Unauthorized, ApiNotFound, TooManyRequests
 
 
 class Analyzer(TwitterApi):
-    def __init__(self, auto_login=False, log_ui=None):
-        TwitterApi.__init__(self, auto_login=False)  # Dont login via api!
+    def __init__(self, auto_login=False):
+        TwitterApi.__init__(self, auto_login=False)  # Do not login via api!
 
         self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
-        self.log_ui_ref = log_ui
+        # self.logger_ref = log_ui
         self.DF = None
         self.threads = []  # Thread reference list
         self.th_num = 0  # Thread counter
         self.loaded_to_DF = []
+        self.logger = define_logger("Analyzer")
 
         if auto_login:
-            valid, text = self.login_procedure()
-            self.log_ui(text)
+            valid = self.login_procedure()
+            self.logger.debug(f"Auto_login status: '{valid}'")
 
     @staticmethod
     def add_timestamp_attr(tweet):
@@ -165,48 +167,44 @@ class Analyzer(TwitterApi):
                 try:
                     home_tweets = self.collectHomeLine(chunk_size=chunk_size)
                     if ch == 1:
-                        self.log_ui('New tweets -> {}'.format(filename + '.csv'))
+                        self.logger.debug('New tweets -> {}'.format(filename + '.csv'))
                     if len(home_tweets) != chunk_size:
-                        self.log_ui('\tMissing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size)))
+                        self.logger.warning(
+                            'Missing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size))
+                        )
                     if home_tweets:
                         for i, tweet in enumerate(home_tweets):
-                            # if tweet['id_str'][-1] == '0':
-                            #     print(tweet)
                             self.add_timestamp_attr(tweet)
                             self.export_tweet_to_database(self._data_dir, tweet, filename)
                     else:
-                        self.log_ui("No tweets, None object received.")
+                        self.logger.error("No tweets, None object received.")
                 except TooManyRequests as e:
-                    self.log_ui(f"Too many requests: {e}")
-                    print('Repeating chunk {} / {} after 21s.'.format(ch, n))
+                    self.logger.warning(f"Too many requests: {e}")
+                    self.logger.debug('Repeating chunk {} / {} after 21s.'.format(ch, n))
                     time.sleep(21)
                     continue
 
                 except Unauthorized as e:
-                    self.log_ui(str(e))
+                    self.logger.critical(str(e))
                     return False
 
-                text = ('\tTweets chunk saved: {} / {}'.format(ch, n))
-                self.log_ui(text)
+                self.logger.debug(f"Tweets chunk saved: {ch} / {n}")
                 if ch >= n:
                     break
                 if interval > 0:
-                    self.log_ui('\tSleeping {}s'.format(interval))
+                    self.logger.debug('Sleeping {}s'.format(interval))
                     time.sleep(interval)
                 ch += 1
-            # text = '\tFinished -> {}'.format(filename + '.csv')
-            # self.log_ui(text)
 
             return True
         finally:
             pass
-            # text = 'Finished -> {}'.format(filename + '.csv')
-            # print(text)
 
     def collect_status(self, status_list, filename=None):
         """Requests all status from List"""
         if type(status_list) is not list:
-            raise TypeError
+            self.logger.error(f"This is not list: '{status_list}'")
+            return False
         try:
             if filename is None:
                 now = self.now_as_text()
@@ -214,31 +212,32 @@ class Analyzer(TwitterApi):
             st = 0
             n = len(status_list)
             while st < n:
+                status_num = status_list[st]
                 try:
-                    this_st = self.request_status(status_list[st])
+                    this_st = self.request_status(status_num)
                     if st == 0:
-                        self.log_ui('Tweets -> {}'.format(filename + '.csv'))
+                        self.logger.debug(f"New tweets file: '{filename + '.csv'}'")
                     if this_st:
                         self.add_timestamp_attr(this_st)
                         self.export_tweet_to_database(self._data_dir, this_st, filename)
                     else:
-                        self.log_ui("No tweets, None object received.")
+                        self.logger.error("No tweets, None object received.")
 
                 except TooManyRequests as tmr:
-                    self.log_ui(f"Too many requests: {tmr}")
+                    self.logger.warning(f"Too many requests: {tmr}")
                     print('Repeating {} / {} after 10s.'.format(st+1, n))
                     time.sleep(10)
                     continue
 
                 except ApiNotFound as e:
-                    self.log_ui(f'{e} Not Found this tweet')
+                    self.logger.error(f'{e} Not Found this tweet: {status_num}')
 
                 except Unauthorized as un:
-                    self.log_ui(f"{un}: {status_list[st]}")
+                    self.logger.error(f"{un}: {status_list[st]}")
                     # return False
 
-                text = ('\tStatus saved: {} / {}'.format(st+1, n))
-                self.log_ui(text)
+                text = ('Status saved: {} / {}'.format(st+1, n))
+                self.logger.debug(text)
                 st += 1
             return True
 
@@ -260,13 +259,13 @@ class Analyzer(TwitterApi):
                 if os.path.exists(file_path):
                     try:
                         os.remove(file_path)
-                        self.log_ui(f'Removed: {file_path}')
+                        self.logger.debug(f'Removed: {file_path}')
                     except PermissionError:
-                        self.log_ui(f' PermissionError: Close this file {file_name}')
+                        self.logger.error(f'PermissionError: Close this file {file_name}')
                 else:
-                    self.log_ui(f'File does not exists {file_path}')
+                    self.logger.error(f'File does not exists {file_path}')
             else:
-                self.log_ui(f"File {file_name} is not *.csv")
+                self.logger.error(f"File {file_name} is not .csv")
 
     def delete_less(self, n=200):
         """Procedure, Finds Tweets .csv, Removes them."""
@@ -274,24 +273,23 @@ class Analyzer(TwitterApi):
         for f in file_list:
             df = pd.read_csv(f, sep=';', encoding='utf8')
             if df.shape[0] < n:
-                # self.log_ui('Smaller file '+ f)
                 self.delete_csv(f)
             else:
                 pass
-        self.log_ui(f'Done removing')
+        self.logger.debug(f'Done removing')
 
     def drop_tweet_in_df(self, index):
         if self.DF is not None:
             df = self.DF
             if 0 > index > len(df):
-                self.log_ui("Invalid index, can not drop tweet")
+                self.logger.error("Invalid index, can not drop tweet")
                 return None
 
             df = df.drop(df.index[index])
             if self.filter_conditions(df):
                 self.DF = df
         else:
-            self.log_ui('DF is empty. Load some tweets first.')
+            self.logger.warning('DF is empty. Load some tweets first.')
 
     def drop_duplicates_from_df(self, keep_new=True):
         if keep_new:
@@ -306,10 +304,10 @@ class Analyzer(TwitterApi):
                 self.DF = df
                 return True
         else:
-            self.log_ui('DF is empty. Load some tweets first.')
+            self.logger.warning('DF is empty. Load some tweets first.')
 
-    @staticmethod
-    def export_tweet_to_database(_data_dir, tweet, filename='default', delay=0):
+    # @staticmethod
+    def export_tweet_to_database(self, _data_dir, tweet, filename='default', delay=0):
         if delay > 0:
             time.sleep(delay)
         if type(filename) != str:
@@ -352,6 +350,8 @@ class Analyzer(TwitterApi):
                             file.write(text)
 
                     except UnicodeEncodeError:
+                        self.logger.error(f"UnicodeError while saving:")
+                        self.logger.error(f"'{tweet}'")
                         file.write('UnicodeEncodeError')
 
                     if i < len(header)-1:
@@ -359,15 +359,16 @@ class Analyzer(TwitterApi):
                 file.write('\n')
             return True
         except PermissionError:
-            th = threading.Thread(target=lambda: Analyzer.export_tweet_to_database(_data_dir, tweet, filename, 15))
+            th = threading.Thread(
+                target=lambda: Analyzer.export_tweet_to_database(Analyzer(), _data_dir, tweet, filename, 15)
+            )
             th.start()
-
-            Analyzer.log_ui(Analyzer(), 'PermissionError, created background thread to save data')
+            self.logger.error(f"Permission error: {filename}, created background thread to save data")
             return None
 
     def filter_by_existing_key(self, key, inverted=False):  # Fix exceptions, bool type
         if not key or key == '' or key not in self.DF.keys():
-            self.log_ui('Wrong key to filter.')
+            self.logger.warning('Invalid key to filter.')
             return False
         df = self.DF
         if df is None:
@@ -380,7 +381,6 @@ class Analyzer(TwitterApi):
 
         if self.filter_conditions(df):
             self.DF = df
-            # self.log_ui(f'Found tweets with values in {key}')
             return True
         else:
             return False
@@ -389,10 +389,10 @@ class Analyzer(TwitterApi):
         if df.shape[0] > 0 and df.shape != self.DF.shape:
             return True
         elif df.shape[0] > 0:
-            self.log_ui('Invalid filtration! DF size is the same.')
+            self.logger.debug('DF size is the same.')
             return False
         else:
-            self.log_ui('Invalid filtration! DF is empty.')
+            self.logger.debug('DF is empty.')
             return False
 
     def filter_df_by_lang(self, lang, inverted=False):
@@ -407,11 +407,11 @@ class Analyzer(TwitterApi):
                 self.DF = df
                 return True
         else:
-            self.log_ui('DF is empty. Load some tweets first.')
+            self.logger.warning('DF is empty. Load some tweets first.')
 
     def filter_df_search_phrases(self, words, only_in_text=True, inverted=False):
         if self.DF is None:
-            self.log_ui('DF is empty. Load some tweets first.')
+            self.logger.warning('DF is empty. Load some tweets first.')
             return False
 
         if only_in_text:
@@ -439,13 +439,13 @@ class Analyzer(TwitterApi):
                 self.DF = df
                 return True
         else:
-            self.log_ui('DF is empty. Load some tweets first.')
+            self.logger.warning('DF is empty. Load some tweets first.')
 
     def filter_df_by_tweet_id(self, tweet_id, inverted=False):
         try:
             tweet_id = int(tweet_id)
         except ValueError as ve:
-            self.log_ui(f"Invalid Tweet id. {ve}")
+            self.logger.warning(f"Invalid Tweet id. {ve}")
             return None
 
         if self.DF is not None:
@@ -458,13 +458,13 @@ class Analyzer(TwitterApi):
                 self.DF = df
                 return True
         else:
-            self.log_ui('DF is empty. Load some tweets first.')
+            self.logger.warning('DF is empty. Load some tweets first.')
 
     def filter_df_by_user_id(self, user_id, inverted=False):
         try:
             user_id = int(user_id)
         except ValueError as ve:
-            self.log_ui(f"Invalid user id. {ve}")
+            self.logger.warning(f"Invalid user id. {ve}")
             return None
 
         if self.DF is not None:
@@ -477,7 +477,7 @@ class Analyzer(TwitterApi):
                 self.DF = df
                 return True
         else:
-            self.log_ui('DF is empty. Load some tweets first.')
+            self.logger.warning('DF is empty. Load some tweets first.')
 
     def find_local_tweets(self, path=None):
         """Find local tweets files"""
@@ -491,7 +491,7 @@ class Analyzer(TwitterApi):
     def find_parent_tweets(self, retweets=True, quoted=True):
         """Method will search quoted status ids and retweets id in current DF"""
         if self.DF is None:
-            self.log_ui("Load DF first")
+            self.logger.warning("Load DF first")
             return False
         parent_ids = []
 
@@ -532,37 +532,30 @@ class Analyzer(TwitterApi):
         valid_load = True
         self.DF = None
         self.loaded_to_DF = []
-        text = 'Loading Tweets:'
         for file in file_list:
             if os.path.isabs(file):
                 file_path = file
             else:
                 file_path = os.path.abspath(os.path.join(self._data_dir, file))
             try:
+                self.logger.info(f"Loading: {file}")
                 df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
             except ParserError as pe:
-                self.log_ui(f"Pandas Error: Can not load this file {file}.{pe}")
+                self.logger.error(f"Pandas Error: Can not load this file {file}.{pe}")
                 valid_load = False
                 continue
 
             except UnicodeDecodeError as ue:
-                self.log_ui(f"Decode Error in: {file}. {ue}")
+                self.logger.error(f"Decode Error in file: {file}. {ue}")
                 valid_load = False
                 continue
 
             self.loaded_to_DF += [file]
-            text += f'\n\t {file}'
             if self.DF is None:
                 self.DF = df
             else:
                 self.DF = pd.concat([self.DF, df], ignore_index=True)
-        self.log_ui(text)
         return valid_load
-
-    def log_ui(self, text):
-        print(text)
-        if self.log_ui_ref:
-            self.log_ui_ref(text)
 
     @staticmethod
     def now_as_text():
@@ -579,22 +572,22 @@ class Analyzer(TwitterApi):
         self.DF = None
         text = 'Reloading Tweets:'
         if not self.loaded_to_DF:
-            self.log_ui('Never loaded anything!')
+            self.logger.warning('Never loaded anything!')
             return False
 
         for file in self.loaded_to_DF:
             file_path = os.path.join(self._data_dir, file)
             try:
                 df = pd.read_csv(file_path, sep=';', encoding='utf8')
-                text += f'\n\t {file}'
+                text += f'\n{file}'
                 if self.DF is None:
                     self.DF = df
                 else:
                     self.DF = pd.concat([self.DF, df], ignore_index=True)
             except FileNotFoundError:
-                text += f'Missing file: {file}'
+                self.logger.error(f'Can not reload missing file: {file}')
                 continue
-        self.log_ui(text)
+        self.logger.info(text)
 
     def save_current_df(self, extra_text=None):
         if extra_text:
@@ -607,13 +600,19 @@ class Analyzer(TwitterApi):
 
     def save_df(self, df, file_path):
         if df is None:
-            self.log_ui('DF is empty!')
+            self.logger.warning('DF is empty!')
             return None
         else:
+            saved = False
             with open(file_path, 'wt', encoding='utf8') as f:
                 df.to_csv(f, sep=';', encoding='utf8', index=False)
-                self.log_ui(f'Saved DF to file: {os.path.abspath(file_path)}')
+                saved = True
+            if saved:
+                self.logger.info(f'Saved DF to file: {os.path.abspath(file_path)}')
                 return True
+            else:
+                self.logger.error(f'Failed to save DF to file: {os.path.abspath(file_path)}')
+                return False
 
     @staticmethod
     def timestamp_from_date(year=1990, month=1, day=1, hour=0, minute=0):
