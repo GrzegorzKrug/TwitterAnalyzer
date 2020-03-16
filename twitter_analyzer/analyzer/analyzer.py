@@ -210,6 +210,7 @@ class Analyzer(TwitterApi):
                 now = self.now_as_text()
                 filename = f"Tweets_{now}"
             st = 0
+            status_list = list(set(status_list))  # Drop duplicated numbers
             n = len(status_list)
             while st < n:
                 status_num = status_list[st]
