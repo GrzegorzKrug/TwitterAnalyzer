@@ -248,7 +248,7 @@ p, li { white-space: pre-wrap; }
            <string>Loads files from tree.</string>
           </property>
           <property name="text">
-           <string>Load selected</string>
+           <string>Load selected to DF</string>
           </property>
          </widget>
         </item>
@@ -535,11 +535,14 @@ p, li { white-space: pre-wrap; }
          <widget class="QLabel" name="label">
           <property name="geometry">
            <rect>
-            <x>220</x>
+            <x>470</x>
             <y>10</y>
             <width>81</width>
             <height>21</height>
            </rect>
+          </property>
+          <property name="toolTip">
+           <string>This status says if credentials were verified by tweeter.</string>
           </property>
           <property name="text">
            <string>Verified:</string>
@@ -548,14 +551,17 @@ p, li { white-space: pre-wrap; }
          <widget class="QLabel" name="label_login_status">
           <property name="geometry">
            <rect>
-            <x>220</x>
-            <y>40</y>
+            <x>470</x>
+            <y>30</y>
             <width>91</width>
             <height>21</height>
            </rect>
           </property>
           <property name="mouseTracking">
            <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>This status says if credentials were verified by tweeter.</string>
           </property>
           <property name="styleSheet">
            <string notr="true">background-color: rgb(190, 170, 170);
@@ -568,24 +574,25 @@ color: rgb(255, 255, 255);</string>
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
-         <widget class="QPushButton" name="pushButton_request_parent_tweets">
+         <widget class="QPushButton" name="pushButton_request_parent_tweets_from_df">
           <property name="geometry">
            <rect>
             <x>10</x>
             <y>70</y>
             <width>141</width>
-            <height>23</height>
+            <height>41</height>
            </rect>
           </property>
           <property name="text">
-           <string>Get parent tweets</string>
+           <string>Get parent tweets
+from DF</string>
           </property>
          </widget>
          <widget class="QPushButton" name="pushButton_Request_Status">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>100</y>
+            <y>140</y>
             <width>141</width>
             <height>23</height>
            </rect>
@@ -601,13 +608,27 @@ color: rgb(255, 255, 255);</string>
           <property name="geometry">
            <rect>
             <x>160</x>
-            <y>100</y>
+            <y>140</y>
             <width>151</width>
             <height>23</height>
            </rect>
           </property>
           <property name="toolTip">
            <string>Input index for Jump button.</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButton_request_parent_tweets_from_files">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>70</y>
+            <width>141</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Get parent tweets
+from files</string>
           </property>
          </widget>
         </widget>
@@ -1170,7 +1191,7 @@ color: rgb(255, 255, 255);</string>
      <x>0</x>
      <y>0</y>
      <width>1440</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="actionMenuAuth">
