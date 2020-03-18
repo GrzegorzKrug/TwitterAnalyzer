@@ -16,7 +16,7 @@ Clone this repository
 
 Run this command to install package with `setup.py`
 
-`pip install -e .`
+`pip install .`
 
 or install just dependencies
 
