@@ -526,6 +526,7 @@ class Analyzer(TwitterApi):
         return unique
 
     def fork_method(self, method_to_fork, *args, **kwargs):
+        self.logger.debug(f"Forking '{method_to_fork}'")
         subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
         subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
         subprocess.start()

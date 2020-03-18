@@ -42,9 +42,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.download_full_chunk))
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
         self.pushButton_Request_Status.clicked.connect(self.request_status_from_box)
-        self.pushButton_request_parent_tweets.clicked.connect(lambda: self.fork_method(
+        self.pushButton_request_parent_tweets_from_files.clicked.connect(lambda: self.fork_method(
             method_to_fork=self.download_parent_tweets,
             file_list=self.current_tree_selection()
+        ))
+        self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: self.fork_method(
+            method_to_fork=self.download_parent_tweets,
+            df=self.DF
         ))
 
         'Settings'
@@ -216,10 +220,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         app.collect_new_tweets(n=10, chunk_size=200, interval=60)
 
     @staticmethod
-    def download_parent_tweets(file_list):
-        # list = self.current_tree_selection()
-        app = Analyzer(auto_login=True)
-        app.load_df(file_list)
+    def download_parent_tweets(file_list=None, df=None):
+        if (file_list is None or file_list == []) and df is None:
+            Analyzer().logger.error(f"Missing input, file_list: {file_list}, df: {df}")
+            return None
+        app = Analyzer(auto_login=False)
+        if file_list:
+            app.load_df(file_list)
+        else:
+            app.DF = df.copy()
         status_list = app.find_parent_tweets()
         app.collect_status(status_list=status_list, filename=f'Parent_{Analyzer.now_as_text()}')
 
