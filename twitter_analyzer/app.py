@@ -230,7 +230,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         else:
             app.DF = df.copy()
         status_list = app.find_parent_tweets()
-        app.collect_status(status_list=status_list, filename=f'Parent_{Analyzer.now_as_text()}')
+        app.collect_status_list(status_list=status_list, file_name=f'Parent_{Analyzer.now_as_text()}')
 
     def load_selected(self):
         self.currTweetDF_ind = -1
@@ -397,7 +397,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         except ValueError:
             self.add_log('This is not a number')
             return None
-        self.collect_status([num])
+        self.collect_status_list([num])
 
     def show_tree(self):
         path = self._data_dir

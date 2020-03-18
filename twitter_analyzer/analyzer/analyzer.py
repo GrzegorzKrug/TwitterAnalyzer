@@ -215,50 +215,66 @@ class Analyzer(TwitterApi):
         finally:
             pass
 
-    def collect_status(self, status_list, filename=None):
+    def collect_status_list(self, status_list, file_name=None):
         """Requests all status from List"""
         if type(status_list) is not list:
             self.logger.error(f"This is not list: '{status_list}'")
             return False
-        try:
-            if filename is None:
-                now = self.now_as_text()
-                filename = f"Tweets_{now}"
-            st = 0
-            status_list = list(set(status_list))  # Drop duplicated numbers
-            n = len(status_list)
-            while st < n:
-                status_num = status_list[st]
-                try:
-                    this_st = self.request_status(status_num)
-                    if st == 0:
-                        self.logger.debug(f"New tweets file: '{filename + '.csv'}'")
-                    if this_st:
-                        self.add_timestamp_attr(this_st)
-                        self.export_tweet_to_database(self._data_dir, this_st, filename)
-                    else:
-                        self.logger.error("No tweets, None object received.")
 
-                except TooManyRequests as tmr:
-                    self.logger.warning(f"Too many requests: {tmr}")
-                    print('Repeating {} / {} after 10s.'.format(st+1, n))
-                    time.sleep(10)
-                    continue
+        if file_name is None:
+            now = self.now_as_text()
+            file_name = f"Tweets_{now}" + '.csv'
+        st = 0
+        status_list = list(set(status_list))  # Drop duplicated numbers
+        n = len(status_list)
+        threads = []
+        for st, status_num in enumerate(status_list):
+            if st % 25 == 0:
+                for th in threads:
+                    th.join()
+                threads = []
+            if st == 0:
+                self.logger.debug(f"New tweets file: '{file_name}'")
+            th = self.fork_method(
+                method_to_fork=self.collect_status_list_thread,
+                file_name=file_name, status_num=status_num, this_tweet_num=st, all_tweets=n)
+            threads.append(th)
 
-                except ApiNotFound as e:
-                    self.logger.error(f'{e} Not Found this tweet: {status_num}')
+        for th in threads:
+            th.join()
 
-                except Unauthorized as un:
-                    self.logger.error(f"{un}: {status_list[st]}")
-                    # return False
+        self.logger.debug(f"All threads finished")
+        return True
 
-                text = ('Status saved: {} / {}'.format(st+1, n))
-                self.logger.debug(text)
-                st += 1
-            return True
+    @staticmethod
+    def collect_status_list_thread(file_name, status_num, this_tweet_num, all_tweets):
+        app = Analyzer()
+        while True:
+            try:
+                this_st = app.request_status(status_num)
 
-        finally:
-            pass
+                if this_st:
+                    app.add_timestamp_attr(this_st)
+                    app.export_tweet_to_database(app._data_dir, this_st, file_name)
+                    break
+                else:
+                    app.logger.error("No tweets, None object received.")
+                    return None
+
+            except TooManyRequests as tmr:
+                app.logger.warning(f"Too many requests: {tmr}")
+                time.sleep(10)
+
+            except ApiNotFound as e:
+                app.logger.error(f'{e} Not Found this tweet: {status_num}')
+                return None
+
+            except Unauthorized as un:
+                app.logger.error(f"{un}: {status_num}")
+                return None
+
+        app.logger.debug(f"Status saved: {this_tweet_num} / {all_tweets}")
+
 
     def delete_csv(self, file_list):
         """Removes tweets_ only !"""
