@@ -12,13 +12,15 @@ Clone this repository
     conda create -n analyzer python==3.8.1
     conda activate analyzer
     
-#### Install Package with editable state
-*(I hope it is temporary)*  
-Navigate to root directory.
+#### Install 
 
-Run this command to install dependencies from `setup.py`
+Run this command to install package with `setup.py`
 
 `pip install -e .`
+
+or install just dependencies
+
+`pip install -r requirements.txt`
 
 ## Usage
 Gui has 3 main tabs
