@@ -1,6 +1,8 @@
 import logging
 import os
 import datetime
+import random
+
 
 def define_logger(name="Logger", log_level="DEBUG", combined=True, add_timestamp=True):
     if combined:
@@ -9,7 +11,7 @@ def define_logger(name="Logger", log_level="DEBUG", combined=True, add_timestamp
         file_name = name + ".log"
 
     if add_timestamp:
-        unique_name = str(datetime.datetime.now())
+        unique_name = str(random.random())  # Random unique
     else:
         unique_name = name
     logger = logging.getLogger(unique_name)
