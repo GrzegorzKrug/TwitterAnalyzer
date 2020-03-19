@@ -40,6 +40,52 @@ class Analyzer(TwitterApi):
         """Adding time stamp to tweet dict"""
         tweet['timestamp'] = round(time.time())
 
+    def auto_collect_home_tab(self, n=10, chunk_size=200, interval=60, file_name=None):
+        """Loop that runs N times, and collect Tweet x chunk_size
+        Twitter rate limit is 15 times in 15 mins"""
+        if file_name is None:
+            now = datetime.datetime.now()
+            file_name = "Home_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}". \
+                format(y=str(now.year).rjust(4, '0'), mon=str(now.month).rjust(2, '0'),
+                       d=str(now.day).rjust(2, '0'), h=str(now.hour).rjust(2, '0'),
+                       m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
+                       interval=str(interval).rjust(3, '0'), count=str(chunk_size).rjust(3, '0'))
+            file_with_ext = file_name + '.csv'
+        ch = 1
+        while ch < n + 1:
+            try:
+                if ch == 1:
+                    self.logger.debug(f"Created file for tweets: {file_with_ext}")
+                valid = self.collect_tweets_on_home_tab(chunk_size=chunk_size, file_name=file_name)
+                if valid:
+                    self.logger.debug(f"Dropping duplicates from home timeline: {file_name}")
+                    app = Analyzer()
+                    valid = app.load_df([file_with_ext])
+                    if valid:
+                        resp = app.drop_duplicates_from_df()
+                    if valid and resp is not False:  # In case drop duplicates fails process further
+                        app.save_current_df(full_name=file_name)
+                    else:
+                        self.logger.error("Duplicate drop not succeed in auto_home_line")
+
+            except TooManyRequests as e:
+                self.logger.warning(f"Too many requests: {e}")
+                self.logger.debug('Repeating chunk {} / {} after 21s.'.format(ch, n))
+                time.sleep(21)
+                continue
+
+            except Unauthorized as e:
+                self.logger.critical(str(e))
+                return False
+
+            self.logger.debug(f"Tweets chunk saved: {ch} / {n}")
+            if ch >= n:
+                break
+            if interval > 0:
+                self.logger.debug('Sleeping {}s'.format(interval))
+                time.sleep(interval)
+            ch += 1
+
     @staticmethod
     def check_series_time_condition(time_series, timestamp_min, timestamp_max):
         """Times series are defined by tweeter,
@@ -166,55 +212,6 @@ class Analyzer(TwitterApi):
                 return resp
             return False
 
-    def collect_new_tweets(self, n=10, chunk_size=200, interval=60, filename=None):
-        """Loop that runs N times, and collect Tweet x chunk_size
-        Twitter rate limit is 15 times in 15 mins"""
-        try:
-            if filename is None:
-                now = datetime.datetime.now()
-                filename = "Home_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}".\
-                    format(y=str(now.year).rjust(4, '0'), mon=str(now.month).rjust(2, '0'),
-                           d=str(now.day).rjust(2, '0'), h=str(now.hour).rjust(2, '0'),
-                           m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
-                           interval=str(interval).rjust(3, '0'), count=str(chunk_size).rjust(3, '0'))
-            ch = 1
-            while ch < n + 1:
-                try:
-                    home_tweets = self.collectHomeLine(chunk_size=chunk_size)
-                    if ch == 1:
-                        self.logger.debug('New tweets -> {}'.format(filename + '.csv'))
-                    if len(home_tweets) != chunk_size:
-                        self.logger.warning(
-                            'Missing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size))
-                        )
-                    if home_tweets:
-                        for i, tweet in enumerate(home_tweets):
-                            self.add_timestamp_attr(tweet)
-                            self.export_tweet_to_database(self._data_dir, tweet, filename)
-                    else:
-                        self.logger.error("No tweets, None object received.")
-                except TooManyRequests as e:
-                    self.logger.warning(f"Too many requests: {e}")
-                    self.logger.debug('Repeating chunk {} / {} after 21s.'.format(ch, n))
-                    time.sleep(21)
-                    continue
-
-                except Unauthorized as e:
-                    self.logger.critical(str(e))
-                    return False
-
-                self.logger.debug(f"Tweets chunk saved: {ch} / {n}")
-                if ch >= n:
-                    break
-                if interval > 0:
-                    self.logger.debug('Sleeping {}s'.format(interval))
-                    time.sleep(interval)
-                ch += 1
-
-            return True
-        finally:
-            pass
-
     def collect_status_list(self, status_list, file_name=None):
         """Requests all status from List"""
         if type(status_list) is not list:
@@ -275,6 +272,23 @@ class Analyzer(TwitterApi):
 
         app.logger.debug(f"Status saved: {this_tweet_num} / {all_tweets}")
 
+    def collect_tweets_on_home_tab(self, chunk_size, file_name):
+        """Request home line, catch exceptions"""
+        home_tweets = self.request_home_timeline(chunk_size=chunk_size)
+
+        if len(home_tweets) != chunk_size:
+            self.logger.warning(
+                'Missing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size))
+            )
+        if home_tweets:
+            for i, tweet in enumerate(home_tweets):
+                self.add_timestamp_attr(tweet)
+                self.export_tweet_to_database(self._data_dir, tweet, file_name)
+        else:
+            self.logger.error("No tweets, None object received.")
+            return False
+
+        return True
 
     def delete_csv(self, file_list):
         """Removes tweets_ only !"""
@@ -319,6 +333,7 @@ class Analyzer(TwitterApi):
 
             df = df.drop(df.index[index])
             if self.filter_conditions(df):
+                self.logger.debug(f"Successfully dropped this tweet, index: {index}")
                 self.DF = df
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
@@ -333,8 +348,11 @@ class Analyzer(TwitterApi):
             df = self.DF
             df = df.sort_values('timestamp').drop_duplicates(subset=['id'], keep=keep)
             if self.filter_conditions(df):
+                self.logger.debug("Successfully dropped duplicates")
                 self.DF = df
                 return True
+            else:
+                self.logger.warning("Could not drop duplicates")
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
 
@@ -412,6 +430,7 @@ class Analyzer(TwitterApi):
             df = df.loc[(df[key] is not None) & (df[key] != 0) & (df[key] != 'None')]
 
         if self.filter_conditions(df):
+            self.logger.debug(f"Successfully filtered by existing key: {key}")
             self.DF = df
             return True
         else:
@@ -419,7 +438,6 @@ class Analyzer(TwitterApi):
 
     def filter_conditions(self, df):
         if df.shape[0] > 0 and df.shape != self.DF.shape:
-            self.logger.debug("Filter completed successfully")
             return True
         elif df.shape[0] > 0:
             self.logger.debug('DF size is the same.')
@@ -438,6 +456,7 @@ class Analyzer(TwitterApi):
 
             if self.filter_conditions(df):
                 self.DF = df
+                self.logger.debug(f"Successfully filtered by language: {lang}")
                 return True
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
@@ -451,15 +470,16 @@ class Analyzer(TwitterApi):
             method = Analyzer.check_series_words_in_text
         else:
             method = Analyzer.check_series_words_anywhere
-
         stages = re.split(';', words)  # Separating stages
         df = self.DF
 
         for filtration_stage in stages:
+            self.logger.debug(f"Filtering df with phrases: {filtration_stage}, method: {method}")
             df = df.loc[lambda _df: method(_df, filtration_stage, inverted=inverted)]
 
         if self.filter_conditions(df):
             self.DF = df
+            self.logger.debug(f"Successfully filtered tweets by phrases")
             return True
 
     def filter_df_by_timestamp(self, time_stamp_min, time_stamp_max):
@@ -470,6 +490,7 @@ class Analyzer(TwitterApi):
                 time_stamp_max)]
             if self.filter_conditions(df):
                 self.DF = df
+                self.logger.debug(f"Successfully filtered tweets in time range")
                 return True
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
@@ -489,6 +510,7 @@ class Analyzer(TwitterApi):
 
             if self.filter_conditions(df):
                 self.DF = df
+                self.logger.debug(f"Successfully filtered tweets by tweet_id: {tweet_id}")
                 return True
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
@@ -498,6 +520,7 @@ class Analyzer(TwitterApi):
             df = self.DF.loc[lambda _df: self.check_series_user_text(_df, user_text, inverted=inverted)]
             if self.filter_conditions(df):
                 self.DF = df
+                self.logger.debug(f"Successfully filtered tweets by user data: {user_text}")
                 return True
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
@@ -581,6 +604,34 @@ class Analyzer(TwitterApi):
                 self.DF = pd.concat([self.DF, df], ignore_index=True)
         return valid_load
 
+    def merge_without_duplicates(self, files, output_filename=None):
+        if not output_filename:
+            default_name = 'Auto_Merge' + '_' + self.now_as_text()
+            file_with_ext = default_name + '.csv'
+        else:
+            file_with_ext = output_filename + '.csv'
+
+        app = Analyzer()
+        valid = app.load_df(files)
+        if valid:
+            resp = app.drop_duplicates_from_df()
+        if valid and resp is not False:  # If drop duplicates fails, process further anyway
+            if output_filename:
+                valid = app.save_current_df(full_name=output_filename)
+            else:
+                valid = app.save_current_df(full_name=default_name)
+        if valid:  # Delete only if chain is valid
+            for curr_file in files:
+                if file_with_ext == curr_file:
+                    self.logger.warning(f"File names are the same! Not deleting: {curr_file}")
+                    continue
+                curr_file_path = os.path.join(self._data_dir, curr_file)
+                try:
+                    os.remove(curr_file_path)
+                    self.logger.debug(f"Removed this file: {curr_file_path}")
+                except PermissionError:
+                    self.logger.error(f"Can not remove: {curr_file_path}")
+
     @staticmethod
     def now_as_text():
         now = datetime.datetime.now()
@@ -613,12 +664,17 @@ class Analyzer(TwitterApi):
                 continue
         self.logger.info(text)
 
-    def save_current_df(self, extra_text=None):
+    def save_current_df(self, full_name=None, extra_text=None):
         if extra_text:
-            text = extra_text + '_'
+            text = extra_text
         else:
-            text = 'DataFrame_'
-        file_path = os.path.join(self._data_dir, text + self.now_as_text() + '.csv')
+            text = 'DataFrame'
+        text = text + '_' + self.now_as_text()
+
+        if full_name:
+            text = full_name
+
+        file_path = os.path.join(self._data_dir, text + '.csv')
         valid = self.save_df(self.DF, file_path)
         return valid
 
