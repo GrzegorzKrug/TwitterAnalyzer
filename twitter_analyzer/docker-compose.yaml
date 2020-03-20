@@ -1,0 +1,8 @@
+version: '3.3'
+
+services:  
+  postgres_db:
+      # build: .
+      image: postgres:10.0-alpine
+      environment:
+        - POSTGRES_PASSWORD=12341234
