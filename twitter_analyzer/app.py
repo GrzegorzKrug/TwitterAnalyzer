@@ -63,7 +63,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
         self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
         self.pushButton_merge_selected.clicked.connect(self.merge_selected)
-        self.pushButton_export_DF.clicked.connect(lambda: self.save_current_df(self.lineEdit_DF_comment.text()))
+        self.pushButton_export_DF.clicked.connect(lambda: self.save_current_df(extra_text=self.lineEdit_DF_comment.text()))
         self.pushButton_Info_screenLog.clicked.connect(self.copy_info_to_logs)
         self.pushButton_showTweets.clicked.connect(self.show_df_info)
         self.pushButton_reload_DF.clicked.connect(self.reset_df)
@@ -128,7 +128,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     @staticmethod
     def download_full_chunk():
         app = Analyzer(auto_login=True)
-        app.collect_new_tweets(n=1, chunk_size=200, interval=0)
+        app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
 
     def check_settings_inverted(self):
         return False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
@@ -217,7 +217,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     @staticmethod
     def download10_chunks():
         app = Analyzer(auto_login=True)
-        app.collect_new_tweets(n=10, chunk_size=200, interval=60)
+        app.auto_collect_home_tab(n=10, chunk_size=200, interval=60)
 
     @staticmethod
     def download_parent_tweets(file_list=None, df=None):
@@ -285,21 +285,6 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
     def merge_without_duplicates_trigger(self):
         files = self.current_tree_selection()
         self.fork_method(self.merge_without_duplicates, files)
-
-    def merge_without_duplicates(self, files):
-        app = Analyzer()
-        valid = app.load_df(files)
-        if valid:
-            resp = app.drop_duplicates_from_df()
-        if valid and resp is not False:  # In case drop duplicates fails process further
-            valid = app.save_current_df('Auto_Merge')
-        if valid:  # Delete only if chain is valid
-            for curr_file in files:
-                curr_file_path = os.path.join(self._data_dir, curr_file)
-                try:
-                    os.remove(curr_file_path)
-                except PermissionError:
-                    self.add_log(f'Merged, but can not remove {curr_file_path}')
 
     def open_in_browser(self):
         if self.DF is not None:

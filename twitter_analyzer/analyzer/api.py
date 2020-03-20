@@ -95,7 +95,8 @@ class TwitterApi:
             self.logger_api.error("Authorization failed! Invalid or expired token.")
             return False, None
 
-    def collectHomeLine(self, chunk_size=200):
+    def request_home_timeline(self, chunk_size=200):
+        """Api that requests from endpoint of home timeline"""
         if chunk_size < 0:
             chunk_size = 1
         elif chunk_size > 200:
