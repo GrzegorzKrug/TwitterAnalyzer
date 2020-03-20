@@ -161,12 +161,15 @@ class Analyzer(TwitterApi):
     @staticmethod
     def check_series_user_text(series, user_text, inverted=False):
         user_text = user_text.lower()
-        words = re.split('[|+,\n\r]', user_text)  # split phrases but ignore spaces
-        Analyzer().logger.debug(f"filter words: '{words}'")
-        # Remove start-end spaces
-        words = [w.lstrip(" ").rstrip(" ") for w in words if len(w.lstrip(" ").rstrip(" ")) > 0]
         out = []  # Empty out list
         data = series['user']
+
+        words = re.split('[|+,\n\r]', user_text)  # split phrases but ignore spaces
+        words = [
+            w.lstrip(" ").rstrip(" ")
+            for w in words
+            if len(w.lstrip(" ").rstrip(" ")) > 0]  # Remove start-end spaces in phrases only! Drop empty words
+
         for row in data:
             word_checked = False
             if str(row).lower() == 'nan':
@@ -179,7 +182,6 @@ class Analyzer(TwitterApi):
                 user_id = str(user_dict['id'])
                 name = user_dict['name'].lower()
                 alias = user_dict['screen_name'].lower()
-                # Analyzer().logger.debug(f"User: '{name}','{alias}', '{user_id}'")
                 for word in words:
                     if word in name or word in alias or word in user_id:
                         out.append(False if inverted else True)
