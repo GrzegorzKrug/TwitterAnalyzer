@@ -63,7 +63,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
         self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
         self.pushButton_merge_selected.clicked.connect(self.merge_selected)
-        self.pushButton_export_DF.clicked.connect(lambda: self.save_current_df(self.lineEdit_DF_comment.text()))
+        self.pushButton_export_DF.clicked.connect(lambda: self.save_current_df(extra_text=self.lineEdit_DF_comment.text()))
         self.pushButton_Info_screenLog.clicked.connect(self.copy_info_to_logs)
         self.pushButton_showTweets.clicked.connect(self.show_df_info)
         self.pushButton_reload_DF.clicked.connect(self.reset_df)

@@ -51,11 +51,11 @@ class Analyzer(TwitterApi):
                        m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
                        interval=str(interval).rjust(3, '0'), count=str(chunk_size).rjust(3, '0'))
             file_with_ext = file_name + '.csv'
-        ch = 1
+        self.logger.debug(f"Created file for tweets: {file_with_ext}")
+
+        ch = 1  # 1-based index for, UI friendly
         while ch < n + 1:
             try:
-                if ch == 1:
-                    self.logger.debug(f"Created file for tweets: {file_with_ext}")
                 valid = self.collect_tweets_on_home_tab(chunk_size=chunk_size, file_name=file_name)
                 if valid:
                     self.logger.debug(f"Dropping duplicates from home timeline: {file_name}")
@@ -281,7 +281,7 @@ class Analyzer(TwitterApi):
                 'Missing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size))
             )
         if home_tweets:
-            for i, tweet in enumerate(home_tweets):
+            for tweet in home_tweets:
                 self.add_timestamp_attr(tweet)
                 self.export_tweet_to_database(self._data_dir, tweet, file_name)
         else:
