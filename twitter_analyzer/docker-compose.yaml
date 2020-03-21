@@ -2,8 +2,8 @@ version: '3.3'
 
 services:  
   postgres_db:
-      build: .
-#      image: postgres:10.0-alpine
+#      build: .
+      image: postgres:10.0-alpine
       volumes:
         - ./database:/database
       environment:
