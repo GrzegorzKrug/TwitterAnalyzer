@@ -1,10 +1,10 @@
-from twitter_analyzer.analyzer import analyzer
+from twitter_analyzer.analyzer.operator import TwitterOperator
 import datetime
 timezone_offset = 3600
 
-fun = analyzer.Analyzer.check_series_time_condition
-timestamp_offset = analyzer.Analyzer.timestamp_offset
-timestamp_from_date = analyzer.Analyzer.timestamp_from_date
+fun = TwitterOperator.check_series_time_condition
+timestamp_offset = TwitterOperator.timestamp_offset
+timestamp_from_date = TwitterOperator.timestamp_from_date
 
 series = ['Sat Feb 22 11:24:15 +0000 2020',
           'Sat Feb 26 11:24:15 +0000 2020',
