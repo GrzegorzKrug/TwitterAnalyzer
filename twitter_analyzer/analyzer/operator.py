@@ -1,4 +1,4 @@
-# analyzer.py
+# operator.py
 # Grzegorz Krug
 
 import time
@@ -12,14 +12,14 @@ import re
 import ast
 
 from .custom_logger import define_logger
+from .api import TwitterApi
+from .api import Unauthorized, ApiNotFound, TooManyRequests
 from pandas.errors import ParserError
-from twitter_analyzer.analyzer.api import TwitterApi
-from twitter_analyzer.analyzer.api import Unauthorized, ApiNotFound, TooManyRequests
 
 
-class Analyzer(TwitterApi):
+class TwitterOperator(TwitterApi):
     def __init__(self, auto_login=False):
-        TwitterApi.__init__(self, auto_login=False)  # Do not login via api!
+        TwitterApi.__init__(self)
 
         self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
@@ -29,11 +29,11 @@ class Analyzer(TwitterApi):
         self.threads = []  # Thread reference list
         self.th_num = 0  # Thread counter
         self.loaded_to_DF = []
-        self.logger = define_logger("Analyzer")
+        self.logger = define_logger("Operator")
 
         if auto_login:
-            valid = self.login_procedure()
-            self.logger.debug(f"Auto_login status: '{valid}'")
+            valid = self.verify_procedure()
+            self.logger.debug(f"Credentials are valid: '{valid}'")
 
     @staticmethod
     def add_timestamp_attr(tweet):
@@ -59,7 +59,7 @@ class Analyzer(TwitterApi):
                 valid = self.collect_tweets_on_home_tab(chunk_size=chunk_size, file_name=file_name)
                 if valid:
                     self.logger.debug(f"Dropping duplicates from home timeline: {file_name}")
-                    app = Analyzer()
+                    app = TwitterOperator()
                     valid = app.load_df([file_with_ext])
                     if valid:
                         resp = app.drop_duplicates_from_df()
@@ -153,7 +153,7 @@ class Analyzer(TwitterApi):
         for i, df in enumerate(data):
             if out[i]:
                 continue
-            resp = Analyzer.check_series_quoted_status_recurrent(df, words)
+            resp = TwitterOperator.check_series_quoted_status_recurrent(df, words)
             if resp:
                 out[i] = False if inverted else True
         return out
@@ -210,7 +210,7 @@ class Analyzer(TwitterApi):
                 return False
 
             if quoted_tweet:  # If quoted tweet exists go deeper
-                resp = Analyzer.check_series_quoted_status_recurrent(quoted_tweet, words)
+                resp = TwitterOperator.check_series_quoted_status_recurrent(quoted_tweet, words)
                 return resp
             return False
 
@@ -223,7 +223,6 @@ class Analyzer(TwitterApi):
         if file_name is None:
             now = self.now_as_text()
             file_name = f"Tweets_{now}" + '.csv'
-        st = 0
         status_list = list(set(status_list))  # Drop duplicated numbers
         n = len(status_list)
         threads = []
@@ -247,7 +246,7 @@ class Analyzer(TwitterApi):
 
     @staticmethod
     def collect_status_list_thread(file_name, status_num, this_tweet_num, all_tweets):
-        app = Analyzer()
+        app = TwitterOperator()
         while True:
             try:
                 this_st = app.request_status(status_num)
@@ -261,8 +260,8 @@ class Analyzer(TwitterApi):
                     return None
 
             except TooManyRequests as tmr:
-                app.logger.warning(f"Too many requests: {tmr}")
-                time.sleep(10)
+                app.logger.warning(f"Collect status list: {tmr}")
+                time.sleep(60)
 
             except ApiNotFound as e:
                 app.logger.error(f'{e} Not Found this tweet: {status_num}')
@@ -273,6 +272,19 @@ class Analyzer(TwitterApi):
                 return None
 
         app.logger.debug(f"Status saved: {this_tweet_num} / {all_tweets}")
+
+    def check_threads(self) -> 'List[name]':
+        threads = self.threads
+        self.threads = []
+        out = []
+        for th in threads:
+            if th.isAlive():
+                self.logger.debug(f'{th.__name__} is still alive')
+                out.append(th.__name__)
+                self.threads += [th]
+            else:
+                pass
+        return out
 
     def collect_tweets_on_home_tab(self, chunk_size, file_name):
         """Request home line, catch exceptions"""
@@ -325,6 +337,40 @@ class Analyzer(TwitterApi):
             else:
                 pass
         self.logger.debug(f'Done removing')
+
+    @staticmethod
+    def download10_chunks():
+        app = TwitterOperator(auto_login=True)
+        app.auto_collect_home_tab(n=10, chunk_size=200, interval=60)
+
+    @staticmethod
+    def download_full_chunk():
+        app = TwitterOperator()
+        app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
+
+    @staticmethod
+    def download_parent_tweets(file_list=None, df=None):
+        if (file_list is None or file_list == []) and df is None:
+            TwitterOperator().logger.error(f"Missing input, file_list: {file_list}, df: {df}")
+            return None
+        app = TwitterOperator(auto_login=False)
+        if file_list:
+            app.load_df(file_list)
+        else:
+            app.DF = df.copy()
+        status_list = app.find_parent_tweets()
+        app.collect_status_list(status_list=status_list, file_name=f'Parent_{TwitterOperator.now_as_text()}')
+
+    def delete_selected(self, file_list):
+        if file_list is []:
+            self.logger.warning('List is empty!')
+            return None
+        for f in file_list:
+            try:
+                os.remove(os.path.join(self._data_dir, f))
+                self.logger.debug(f'Removed {f}')
+            except PermissionError as pe:
+                self.logger.error(f'File: {f}, {pe}')
 
     def drop_tweet_in_df(self, index):
         if self.DF is not None:
@@ -412,8 +458,7 @@ class Analyzer(TwitterApi):
             return True
         except PermissionError:
             th = threading.Thread(
-                target=lambda: Analyzer.export_tweet_to_database(Analyzer(), _data_dir, tweet, filename, 15)
-            )
+                target=lambda: TwitterOperator.export_tweet_to_database(TwitterOperator(), _data_dir, tweet, filename, 15))
             th.start()
             self.logger.error(f"Permission error: {filename}, created background thread to save data")
             return None
@@ -469,9 +514,9 @@ class Analyzer(TwitterApi):
             return False
 
         if only_in_text:
-            method = Analyzer.check_series_words_in_text
+            method = TwitterOperator.check_series_words_in_text
         else:
-            method = Analyzer.check_series_words_anywhere
+            method = TwitterOperator.check_series_words_anywhere
         stages = re.split(';', words)  # Separating stages
         df = self.DF
 
@@ -567,7 +612,7 @@ class Analyzer(TwitterApi):
         return unique
 
     def fork_method(self, method_to_fork, *args, **kwargs):
-        self.logger.debug(f"Forking '{method_to_fork}'")
+        self.logger.debug(f"Forking '{method_to_fork.__name__}'")
         subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
         subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
         subprocess.start()
@@ -606,14 +651,49 @@ class Analyzer(TwitterApi):
                 self.DF = pd.concat([self.DF, df], ignore_index=True)
         return valid_load
 
-    def merge_without_duplicates(self, files, output_filename=None):
+    def merge_selected(self, file_list):
+        if not file_list:
+            self.add_log('Error. Select files!')
+            return None
+        if len(file_list) <= 1:
+            self.add_log('You can not merge this.')
+            return None
+
+        now = datetime.datetime.now()
+        merged_file = 'merged_' \
+                      + f'{now.year}'.rjust(4, '0') \
+                      + f'{now.month}'.rjust(2, '0') \
+                      + f'{now.day}'.rjust(2, '0') \
+                      + '_' + f'{now.hour}'.rjust(2, '0') \
+                      + '-' + f'{now.minute}'.rjust(2, '0') \
+                      + '-' + f'{now.second}'.rjust(2, '0') \
+                      + '.csv'
+
+        file_path = os.path.join(self._data_dir, merged_file)
+        with open(file_path, 'wt', encoding='utf8') as f:
+            for i, file in enumerate(file_list):
+                curr_file_path = os.path.join(self._data_dir, file)
+                df = pd.read_csv(curr_file_path, sep=';', encoding='utf8')
+                if i == 0:
+                    df.to_csv(f, header=True, sep=';', encoding='utf8', index=False)
+                else:
+                    df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
+                try:
+                    os.remove(curr_file_path)
+                except PermissionError as pe:
+                    self.logger.error(f'Merge to file: {file}, {pe}')
+
+        self.logger.debug(f'Merged to file: {merged_file}')
+
+    @staticmethod
+    def merge_without_duplicates(files, output_filename=None):
+        app = TwitterOperator()
         if not output_filename:
-            default_name = 'Auto_Merge' + '_' + self.now_as_text()
+            default_name = 'Auto_Merge' + '_' + app.now_as_text()
             file_with_ext = default_name + '.csv'
         else:
             file_with_ext = output_filename + '.csv'
 
-        app = Analyzer()
         valid = app.load_df(files)
         if valid:
             resp = app.drop_duplicates_from_df()
@@ -625,14 +705,14 @@ class Analyzer(TwitterApi):
         if valid:  # Delete only if chain is valid
             for curr_file in files:
                 if file_with_ext == curr_file:
-                    self.logger.warning(f"File names are the same! Not deleting: {curr_file}")
+                    app.logger.warning(f"File names are the same! Not deleting: {curr_file}")
                     continue
-                curr_file_path = os.path.join(self._data_dir, curr_file)
+                curr_file_path = os.path.join(app._data_dir, curr_file)
                 try:
                     os.remove(curr_file_path)
-                    self.logger.debug(f"Removed this file: {curr_file_path}")
-                except PermissionError:
-                    self.logger.error(f"Can not remove: {curr_file_path}")
+                    app.logger.debug(f"Removed this file: {curr_file_path}")
+                except PermissionError as pe:
+                    app.logger.error(f"Can not remove: {curr_file_path}, {pe}")
 
     @staticmethod
     def now_as_text():
@@ -762,7 +842,7 @@ class Analyzer(TwitterApi):
 
 
 if __name__ == "__main__":
-    app = Analyzer(auto_login=False)
+    app = TwitterOperator(auto_login=False)
     app.load_df(['unittest_auto.csv'])
     app.filter_df_search_phrases(["tweet1"], only_in_text=True)
     # app.load_df(['Auto_Merge_20200308_21-31-23.csv'])

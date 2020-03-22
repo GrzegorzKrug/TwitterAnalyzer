@@ -1,6 +1,7 @@
 # api.py
 # Grzegorz Krug
 
+
 import requests
 import json
 import sys
@@ -11,7 +12,7 @@ from requests_oauthlib import OAuth1, OAuth1Session
 
 
 class TwitterApi:
-    def __init__(self, auto_login=True):
+    def __init__(self, verify=False):
         self.apiUrl = r'https://api.twitter.com/1.1/'
         self.apiUpload = r'https://upload.twitter.com/1.1/'
         self.logged_in = False
@@ -22,17 +23,21 @@ class TwitterApi:
         self.logger_api = define_logger("Api")
 
         self._set_auth()
-        if auto_login:
-            valid = self.login_procedure()
+        if verify:
+            valid = self.verify_procedure()
 
-    def login_procedure(self):
-        valid, self.me = self._verifyOAuth()
-        if valid:
-            self.logged_in = True
-            self.logger_api.info("Verified OAuth successfully")
+    def _make_request(self, full_url, params=None, header=None, extended=True):
+        if params is None:
+            params = {}
+        if extended:
+            params.update({'tweet_mode': 'extended'})
+
+        response = requests.get(full_url, headers=header, params=params, auth=self.auth)
+
+        if self._verify_response(response):
+            return True, response.json()
         else:
-            self.logger_api.error("Check 'analyzer\\Readme.md' if you got problems")
-        return valid
+            return False, None
 
     def _set_auth(self):
         file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
@@ -88,12 +93,32 @@ class TwitterApi:
             self.logger_api.debug('Checking credentials')
             response = requests.get(url, auth=self.auth)
 
-            self.verify_response(response)
+            self._verify_response(response)
             me = response.json()
             return True, me
         except Unauthorized:
             self.logger_api.error("Authorization failed! Invalid or expired token.")
             return False, None
+
+    @staticmethod
+    def _verify_response(response):
+        resp_code = response.status_code
+        if resp_code == 200:
+            return True
+        elif resp_code == 202:
+            return True
+        # elif resp_code == 400:
+        # pass
+        elif resp_code == 401:
+            raise Unauthorized('No access to this request')
+        # elif resp_code == 402:
+        #     pass
+        elif resp_code == 404:
+            raise ApiNotFound('Error 404')
+        elif resp_code == 429:
+            raise TooManyRequests('Error 429, too many requests.')
+        else:
+            raise Exception(f'Error {resp_code}: {response.json()}')
 
     def request_home_timeline(self, chunk_size=200):
         """Api that requests from endpoint of home timeline"""
@@ -105,21 +130,8 @@ class TwitterApi:
         params = {'count': chunk_size}
         full_url = self.apiUrl + r'/statuses/home_timeline.json'
         self.logger_api.debug("Requesting home timeline")
-        valid, data = self.make_request(full_url, params=params)
+        valid, data = self._make_request(full_url, params=params)
         return data
-
-    def make_request(self, full_url, params=None, header=None, extended=True):
-        if params is None:
-            params = {}
-        if extended:
-            params.update({'tweet_mode': 'extended'})
-
-        response = requests.get(full_url, headers=header, params=params, auth=self.auth)
-        
-        if self.verify_response(response):
-            return True, response.json()
-        else:
-            return False, None
 
     def post_image(self, imageBinary):
         full_url = self.apiUpload + r'/media/upload.json'
@@ -162,8 +174,8 @@ class TwitterApi:
             params = {}
         if files is None:
             files = {}
-        response = requests.post(fullUrl, headers=header, params=params, auth=self.auth)        
-        if self.verify_response(response):
+        response = requests.post(fullUrl, headers=header, params=params, auth=self.auth)
+        if self._verify_response(response):
             return True, response.json()
         else:
             return False, None
@@ -171,19 +183,19 @@ class TwitterApi:
     def post_status(self, text, image_path=None, image_binary=None):
         params = {}
         pic_id = None
-        
+
         if image_path:
             with open(image_path, 'rb') as image:
-                pic_id = self.post_image(image.read())            
+                pic_id = self.post_image(image.read())
             params.update({'media_ids': pic_id})
-            
+
         elif image_binary:
             pic_id = self.post_image(image_binary)
             params.update({'media_ids': pic_id})
-            
+
         if text:
             params.update({'status': str(text)})
-                    
+
         fullUrl = self.apiUrl + r'/statuses/update.json'
         self.logger_api.debug(f"Posing status")
         valid, data = self.post_request(fullUrl, params=params)
@@ -192,28 +204,17 @@ class TwitterApi:
         full_url = self.apiUrl + r'/statuses/show.json'
         params = {'id': int(status_id)}
         self.logger_api.debug(f"Requesting status: {status_id}")
-        valid, data = self.make_request(full_url, params=params)
+        valid, data = self._make_request(full_url, params=params)
         return data
         
-    @staticmethod
-    def verify_response(response):
-        resp_code = response.status_code
-        if resp_code == 200:
-            return True
-        elif resp_code == 202:
-            return True
-        # elif resp_code == 400:
-        # pass
-        elif resp_code == 401:
-            raise Unauthorized('No access to this request')
-        # elif resp_code == 402:
-        #     pass
-        elif resp_code == 404:
-            raise ApiNotFound('Error 404')
-        elif resp_code == 429:
-            raise TooManyRequests('Error 429, too many requests.')
-        else:            
-            raise Exception(f'Error {resp_code}: {response.json()}')
+    def verify_procedure(self):
+        valid, self.me = self._verifyOAuth()
+        if valid:
+            self.logged_in = True
+            self.logger_api.info("Verified OAuth successfully")
+        else:
+            self.logger_api.error("Check 'analyzer\\Readme.md' if you got problems")
+        return valid
 
 
 class Unauthorized(Exception):  # 401
@@ -241,6 +242,4 @@ class TooManyRequests(Exception):  # 429
 
 
 if __name__ == "__main__":
-    app = TwitterApi()
-    # app.post_status('Test Api imagebinary', imagePath='220_kookaburra.png')
-    # app.postLarge_image('220_kookaburra.png')
+    pass
