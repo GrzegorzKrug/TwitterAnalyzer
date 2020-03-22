@@ -2,8 +2,8 @@
 # Grzegorz Krug
 
 from PyQt5 import QtCore, QtWidgets  # QtGui
-from twitter_analyzer.analyzer.analyzer import Analyzer
-# from twitter_analyzer.analyzer.twitter_api import TwitterApi
+
+from twitter_analyzer.analyzer.operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
 
 import webbrowser
@@ -16,11 +16,11 @@ import pandas as pd
 import time
 
 
-class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
+class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     def __init__(self, main_window, auto_login=False):
         Ui_MainWindow.__init__(self)
         self.setupUi(main_window)
-        Analyzer.__init__(self, auto_login=auto_login)
+        TwitterOperator.__init__(self, auto_login=auto_login)
 
         self._init_wrappers()
         self._init_triggers()
@@ -31,8 +31,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.currTweetDF_ind = -1  # Current tweet index from DF
 
     def _init_triggers(self):
-        self.actionLogin.triggered.connect(self.login_to_twitter_ui)
-        self.actionWho_am_I.triggered.connect(self.pop_window)
+        self.actionLogin.triggered.connect(self.validate_credentials)
+        self.actionWho_am_I.triggered.connect(self.show_me)
         self.actionRefresh_GUI.triggered.connect(self.refresh_gui)
         self.actionTweet_Description.triggered.connect(self.show_tweet_keys)
 
@@ -61,15 +61,17 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         self.pushButton_clear_log.clicked.connect(self.clear_log)
         self.pushButton_delete100.clicked.connect(lambda: self.delete_less(100))
         self.pushButton_delete500.clicked.connect(lambda: self.delete_less(500))
-        self.pushButton_deleteSelected.clicked.connect(self.delete_selected)
-        self.pushButton_merge_selected.clicked.connect(self.merge_selected)
+        self.pushButton_deleteSelected.clicked.connect(lambda: self.delete_selected(
+            self.current_tree_selection(ignore_name=True, ignore_extension=True)
+        ))
+        self.pushButton_merge_selected.clicked.connect(lambda: self.merge_selected(self.current_tree_selection()))
         self.pushButton_export_DF.clicked.connect(lambda: self.save_current_df(extra_text=self.lineEdit_DF_comment.text()))
         self.pushButton_Info_screenLog.clicked.connect(self.copy_info_to_logs)
         self.pushButton_showTweets.clicked.connect(self.show_df_info)
         self.pushButton_reload_DF.clicked.connect(self.reset_df)
-        self.pushButton_check_threads.clicked.connect(self.check_threads)
+        self.pushButton_check_threads.clicked.connect(self.display_threads)
         self.pushButton_open_in_browser.clicked.connect(self.open_in_browser)
-        self.pushButton_merge_without_duplicates.clicked.connect(self.merge_without_duplicates_trigger)
+        self.pushButton_merge_without_duplicates.clicked.connect(self.trigger_merge_without_duplicates)
 
         'Displaying Tweets'
         self.pushButton_ShowTweet.clicked.connect(self.show_current_tweet_from_df)
@@ -97,17 +99,17 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         'Analyze Buttons'
         self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
 
-        'DEBUG'
-        self.pushButton_Magic_Debug.clicked.connect(self.go_debug)
+        # 'DEBUG'
+        # self.pushButton_Magic_Debug.clicked.connect(self.go_debug)
 
     def _init_wrappers(self):
-        self.login_procedure = self.post_action(self.login_procedure, self.update_login_box)
+        self.verify_procedure = self.post_action(self.verify_procedure, self.update_login_box)
 
     def _init_settings(self):
         self.change_info_settings()
 
-    def go_debug(self):
-        print(self.find_parent_tweets())
+    # def go_debug(self):
+    #     print(self.find_parent_tweets())
 
     def add_log(self, text_line):
         text_line = str(text_line)
@@ -125,28 +127,8 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         timestamp = str(h).rjust(2, '0') + '-' + str(m).rjust(2, '0') + '-' + str(s).rjust(2, '0') + ': '
         return timestamp + text
 
-    @staticmethod
-    def download_full_chunk():
-        app = Analyzer(auto_login=True)
-        app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
-
     def check_settings_inverted(self):
         return False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
-
-    def check_threads(self):
-        threads = self.threads
-        self.threads = []
-        for th in threads:
-            if th.isAlive():
-                self.add_log(f'{th.__name__} is still alive')
-                self.threads += [th]
-            else:
-                pass
-                # self.add_log(f'{th.__name__} is finished, removing from list')
-
-        if not self.threads:
-            self.add_log(f'All tasks are complete')
-            return False
 
     def change_box_text(self):
         checked = True if self.checkBox_filtration_keep_drop.checkState() == 2 else False
@@ -162,15 +144,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         else:
             self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
 
+    def clear_log(self):
+        self.textEdit_log.setPlainText('')
+
     def copy_info_to_logs(self):
         text = '=== Info:'
         for line in self.plainTextEdit_info.toPlainText().split('\n'):
             text += '\n\t' + line
         self.add_log(text)
         time.sleep(0.8)
-
-    def clear_log(self):
-        self.textEdit_log.setPlainText('')
 
     def current_tree_selection(self, ignore_name=False, ignore_extension=False):
         """Loads currently selected csv file from tree"""
@@ -192,6 +174,15 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         text = old_text + '\n' + text
         self.plainTextEdit_info.setPlainText(text)
 
+    def display_threads(self):
+        threads = self.check_threads()
+        if threads:
+            for th in threads:
+                self.add_log(f"Thread is still running: {th}")
+        else:
+            self.add_log(f'All tasks are complete')
+            return False
+
     def display(self, text):
         while len(text) > 1 and\
                 (text[-1] == '\n'
@@ -200,109 +191,32 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             text = text[:-1]
         self.plainTextEdit_info.setPlainText(text)
 
-    def delete_selected(self):
-        file_list = self.current_tree_selection(ignore_name=True, ignore_extension=True)
-        if file_list is []:
-            self.add_log('Make selection!')
-            return None
-
-        for f in file_list:
-            try:
-                os.remove(os.path.join(self._data_dir, f))
-                self.add_log(f'Removed {f}')
-
-            except PermissionError:
-                self.add_log(f'PermissionError!!!: Close Files {f}')
-
-    @staticmethod
-    def download10_chunks():
-        app = Analyzer(auto_login=True)
-        app.auto_collect_home_tab(n=10, chunk_size=200, interval=60)
-
-    @staticmethod
-    def download_parent_tweets(file_list=None, df=None):
-        if (file_list is None or file_list == []) and df is None:
-            Analyzer().logger.error(f"Missing input, file_list: {file_list}, df: {df}")
-            return None
-        app = Analyzer(auto_login=False)
-        if file_list:
-            app.load_df(file_list)
-        else:
-            app.DF = df.copy()
-        status_list = app.find_parent_tweets()
-        app.collect_status_list(status_list=status_list, file_name=f'Parent_{Analyzer.now_as_text()}')
-
-    def load_selected(self):
+    def load_selected(self) -> None:
         self.currTweetDF_ind = -1
-        files = self.current_tree_selection()
-        self.load_df(files)
+        file_list = self.current_tree_selection()
+        self.load_df(file_list)
         if self.DF is not None:
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
-
-    def login_to_twitter_ui(self):
-        valid = self.login_procedure()
-        if valid:
-            self.add_log(f"Credentials are valid")
-        else:
-            self.add_log(f"Credentials are invalid")
-
-    def merge_selected(self):
-        file_list = self.current_tree_selection()
-        if not file_list:
-            self.add_log('Error. Select files!')
-            return None
-        if len(file_list) <= 1:
-            self.add_log('You can not merge this.')
-            return None
-
-        now = datetime.datetime.now()
-        merged_file = 'merged_' \
-                      + f'{now.year}'.rjust(4, '0') \
-                      + f'{now.month}'.rjust(2, '0') \
-                      + f'{now.day}'.rjust(2, '0') \
-                      + '_' + f'{now.hour}'.rjust(2, '0') \
-                      + '-' + f'{now.minute}'.rjust(2, '0') \
-                      + '-' + f'{now.second}'.rjust(2, '0') \
-                      + '.csv'
-
-        file_path = os.path.join(self._data_dir, merged_file)
-        with open(file_path, 'wt', encoding='utf8') as f:
-            for i, file in enumerate(file_list):
-                curr_file_path = os.path.join(self._data_dir, file)
-                df = pd.read_csv(curr_file_path, sep=';', encoding='utf8')
-                if i == 0:
-                    df.to_csv(f, header=True, sep=';', encoding='utf8', index=False)
-                else:
-                    df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
-                try:
-                    os.remove(curr_file_path)
-                except PermissionError:
-                    self.add_log(f'Merged, but can not remove {file}')
-
-        self.add_log(f'Merged to file: {merged_file}')
-
-    def merge_without_duplicates_trigger(self):
-        files = self.current_tree_selection()
-        self.fork_method(self.merge_without_duplicates, files)
-
-    def open_in_browser(self):
-        if self.DF is not None:
-            if 0 <= self.currTweetDF_ind < len(self.DF):
-                tweet = self.DF.iloc[self.currTweetDF_ind]
-                # author = tweet['user']
-                author = ast.literal_eval(tweet['user'])['screen_name']
-                status_id = tweet['id']
-                url = f'https://twitter.com/{author}/status/{status_id}'
-                self.fork_method(self._open_browser, url)
 
     @staticmethod
     def _open_browser(url):
         webbrowser.open(url)
         return True
 
+    def open_in_browser(self):
+        if self.DF is not None:
+            if 0 <= self.currTweetDF_ind < len(self.DF):
+                tweet = self.DF.iloc[self.currTweetDF_ind]
+                author = ast.literal_eval(tweet['user'])['screen_name']
+                status_id = tweet['id']
+                url = f'https://twitter.com/{author}/status/{status_id}'
+                self.logger.debug(f"Starting browser: '{url}'")
+                self.fork_method(self._open_browser, url)
+
     @staticmethod
     def post_action(method, next_method=None):
+        """Wrapper to run method after first one"""
         def wrapper(*args, **kwargs):
             out = None
             if method:
@@ -312,16 +226,22 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             return out
         return wrapper
 
-    def pop_window(self):
-        msg = QtWidgets.QMessageBox()
-        if self.me:
-            msg.setText('Currently logged in as {} ({}).'
-                        .format(self.me['screen_name'], self.me['name']))
-        else:
-            msg.setText('Currently not logged in.')
-        msg.exec()
+    @staticmethod
+    def pop_window(text):
+        """Window popup with customizable text"""
+        if len(text) > 0:
+            msg = QtWidgets.QMessageBox()
+            msg.setText(text)
+            msg.exec()
 
-    def print_tweet_to_info(self, ind):
+    def show_me(self):
+        if self.me:
+            text = f"Currently logged in as {self.me['screen_name']}({self.me['name']})"
+        else:
+            text = "Not having any information about you."
+        self.pop_window(text)
+
+    def print_tweet_to_info_box(self, ind):
         try:
             ind = int(ind)
         except ValueError:
@@ -409,7 +329,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.add_log('DF not loaded!')
             return None
         ind_str = self.lineEdit_JumpToTweet.text()
-        self.print_tweet_to_info(ind_str)
+        self.print_tweet_to_info_box(ind_str)
 
     def show_current_tweet_from_df(self):
         if self.DF is None:
@@ -420,7 +340,14 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         elif self.currTweetDF_ind >= len(self.DF):
             self.currTweetDF_ind = len(self.DF) - 1
 
-        self.print_tweet_to_info(self.currTweetDF_ind)
+        self.print_tweet_to_info_box(self.currTweetDF_ind)
+
+    def show_me(self, user_data):
+        text = ''
+        for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
+                    'verified', 'lang']:
+            text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
+        self.display(text)
 
     def show_next_tweet_from_df(self):
         if self.DF is None:
@@ -430,7 +357,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         if self.currTweetDF_ind < 0 or self.currTweetDF_ind >= len(self.DF):
             self.currTweetDF_ind = 0  # First Tweet index
 
-        self.print_tweet_to_info(self.currTweetDF_ind)
+        self.print_tweet_to_info_box(self.currTweetDF_ind)
 
     def show_prev_tweet_from_df(self):
         if self.DF is None:
@@ -442,14 +369,7 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
         elif self.currTweetDF_ind >= len(self.DF):
             self.currTweetDF_ind = 0
 
-        self.print_tweet_to_info(self.currTweetDF_ind)
-
-    def show_user_info(self, user_data):
-        text = ''
-        for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
-                    'verified', 'lang']:
-            text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
-        self.display(text)
+        self.print_tweet_to_info_box(self.currTweetDF_ind)
 
     def trigger_analyze_unique(self):
         key = self.lineEdit_analyze_unique_key.text()
@@ -571,6 +491,10 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.currTweetDF_ind = 0
             self.show_current_tweet_from_df()
 
+    def trigger_merge_without_duplicates(self):
+        files = self.current_tree_selection()
+        self.fork_method(self.merge_without_duplicates, files)
+
     def update_login_box(self):
         if self.logged_in:
             self.label_login_status.setText('True')
@@ -580,6 +504,13 @@ class TwitterAnalyzerGUI(Analyzer, Ui_MainWindow):
             self.label_login_status.setText('False')
             self.label_login_status.setStyleSheet("background-color: rgb(255, 149, 151);\n"
                                                   "color: rgb(255, 255, 255);")
+
+    def validate_credentials(self):
+        valid = self.verify_procedure()
+        if valid:
+            self.add_log(f"Credentials are valid")
+        else:
+            self.add_log(f"Credentials are invalid")
 
     def show_tweet_keys(self):
         text = 'Tweet index:             index / last tweet' \
