@@ -12,3 +12,18 @@ services:
         - POSTGRES_PASSWORD=docker
       ports:
         - 5432:5432
+  db_initiator:
+#    image: python:3.8.1-alpine
+    build:
+      context: .
+      dockerfile: DBInitiatorFile
+    links:
+      - 'postgres_db:db'
+    environment:
+      - DB_ACCES_NAME=db
+    #      - POSTGRES_PORT=5433
+    #      - POSTGRES_DB=postgres
+    image: db_initiator  # image name
+    command: bash -c "python /app/db_initiator.py"
+    ports:
+      - '5433'

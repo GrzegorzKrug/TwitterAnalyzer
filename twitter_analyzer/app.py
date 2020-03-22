@@ -3,16 +3,14 @@
 
 from PyQt5 import QtCore, QtWidgets  # QtGui
 
-from twitter_analyzer.analyzer.operator import TwitterOperator
+from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
 
 import webbrowser
 import datetime
 import traceback
 import sys
-import os
 import ast
-import pandas as pd
 import time
 
 
@@ -100,7 +98,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
 
         # 'DEBUG'
-        # self.pushButton_Magic_Debug.clicked.connect(self.go_debug)
+        self.pushButton_Magic_Debug.clicked.connect(self.debug)
 
     def _init_wrappers(self):
         self.verify_procedure = self.post_action(self.verify_procedure, self.update_login_box)

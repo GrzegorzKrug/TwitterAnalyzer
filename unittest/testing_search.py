@@ -1,4 +1,4 @@
-from twitter_analyzer.analyzer.operator import TwitterOperator
+from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 import os
 
 file_auto = os.path.abspath(os.path.join(os.path.dirname(__file__), 'tweets', 'unittest_auto.csv'))

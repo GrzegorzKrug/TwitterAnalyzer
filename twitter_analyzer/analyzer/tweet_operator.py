@@ -1,4 +1,4 @@
-# operator.py
+# tweet_operator.py
 # Grzegorz Krug
 
 import time
@@ -10,11 +10,17 @@ import threading
 import calendar
 import re
 import ast
+import sys
 
 from .custom_logger import define_logger
 from .api import TwitterApi
 from .api import Unauthorized, ApiNotFound, TooManyRequests
 from pandas.errors import ParserError
+
+from .db_models import User, Tweet
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 class TwitterOperator(TwitterApi):
@@ -24,16 +30,53 @@ class TwitterOperator(TwitterApi):
         self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
-        # self.logger_ref = log_ui
         self.DF = None
         self.threads = []  # Thread reference list
         self.th_num = 0  # Thread counter
         self.loaded_to_DF = []
         self.logger = define_logger("Operator")
 
+        # Database init
+        self.engine = self._init_engine()
+        self.Session = None
+        self._init_database()
+
         if auto_login:
             valid = self.verify_procedure()
             self.logger.debug(f"Credentials are valid: '{valid}'")
+
+    def _init_engine(self):
+        dbname = 'postgres'
+        user = 'admin'
+        password = 'docker'
+
+        host = '127.0.0.1'
+        port = 5432
+        url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
+
+        engine = create_engine(url,
+                               connect_args={'client_encoding': 'utf8'})
+        self.logger.debug(f"Created engine to db: {dbname}")
+        return engine
+
+    def _init_database(self):
+        base = declarative_base()
+        self.Session = sessionmaker(bind=self.engine)
+        session = self.Session()
+        # Tweet
+        # User
+        base.metadata.create_all(self.engine, tables=[Tweet, User])
+        # session.commit()
+
+        pass
+
+    def debug(self):
+        self.logger.debug("Operator debug:")
+        self._init_database()
+
+        tables = self.engine.table_names()
+        self.logger.debug(tables)
+        sys.exit()
 
     @staticmethod
     def add_timestamp_attr(tweet):
@@ -168,7 +211,8 @@ class TwitterOperator(TwitterApi):
         words = [
             w.lstrip(" ").rstrip(" ")
             for w in words
-            if len(w.lstrip(" ").rstrip(" ")) > 0]  # Remove start-end spaces in phrases only! Drop empty words
+            if len(w.lstrip(" ").rstrip(" ")) > 0
+        ]  # Remove start-end spaces in phrases only! Drop empty words
 
         for row in data:
             word_checked = False

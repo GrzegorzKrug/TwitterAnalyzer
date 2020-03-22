@@ -1,10 +1,8 @@
 # api.py
 # Grzegorz Krug
 
-
 import requests
 import json
-import sys
 import os
 
 from .custom_logger import define_logger
@@ -84,7 +82,7 @@ class TwitterApi:
             self.logger_api.error(msg)
             return False
 
-    def _verifyOAuth(self):
+    def _verify_oauth(self):
         try:
             valid = self._set_auth()
             if not valid:
@@ -120,7 +118,7 @@ class TwitterApi:
         else:
             raise Exception(f'Error {resp_code}: {response.json()}')
 
-    def request_home_timeline(self, chunk_size=200):
+    def request_home_timeline(self, chunk_size: "max is 200" = 200):
         """Api that requests from endpoint of home timeline"""
         if chunk_size < 0:
             chunk_size = 1
@@ -133,10 +131,10 @@ class TwitterApi:
         valid, data = self._make_request(full_url, params=params)
         return data
 
-    def post_image(self, imageBinary):
+    def post_image(self, image: "binary"):
         full_url = self.apiUpload + r'/media/upload.json'
-        if imageBinary:
-            files = {'media': imageBinary}
+        if image:
+            files = {'media': image}
         else:
             raise ValueError('No image is given, can not post tweet')
         self.logger_api.debug(f"Posting image")
@@ -164,17 +162,17 @@ class TwitterApi:
 #                      'media': image,
 #                      'segment_index': 0}
 #            files = {}
-# ##        valid, resp_init = self.post_request(fullUrl, params=params, files=files)
+#            valid, resp_init = self.post_request(fullUrl, params=params, files=files)
 #            valid, resp_init = self.authSess.post(fullUrl, params=params, files=files)
 #        'Step 3 of 4 Get id'
 #        'Step 4 of 4 Finalize'
 
-    def post_request(self, fullUrl, header=None, params=None, files=None):
+    def post_request(self, full_url, header=None, params=None, files=None):
         if params is None:
             params = {}
         if files is None:
             files = {}
-        response = requests.post(fullUrl, headers=header, params=params, auth=self.auth)
+        response = requests.post(full_url, headers=header, params=params, auth=self.auth)
         if self._verify_response(response):
             return True, response.json()
         else:
@@ -196,9 +194,9 @@ class TwitterApi:
         if text:
             params.update({'status': str(text)})
 
-        fullUrl = self.apiUrl + r'/statuses/update.json'
+        full_url = self.apiUrl + r'/statuses/update.json'
         self.logger_api.debug(f"Posing status")
-        valid, data = self.post_request(fullUrl, params=params)
+        valid, data = self.post_request(full_url, params=params)
          
     def request_status(self, status_id):
         full_url = self.apiUrl + r'/statuses/show.json'
@@ -208,7 +206,7 @@ class TwitterApi:
         return data
         
     def verify_procedure(self):
-        valid, self.me = self._verifyOAuth()
+        valid, self.me = self._verify_oauth()
         if valid:
             self.logged_in = True
             self.logger_api.info("Verified OAuth successfully")

@@ -1,4 +1,4 @@
-from twitter_analyzer.analyzer.operator import TwitterOperator
+from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 import datetime
 timezone_offset = 3600
 
