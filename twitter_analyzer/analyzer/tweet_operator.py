@@ -17,10 +17,7 @@ from .api import TwitterApi
 from .api import Unauthorized, ApiNotFound, TooManyRequests
 from pandas.errors import ParserError
 
-from .db_models import User, Tweet
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from .database_operator import get_database_connectors, add_tweet
 
 
 class TwitterOperator(TwitterApi):
@@ -35,47 +32,16 @@ class TwitterOperator(TwitterApi):
         self.th_num = 0  # Thread counter
         self.loaded_to_DF = []
         self.logger = define_logger("Operator")
-
-        # Database init
-        self.engine = self._init_engine()
-        self.Session = None
-        self._init_database()
+        self.engine, self.Session = get_database_connectors()
+        self.save_tweet_in_db = add_tweet
 
         if auto_login:
             valid = self.verify_procedure()
             self.logger.debug(f"Credentials are valid: '{valid}'")
 
-    def _init_engine(self):
-        dbname = 'postgres'
-        user = 'admin'
-        password = 'docker'
-
-        host = '127.0.0.1'
-        port = 5432
-        url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
-
-        engine = create_engine(url,
-                               connect_args={'client_encoding': 'utf8'})
-        self.logger.debug(f"Created engine to db: {dbname}")
-        return engine
-
-    def _init_database(self):
-        base = declarative_base()
-        self.Session = sessionmaker(bind=self.engine)
-        session = self.Session()
-        # Tweet
-        # User
-        base.metadata.create_all(self.engine, tables=[Tweet, User])
-        # session.commit()
-
-        pass
-
     def debug(self):
         self.logger.debug("Operator debug:")
-        self._init_database()
 
-        tables = self.engine.table_names()
-        self.logger.debug(tables)
         sys.exit()
 
     @staticmethod
@@ -83,33 +49,14 @@ class TwitterOperator(TwitterApi):
         """Adding time stamp to tweet dict"""
         tweet['timestamp'] = round(time.time())
 
-    def auto_collect_home_tab(self, n=10, chunk_size=200, interval=60, file_name=None):
+    def auto_collect_home_tab(self, n=10, chunk_size=200, interval=60):
         """Loop that runs N times, and collect Tweet x chunk_size
         Twitter rate limit is 15 times in 15 mins"""
-        if file_name is None:
-            now = datetime.datetime.now()
-            file_name = "Home_{y}{mon}{d}_{h}-{m}-{sec}_{interval}sec_{count}". \
-                format(y=str(now.year).rjust(4, '0'), mon=str(now.month).rjust(2, '0'),
-                       d=str(now.day).rjust(2, '0'), h=str(now.hour).rjust(2, '0'),
-                       m=str(now.minute).rjust(2, '0'), sec=str(now.second).rjust(2, '0'),
-                       interval=str(interval).rjust(3, '0'), count=str(chunk_size).rjust(3, '0'))
-            file_with_ext = file_name + '.csv'
-        self.logger.debug(f"Created file for tweets: {file_with_ext}")
 
         ch = 1  # 1-based index for, UI friendly
         while ch < n + 1:
             try:
-                valid = self.collect_tweets_on_home_tab(chunk_size=chunk_size, file_name=file_name)
-                if valid:
-                    self.logger.debug(f"Dropping duplicates from home timeline: {file_name}")
-                    app = TwitterOperator()
-                    valid = app.load_df([file_with_ext])
-                    if valid:
-                        resp = app.drop_duplicates_from_df()
-                    if valid and resp is not False:  # In case drop duplicates fails process further
-                        app.save_current_df(full_name=file_name)
-                    else:
-                        self.logger.error("Duplicate drop not succeed in auto_home_line")
+                self.collect_tweets_on_home_tab(chunk_size=chunk_size)
 
             except TooManyRequests as e:
                 self.logger.warning(f"Too many requests: {e}")
@@ -122,6 +69,7 @@ class TwitterOperator(TwitterApi):
                 return False
 
             self.logger.debug(f"Tweets chunk saved: {ch} / {n}")
+
             if ch >= n:
                 break
             if interval > 0:
@@ -330,7 +278,7 @@ class TwitterOperator(TwitterApi):
                 pass
         return out
 
-    def collect_tweets_on_home_tab(self, chunk_size, file_name):
+    def collect_tweets_on_home_tab(self, chunk_size):
         """Request home line, catch exceptions"""
         home_tweets = self.request_home_timeline(chunk_size=chunk_size)
 
@@ -341,7 +289,7 @@ class TwitterOperator(TwitterApi):
         if home_tweets:
             for tweet in home_tweets:
                 self.add_timestamp_attr(tweet)
-                self.export_tweet_to_database(self._data_dir, tweet, file_name)
+                self.export_tweet_to_database(self._data_dir, tweet)
         else:
             self.logger.error("No tweets, None object received.")
             return False
@@ -449,16 +397,13 @@ class TwitterOperator(TwitterApi):
             self.logger.warning('DF is empty. Load some tweets first.')
 
     # @staticmethod
-    def export_tweet_to_database(self, _data_dir, tweet, filename='default', delay=0):
+    def export_tweet_to_database(self, _data_dir, tweet, delay=0):
         if delay > 0:
             time.sleep(delay)
-        if type(filename) != str:
-            raise TypeError('File name is not string!')
         if not os.path.isabs(_data_dir):
             # Parent AbsPath + _data_dir
             _data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), _data_dir)
 
-        file_path = os.path.join(_data_dir, filename + '.csv')
         header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
                   'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
                   'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
@@ -468,44 +413,47 @@ class TwitterOperator(TwitterApi):
                   'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
                   'withheld_scope', 'tweet_mode']
 
-        if not os.path.isfile(file_path):
-            with open(file_path, 'wt') as file:
-                for i, h in enumerate(header):
-                    file.write(h)
-                    if i < len(header)-1:
-                        file.write(';')
-                file.write('\n')
-        if not tweet:
-            return True
-        try:
-            with open(file_path, 'at', encoding='utf8') as file:
-                for i, key in enumerate(header):
-                    try:
-                        text = str(tweet.get(key, None))
-                        if text is None:
-                            file.write('None')
-                        elif text.lower() in ['nan', 'none', 'n\\a']:
-                            file.write('None')
-                        else:
-                            for char in ['\n', ';', '\r']:
-                                text = text.replace(char, ' ')
-                            file.write(text)
+        user_dict = ast.literal_eval(str(tweet['user']))
+        if user_dict:
+            user_id = str(user_dict['id'])
+            user_name = user_dict['name'].lower()
+            user_alias = user_dict['screen_name'].lower()
 
-                    except UnicodeEncodeError:
-                        self.logger.error(f"UnicodeError while saving:")
-                        self.logger.error(f"'{tweet}'")
-                        file.write('UnicodeEncodeError')
-
-                    if i < len(header)-1:
-                        file.write(';')
-                file.write('\n')
-            return True
-        except PermissionError:
-            th = threading.Thread(
-                target=lambda: TwitterOperator.export_tweet_to_database(TwitterOperator(), _data_dir, tweet, filename, 15))
-            th.start()
-            self.logger.error(f"Permission error: {filename}, created background thread to save data")
-            return None
+        self.save_tweet_in_db(self.Session,
+                              user_alias=user_alias,
+                              user_id=user_id,
+                              user_name=user_name,
+                              tweet_id=tweet.get('id', None),
+                              timestamp=tweet.get('timestamp', None),
+                              contributors=tweet.get('contributors', None),
+                              coordinates=tweet.get('coordinates', None),
+                              created_at=tweet.get('created_at', None),
+                              current_user_retweet=tweet.get('current_user_retweet', None),
+                              favorite_count=tweet.get('favorite_count', None),
+                              favorited=tweet.get('favorited', None),
+                              full_text=tweet.get('full_text', None),
+                              geo=tweet.get('geo', None),
+                              hashtags=tweet.get('hashtags', None),
+                              in_reply_to_status_id=tweet.get('in_reply_to_status_id', None),
+                              in_reply_to_user_id=tweet.get('in_reply_to_user_id', None),
+                              lang=tweet.get('lang', None),
+                              location=tweet.get('location', None),
+                              media=tweet.get('media', None),
+                              place=tweet.get('place', None),
+                              possibly_sensitive=tweet.get('possibly_sensitive', None),
+                              quoted_status_id=tweet.get('quoted_status_id', None),
+                              retweet_count=tweet.get('retweet_count', None),
+                              retweeted=tweet.get('retweeted', None),
+                              scopes=tweet.get('scopes', None),
+                              source=tweet.get('source', None),
+                              truncated=tweet.get('truncated', None),
+                              urls=tweet.get('urls', None),
+                              user_mentions=tweet.get('user_mentions', None),
+                              withheld_copyright=tweet.get('withheld_copyright', None),
+                              withheld_in_countries=tweet.get('withheld_in_countries', None),
+                              withheld_scope=tweet.get('withheld_scope', None),
+                              tweet_mode=tweet.get('tweet_mode', None)
+        )
 
     def filter_by_existing_key(self, key, inverted=False):  # Fix exceptions, bool type
         if not key or key == '' or key not in self.DF.keys():

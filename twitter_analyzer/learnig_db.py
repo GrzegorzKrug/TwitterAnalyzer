@@ -2,27 +2,14 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import ProgrammingError, IntegrityError
 
-import psycopg2
 import time
+from analyzer.database_operator import Tweet, User
+from analyzer.database_operator import add_tweet
 
 
-Base = declarative_base()
-
-
-class Customer(Base):
-    __tablename__ = 'customers'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    address = Column(String)
-    email = Column(String)
-
-    def __repr__(self):
-        return f"<User(name='{self.name}', address='{self.address}', email='{self.email}')>"
-
-
-def setup_engine():
+def get_engine():
     dbname = 'postgres'
     user = 'admin'
     password = 'docker'
@@ -37,41 +24,27 @@ def setup_engine():
     return engine
 
 
-engine = setup_engine()
+Base = declarative_base()
+engine = get_engine()
 Session = sessionmaker(bind=engine)
 
 
-c1 = Customer(name='Ravi Kumar', email='ravi@gmail.com')
-c2 = Customer(name='Ali baba', address='Station', email='ravi@gmail.com')
-c3 = Customer(name='Ali baba', address='Station')
-c4 = Customer(name='Ali baba', address='Pren House')
-
-
-try:
+def show_tables():
     tables = engine.table_names()
-    print(f"Tables in db: {tables}")
+    print(f"Tables after drop: {tables}")
 
-    # Base.metadata.create_all(engine)
-    # tables = engine.table_names()
-    # print(f"Current tables: {tables}")
 
-    # session = Session()
-    # session.add(c1)
-    # session.add(c2)
-    # session.commit()
+def show_tweets():
+    session = Session()
+    for r in session.query(Tweet).all():
+        print(r)
 
-    # with engine.connect() as connection:
-    #     tables = engine.table_names()
-    #     for table in tables:
-    #         # if table != 'customers':
-    #         #     continue
-    #         connection.execute(f"DROP TABLE {table}")
-    #         print(f"Dropping table: {table}")
 
-    # session = Session()
-    # result = session.query(Customer).all()
-    # for row in result:
-    #     print(row)
+show_tables()
+show_tweets()
+#
+# add_tweet(Session(), 152, full_text="Witam w sklepie.", timestamp=15,
+#           created_at="dzisiaj", user_id=67, user_name="Pawel")
 
-except psycopg2.OperationalError as e:
-    print(f"Exception: {e}")
+# show_tweets()
+# show_users()
