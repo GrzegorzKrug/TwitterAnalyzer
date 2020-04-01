@@ -24,7 +24,8 @@ class TwitterApi:
         if verify:
             valid = self.verify_procedure()
 
-    def _make_request(self, full_url, params=None, header=None, extended=True):
+    def _make_request(self, full_url, params=None, header=None, extended=True) \
+            -> "True, Data or False, None":
         if params is None:
             params = {}
         if extended:
@@ -129,7 +130,7 @@ class TwitterApi:
         full_url = self.apiUrl + r'/statuses/home_timeline.json'
         self.logger_api.debug("Requesting home timeline")
         valid, data = self._make_request(full_url, params=params)
-        return data
+        return valid, data
 
     def post_image(self, image: "binary"):
         full_url = self.apiUpload + r'/media/upload.json'

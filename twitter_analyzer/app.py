@@ -53,7 +53,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
         self.checkBox_filtration_keep_drop.clicked.connect(self.change_box_text)
 
-        'Buttons'
+        'File Buttons'
         self.pushButton_load_selected_csv.clicked.connect(self.load_selected)
         self.pushButton_load_selected_csv_2.clicked.connect(self.load_selected)
         self.pushButton_clear_log.clicked.connect(self.clear_log)

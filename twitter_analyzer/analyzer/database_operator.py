@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, BigInteger
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, BigInteger
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import ProgrammingError, IntegrityError
@@ -16,7 +16,7 @@ logger = define_logger("DB_Orm")
 
 class Tweet(Base):
     __tablename__ = 'tweet'
-    tweet_id = Column(String, primary_key=True)
+    tweet_id = Column(BigInteger, primary_key=True)
     timestamp = Column(Integer)
     contributors = Column(String)
     coordinates = Column(String)
@@ -55,9 +55,29 @@ class Tweet(Base):
 
 class User(Base):
     __tablename__ = "user"
-    id = Column(String, primary_key=True)
-    name = Column(String)
-    alias = Column(String)
+    user_id = Column(BigInteger, primary_key=True)
+    user_name = Column(String)
+    screen_name = Column(String)
+    user_location = Column(String)
+    description = Column(String)
+    user_url = Column(String)
+    followers_count = Column(String)
+    friends_count = Column(String)
+    listed_count = Column(String)
+    created_at = Column(String)
+    verified = Column(Boolean)
+    statuses_count = Column(String)
+    user_lang = Column(String)
+    timestamp = Column(String)
+
+
+# class TweetWork(Tweet):  # not working
+#     Tweet.__tablename__ = "tweet_work"
+#     Tweet.__tablename__ = "tweet_work"
+#
+#
+# class UserWork(User):  # not working
+#     User.__tablename__ = "user_work"
 
 
 def get_engine():
@@ -90,17 +110,19 @@ def initialize():
             time.sleep(5)
 
 
-def add_tweet(
+def add_tweet_with_user(
         Session,
+        timestamp,
+
         # Tweet required
         tweet_id,
-        timestamp,
         full_text,
         created_at,
 
         # User required
         user_id,
         user_name,
+        screen_name,
 
         # Tweet optional
         contributors=None,
@@ -132,7 +154,16 @@ def add_tweet(
         tweet_mode=None,
 
         # User Optional
-        user_alias=None
+        user_location=None,
+        description=None,
+        user_url=None,
+        followers_count=None,
+        friends_count=None,
+        listed_count=None,
+        user_created_at=None,
+        verified=None,
+        statuses_count=None,
+        user_lang=None
 ):
 
     tweet = Tweet(tweet_id=str(tweet_id),
@@ -168,22 +199,74 @@ def add_tweet(
                   withheld_scope=withheld_scope,
                   tweet_mode=tweet_mode)
 
-    user = User(id=user_id, name=user_name, alias=user_alias)
     session = Session()
     try:
         insert_to_table(session, tweet)
-        logger.debug(f'Inserting to table. tweet_id: {tweet_id}, timestamp: {timestamp}')
+        logger.debug(f'Inserting tweet to table, id: {tweet_id}, timestamp: {timestamp}')
     except IntegrityError:
         logger.warning(f"Possible tweet duplicate: {tweet_id}")
         session.rollback()
         pass
 
+    add_user(
+        Session=Session,
+        user_id=user_id,
+        user_name=user_name,
+        screen_name=screen_name,
+        user_location=user_location,
+        description=description,
+        user_url=user_url,
+        followers_count=followers_count,
+        friends_count=friends_count,
+        listed_count=listed_count,
+        created_at=user_created_at,
+        verified=verified,
+        statuses_count=statuses_count,
+        user_lang=user_lang,
+        timestamp=timestamp
+    )
+
+
+def add_user(
+        Session,
+        user_id,
+        user_name,
+        screen_name,
+        user_location,
+        description,
+        user_url,
+        followers_count,
+        friends_count,
+        listed_count,
+        created_at,
+        verified,
+        statuses_count,
+        user_lang,
+        timestamp
+):
     session = Session()
+    user = User(
+        user_id=user_id,
+        user_name=user_name,
+        screen_name=screen_name,
+        user_location=user_location,
+        description=description,
+        user_url=user_url,
+        followers_count=followers_count,
+        friends_count=friends_count,
+        listed_count=listed_count,
+        created_at=created_at,
+        verified=verified,
+        statuses_count=statuses_count,
+        user_lang=user_lang,
+        timestamp=timestamp
+    )
     try:
         insert_to_table(session, user)
-        logger.debug(f'Inserted to table. user_id: {user_id}, timestamp: {timestamp}')
+        logger.debug(f'Inserted user to table. screen_name: {screen_name:>20}, '
+                     f'user_id: {user_id}, timestamp: {timestamp}')
     except IntegrityError:
-        logger.warning(f"Possible user duplicate: {user_id}")
+        logger.warning(f"Possible user duplicate: {user_id}, {screen_name}")
 
 
 def get_database_connectors() -> "Engine, Session":

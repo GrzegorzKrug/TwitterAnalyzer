@@ -6,7 +6,7 @@ from sqlalchemy.exc import ProgrammingError, IntegrityError
 
 import time
 from analyzer.database_operator import Tweet, User
-from analyzer.database_operator import add_tweet
+from analyzer.database_operator import add_tweet_with_user
 
 
 def get_engine():
@@ -31,7 +31,7 @@ Session = sessionmaker(bind=engine)
 
 def show_tables():
     tables = engine.table_names()
-    print(f"Tables after drop: {tables}")
+    print(f"Tables: {tables}")
 
 
 def show_tweets():
@@ -40,11 +40,14 @@ def show_tweets():
         print(r)
 
 
-show_tables()
-show_tweets()
-#
-# add_tweet(Session(), 152, full_text="Witam w sklepie.", timestamp=15,
-#           created_at="dzisiaj", user_id=67, user_name="Pawel")
+def show_db_size():
+    session = Session()
+    tweet_count = session.query(Tweet).count()
+    user_count = session.query(User).count()
+    print(f"Tweets: {tweet_count}, Users: {user_count}")
 
+
+show_tables()
 # show_tweets()
-# show_users()
+show_db_size()
+

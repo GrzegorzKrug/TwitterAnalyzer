@@ -17,7 +17,7 @@ from .api import TwitterApi
 from .api import Unauthorized, ApiNotFound, TooManyRequests
 from pandas.errors import ParserError
 
-from .database_operator import get_database_connectors, add_tweet
+from .database_operator import get_database_connectors, add_tweet_with_user
 
 
 class TwitterOperator(TwitterApi):
@@ -33,7 +33,7 @@ class TwitterOperator(TwitterApi):
         self.loaded_to_DF = []
         self.logger = define_logger("Operator")
         self.engine, self.Session = get_database_connectors()
-        self.save_tweet_in_db = add_tweet
+        self.save_tweet_in_db = add_tweet_with_user
 
         if auto_login:
             valid = self.verify_procedure()
@@ -238,32 +238,32 @@ class TwitterOperator(TwitterApi):
 
     @staticmethod
     def collect_status_list_thread(file_name, status_num, this_tweet_num, all_tweets):
-        app = TwitterOperator()
+        _app = TwitterOperator()
         while True:
             try:
-                this_st = app.request_status(status_num)
+                this_status = _app.request_status(status_num)
 
-                if this_st:
-                    app.add_timestamp_attr(this_st)
-                    app.export_tweet_to_database(app._data_dir, this_st, file_name)
+                if this_status:
+                    _app.add_timestamp_attr(this_status)
+                    _app.export_tweet_to_database(this_status, file_name)
                     break
                 else:
-                    app.logger.error("No tweets, None object received.")
+                    _app.logger.error("No tweets, None object received.")
                     return None
 
             except TooManyRequests as tmr:
-                app.logger.warning(f"Collect status list: {tmr}")
+                _app.logger.warning(f"Collect status list: {tmr}")
                 time.sleep(60)
 
-            except ApiNotFound as e:
-                app.logger.error(f'{e} Not Found this tweet: {status_num}')
+            except ApiNotFound as nf:
+                _app.logger.error(f'{nf} Not Found this tweet: {status_num}')
                 return None
 
             except Unauthorized as un:
-                app.logger.error(f"{un}: {status_num}")
+                _app.logger.error(f"{un}: {status_num}")
                 return None
 
-        app.logger.debug(f"Status saved: {this_tweet_num} / {all_tweets}")
+        _app.logger.debug(f"Status saved: {this_tweet_num} / {all_tweets}")
 
     def check_threads(self) -> 'List[name]':
         threads = self.threads
@@ -280,7 +280,7 @@ class TwitterOperator(TwitterApi):
 
     def collect_tweets_on_home_tab(self, chunk_size):
         """Request home line, catch exceptions"""
-        home_tweets = self.request_home_timeline(chunk_size=chunk_size)
+        valid, home_tweets = self.request_home_timeline(chunk_size=chunk_size)
 
         if len(home_tweets) != chunk_size:
             self.logger.warning(
@@ -289,7 +289,7 @@ class TwitterOperator(TwitterApi):
         if home_tweets:
             for tweet in home_tweets:
                 self.add_timestamp_attr(tweet)
-                self.export_tweet_to_database(self._data_dir, tweet)
+                self.export_tweet_to_database(tweet)
         else:
             self.logger.error("No tweets, None object received.")
             return False
@@ -332,26 +332,26 @@ class TwitterOperator(TwitterApi):
 
     @staticmethod
     def download10_chunks():
-        app = TwitterOperator(auto_login=True)
-        app.auto_collect_home_tab(n=10, chunk_size=200, interval=60)
+        _app = TwitterOperator(auto_login=True)
+        _app.auto_collect_home_tab(n=10, chunk_size=200, interval=60)
 
     @staticmethod
     def download_full_chunk():
-        app = TwitterOperator()
-        app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
+        _app = TwitterOperator()
+        _app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
 
     @staticmethod
     def download_parent_tweets(file_list=None, df=None):
         if (file_list is None or file_list == []) and df is None:
             TwitterOperator().logger.error(f"Missing input, file_list: {file_list}, df: {df}")
             return None
-        app = TwitterOperator(auto_login=False)
+        _app = TwitterOperator(auto_login=False)
         if file_list:
-            app.load_df(file_list)
+            _app.load_df(file_list)
         else:
-            app.DF = df.copy()
-        status_list = app.find_parent_tweets()
-        app.collect_status_list(status_list=status_list, file_name=f'Parent_{TwitterOperator.now_as_text()}')
+            _app.DF = df.copy()
+        status_list = _app.find_parent_tweets()
+        _app.collect_status_list(status_list=status_list, file_name=f'Parent_{TwitterOperator.now_as_text()}')
 
     def delete_selected(self, file_list):
         if file_list is []:
@@ -392,67 +392,74 @@ class TwitterOperator(TwitterApi):
                 self.DF = df
                 return True
             else:
-                self.logger.warning("Could not drop duplicates")
+                self.logger.warning("Could not drop tweet duplicates")
         else:
             self.logger.warning('DF is empty. Load some tweets first.')
 
     # @staticmethod
-    def export_tweet_to_database(self, _data_dir, tweet, delay=0):
+    def export_tweet_to_database(self, tweet, delay=0):
         if delay > 0:
             time.sleep(delay)
-        if not os.path.isabs(_data_dir):
-            # Parent AbsPath + _data_dir
-            _data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), _data_dir)
-
-        header = ['id', 'timestamp', 'contributors', 'coordinates', 'created_at',
-                  'current_user_retweet', 'favorite_count', 'favorited', 'full_text', 'geo',
-                  'hashtags', 'id_str', 'in_reply_to_screen_name', 'in_reply_to_status_id',
-                  'in_reply_to_user_id', 'lang', 'location', 'media', 'place', 'possibly_sensitive',
-                  'quoted_status', 'quoted_status_id', 'quoted_status_id_str', 'retweet_count',
-                  'retweeted', 'retweeted_status', 'scopes', 'source', 'truncated', 'urls',
-                  'user', 'user_mentions', 'withheld_copyright', 'withheld_in_countries',
-                  'withheld_scope', 'tweet_mode']
 
         user_dict = ast.literal_eval(str(tweet['user']))
-        if user_dict:
-            user_id = str(user_dict['id'])
-            user_name = user_dict['name'].lower()
-            user_alias = user_dict['screen_name'].lower()
+        if not user_dict:
+            _message = f"No user in this tweet[user]: {tweet['user']}"
+            self.logger.error(_message)
+            raise ValueError(_message)
 
-        self.save_tweet_in_db(self.Session,
-                              user_alias=user_alias,
-                              user_id=user_id,
-                              user_name=user_name,
-                              tweet_id=tweet.get('id', None),
-                              timestamp=tweet.get('timestamp', None),
-                              contributors=tweet.get('contributors', None),
-                              coordinates=tweet.get('coordinates', None),
-                              created_at=tweet.get('created_at', None),
-                              current_user_retweet=tweet.get('current_user_retweet', None),
-                              favorite_count=tweet.get('favorite_count', None),
-                              favorited=tweet.get('favorited', None),
-                              full_text=tweet.get('full_text', None),
-                              geo=tweet.get('geo', None),
-                              hashtags=tweet.get('hashtags', None),
-                              in_reply_to_status_id=tweet.get('in_reply_to_status_id', None),
-                              in_reply_to_user_id=tweet.get('in_reply_to_user_id', None),
-                              lang=tweet.get('lang', None),
-                              location=tweet.get('location', None),
-                              media=tweet.get('media', None),
-                              place=tweet.get('place', None),
-                              possibly_sensitive=tweet.get('possibly_sensitive', None),
-                              quoted_status_id=tweet.get('quoted_status_id', None),
-                              retweet_count=tweet.get('retweet_count', None),
-                              retweeted=tweet.get('retweeted', None),
-                              scopes=tweet.get('scopes', None),
-                              source=tweet.get('source', None),
-                              truncated=tweet.get('truncated', None),
-                              urls=tweet.get('urls', None),
-                              user_mentions=tweet.get('user_mentions', None),
-                              withheld_copyright=tweet.get('withheld_copyright', None),
-                              withheld_in_countries=tweet.get('withheld_in_countries', None),
-                              withheld_scope=tweet.get('withheld_scope', None),
-                              tweet_mode=tweet.get('tweet_mode', None)
+        try:
+            user_website = user_dict['entities']['url']['urls'][0]['expanded_url']
+        except (NameError, KeyError):
+            self.logger.debug(f"No website found: {user_dict['entities']}")
+            user_website = None
+
+        self.save_tweet_in_db(
+            self.Session,
+            tweet_id=tweet.get('id', None),
+            timestamp=tweet.get('timestamp', None),
+            contributors=tweet.get('contributors', None),
+            coordinates=tweet.get('coordinates', None),
+            created_at=tweet.get('created_at', None),
+            current_user_retweet=tweet.get('current_user_retweet', None),
+            favorite_count=tweet.get('favorite_count', None),
+            favorited=tweet.get('favorited', None),
+            full_text=tweet.get('full_text', None),
+            geo=tweet.get('geo', None),
+            hashtags=tweet.get('hashtags', None),
+            in_reply_to_status_id=tweet.get('in_reply_to_status_id', None),
+            in_reply_to_user_id=tweet.get('in_reply_to_user_id', None),
+            lang=tweet.get('lang', None),
+            location=tweet.get('location', None),
+            media=tweet.get('media', None),
+            place=tweet.get('place', None),
+            possibly_sensitive=tweet.get('possibly_sensitive', None),
+            quoted_status_id=tweet.get('quoted_status_id', None),
+            retweet_count=tweet.get('retweet_count', None),
+            retweeted=tweet.get('retweeted', None),
+            scopes=tweet.get('scopes', None),
+            source=tweet.get('source', None),
+            truncated=tweet.get('truncated', None),
+            urls=tweet.get('urls', None),
+            user_mentions=tweet.get('user_mentions', None),
+            withheld_copyright=tweet.get('withheld_copyright', None),
+            withheld_in_countries=tweet.get('withheld_in_countries', None),
+            withheld_scope=tweet.get('withheld_scope', None),
+            tweet_mode=tweet.get('tweet_mode', None),
+
+            # User data
+            user_id=user_dict.get('id'),
+            user_name=user_dict.get('name'),
+            screen_name=user_dict.get('screen_name'),
+            user_location=user_dict.get('location'),
+            description=user_dict.get('description'),
+            user_url=user_website,
+            followers_count=user_dict.get('followers_count'),
+            friends_count=user_dict.get('friends_count'),
+            listed_count=user_dict.get('listed_count'),
+            user_created_at=user_dict.get('user_created_at'),
+            verified=user_dict.get('verified'),
+            statuses_count=user_dict.get('statuses_count'),
+            user_lang=user_dict.get('lang')
         )
 
     def filter_by_existing_key(self, key, inverted=False):  # Fix exceptions, bool type
@@ -803,34 +810,6 @@ class TwitterOperator(TwitterApi):
 
         # Add minutes, hours, day offset and rest from timestamp
         return new_timestamp + minute*60 + hour*3600 + day*24*3600 + date_rest
-
-    @staticmethod
-    def tweet_strip(tweet):
-        def add_data(query, new_query=None):
-            if new_query is None:
-                new_query = query
-            out[new_query] = tweet[query]
-            
-        out = {}
-        add_data('text')
-        add_data('lang')
-        add_data('created_at')
-        add_data('id')
-        add_data('user')
-        add_data('urls')
-        add_data('user_mentions')
-        add_data('hashtags')
-        add_data('media')
-        add_data('retweet_count')
-        add_data('favorite_count')
-        # add_data comments  # <-- ??
-        add_data('in_reply_to_screen_name')
-        add_data('in_reply_to_status_id')
-        add_data('in_reply_to_user_id')
-        add_data('quoted_status')
-        add_data('quoted_status_id', 'quoted_status_id')
-
-        return out
 
 
 if __name__ == "__main__":
