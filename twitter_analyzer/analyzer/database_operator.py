@@ -70,6 +70,9 @@ class User(Base):
     user_lang = Column(String)
     timestamp = Column(String)
 
+    def __repr__(self):
+        return f"User: {self.user_id}: {self.screen_name} as {self.user_name}"
+
 
 # class TweetWork(Tweet):  # not working
 #     Tweet.__tablename__ = "tweet_work"
