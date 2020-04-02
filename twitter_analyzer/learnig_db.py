@@ -36,8 +36,8 @@ def show_tables():
 
 def show_tweets():
     session = Session()
-    for r in session.query(Tweet).filter(Tweet.tweet_id == 1245478587177865219):
-    # for r in session.query(Tweet).all():
+    # for r in session.query(Tweet).filter(Tweet.tweet_id == 1245478587177865219):
+    for r in session.query(Tweet).all():
         print(r)
 
 
@@ -55,6 +55,6 @@ def show_db_size():
 
 
 show_tables()
-show_tweets()
-# show_db_size()
+show_db_size()
+# show_tweets()
 # show_users()

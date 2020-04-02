@@ -4,6 +4,7 @@ services:
   postgres_db:
 #      build: .
       image: postgres:10.0-alpine
+      command: postgres -c 'max_connections=500'
       volumes:
         - ./postgres-data:/var/lib/postgresql/data
       environment:

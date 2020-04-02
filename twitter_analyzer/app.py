@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtWidgets  # QtGui
 
 from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
+from twitter_analyzer.analyzer.custom_logger import define_logger
 
 import webbrowser
 import datetime
@@ -553,11 +554,18 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 # ------ Sorted methods are above --------------------------------------------------------------------------------------
 
 
-if QtCore.QT_VERSION >= 0x50501:  # Showing traceback from crashes
-    def except_hook(type_, value, traceback_):
-        traceback.print_exception(type_, value, traceback_)
-        QtCore.qFatal('')
-    sys.excepthook = except_hook
+# if QtCore.QT_VERSION >= 0x50501:  # Showing traceback from crashes
+#     def except_hook(type_, value, traceback_):
+#         traceback.print_exception(type_, value, traceback_)
+#         QtCore.qFatal('')
+
+
+except_logger = define_logger('App_exception')
+
+
+def _except_handler(type=None, value=None, traceback=None):
+    except_logger.exception(f"Uncaught exception: {value}")
+    # except_logger.exception("Traceback: {0}".format(str(traceback)))
 
 
 def run_gui():
@@ -571,4 +579,5 @@ def run_gui():
 
 
 if __name__ == "__main__":
+    sys.excepthook = _except_handler
     run_gui()
