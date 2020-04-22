@@ -56,5 +56,20 @@ def show_db_size():
 
 show_tables()
 show_db_size()
-# show_tweets()
-# show_users()
+
+sess = Session()
+
+tweets = sess.query(Tweet.tweet_id).all()
+first = tweets[0][0]
+print(first)
+
+find_tweet = sess.query(Tweet.full_text).filter(Tweet.tweet_id == first).all()
+print(find_tweet)
+
+first_author = sess.query(User.user_id).first()
+author_tweets = sess.query(Tweet.full_text, Tweet.tweet_id).filter(Tweet.user_id == first_author).all()
+print(author_tweets)
+
+look_for = 1587569773
+first_timestmp = sess.query(Tweet.tweet_id, Tweet.full_text).filter(Tweet.created_at == look_for).all()
+print(first_timestmp)

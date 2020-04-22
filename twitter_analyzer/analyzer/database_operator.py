@@ -17,10 +17,10 @@ logger = define_logger("DB_Orm")
 class Tweet(Base):
     __tablename__ = 'tweet'
     tweet_id = Column(BigInteger, primary_key=True)
-    timestamp = Column(Integer)
+    timestamp = Column(BigInteger)
     contributors = Column(String)
     coordinates = Column(String)
-    created_at = Column(String)
+    created_at = Column(BigInteger)
     current_user_retweet = Column(Integer)
     favorite_count = Column(Integer)
     favorited = Column(String)
@@ -64,11 +64,11 @@ class User(Base):
     followers_count = Column(String)
     friends_count = Column(String)
     listed_count = Column(String)
-    created_at = Column(String)
+    created_at = Column(BigInteger)
     verified = Column(Boolean)
     statuses_count = Column(String)
     user_lang = Column(String)
-    timestamp = Column(String)
+    timestamp = Column(BigInteger)
 
     def __repr__(self):
         return f"User: {self.user_id}: {self.screen_name} as {self.user_name}"

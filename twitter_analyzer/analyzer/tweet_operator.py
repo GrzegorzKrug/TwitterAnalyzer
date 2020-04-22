@@ -1,22 +1,22 @@
 # tweet_operator.py
 # Grzegorz Krug
 
-import time
-import os
 import pandas as pd
-import datetime
-import glob
 import threading
 import calendar
-import re
+import datetime
+import locale
+import glob
+import time
 import ast
 import sys
+import re
+import os
 
 from .custom_logger import define_logger
 from .api import TwitterApi
 from .api import Unauthorized, ApiNotFound, TooManyRequests
 from pandas.errors import ParserError
-
 from .database_operator import get_database_connectors, add_tweet_with_user
 
 
@@ -42,6 +42,7 @@ class TwitterOperator(TwitterApi):
         self.logger = define_logger("Operator")
         self.engine, self.Session = get_database_connectors()
         self.save_tweet_in_db = add_tweet_with_user
+        locale.setlocale(locale.LC_ALL, 'en_GB.utf8')
 
         if auto_login:
             valid = self.verify_procedure()
@@ -56,6 +57,20 @@ class TwitterOperator(TwitterApi):
     def add_timestamp_attr(tweet):
         """Adding time stamp to tweet dict"""
         tweet['timestamp'] = round(time.time())
+
+    @staticmethod
+    def convert_date_to_timestamp(tweet):
+        """Adding time stamp to tweet dict"""
+        date_text = tweet['created_at']
+        pattern = '%a %b %d %H:%M:%S %z %Y'
+        dt = datetime.datetime.strptime(date_text, pattern)
+        timestamp = int(dt.timestamp())
+        tweet['created_at'] = timestamp
+
+    @classmethod
+    def tweet_pre_process(cls, tweet):
+        cls.add_timestamp_attr(tweet)
+        cls.convert_date_to_timestamp(tweet)
 
     def auto_collect_home_tab(self, n=10, chunk_size=200, interval=60):
         """Loop that runs N times, and collect Tweet x chunk_size
@@ -293,7 +308,7 @@ class TwitterOperator(TwitterApi):
             )
         if home_tweets:
             for tweet in home_tweets:
-                self.add_timestamp_attr(tweet)
+                self.tweet_pre_process(tweet)
                 self.export_tweet_to_database(tweet)
         else:
             self.logger.error("No tweets, None object received.")

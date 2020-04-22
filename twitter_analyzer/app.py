@@ -564,9 +564,8 @@ except_logger = define_logger('App_exception')
 
 
 def _except_handler(type=None, value=None, traceback=None):
-    except_logger.exception(f"Uncaught exception: {value}")
-    # except_logger.exception("Traceback: {0}".format(str(traceback)))
-
+    except_logger.exception(f"Uncaught exception: {value}\ntraceback: {traceback}")
+    # ['tb_frame', 'tb_lasti', 'tb_lineno', 'tb_next']
 
 def run_gui():
     ui = QtWidgets.QApplication(sys.argv)
@@ -579,5 +578,5 @@ def run_gui():
 
 
 if __name__ == "__main__":
-    sys.excepthook = _except_handler
+    # sys.excepthook = _except_handler
     run_gui()

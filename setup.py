@@ -3,8 +3,7 @@ from setuptools import setup
 setup(
    name='twitter_analyzer',
    version='0.5',
-   description='Gathering Tweets, Posting Tweets, Manipulation stored Tweets' \
-   +' in CSV',
+   description='Gathering Tweets, Posting Tweets, Manipulation stored Tweets',
    author='Grzegorz Krug',
    author_email='my mail',
    packages=['twitter_analyzer'],  #same as name
