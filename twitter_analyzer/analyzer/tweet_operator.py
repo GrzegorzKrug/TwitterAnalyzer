@@ -17,7 +17,11 @@ from .custom_logger import define_logger
 from .api import TwitterApi
 from .api import Unauthorized, ApiNotFound, TooManyRequests
 from pandas.errors import ParserError
-from .database_operator import get_database_connectors, add_tweet_with_user
+from .database_operator import (
+    get_database_connectors, add_tweet_with_user,
+    filter_db_search_words, filter_db_search_phrases, filter_by_lang,
+    get_db_full_tweet_with_user
+)
 
 
 except_logger = define_logger("Operator_exception")
@@ -35,7 +39,8 @@ class TwitterOperator(TwitterApi):
         self._data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tweets')
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
-        self.DF = None
+        self.tweet_list = []
+        self.current_tweet_index = 0
         self.threads = []  # Thread reference list
         self.th_num = 0  # Thread counter
         self.loaded_to_DF = []
@@ -360,17 +365,27 @@ class TwitterOperator(TwitterApi):
         _app = TwitterOperator()
         _app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
 
-    @staticmethod
-    # def download_parent_tweets(file_list=None, df=None):
-    def download_parent_tweets(df=None):
-        if df is None:
-            TwitterOperator().logger.error(f"Missing input, df: {df}")
-            return None
-        _app = TwitterOperator(auto_login=False)
-        _app.DF = df.copy()
-        status_list = _app.find_parent_tweets()
-        _app.collect_status_list(status_list=status_list)
+    # @staticmethod
+    # def download_parent_tweets(df=None):
+    #     if df is None:
+    #         TwitterOperator().logger.error(f"Missing input, df: {df}")
+    #         return None
+    #     _app = TwitterOperator(auto_login=False)
+    #     _app.DF = df.copy()
+    #     status_list = _app.find_parent_tweets()
+    #     _app.collect_status_list(status_list=status_list)
 
+    def set_tweet_list(self, tweet_array):
+        self.tweet_list = [tweet_id for tweet_id, _ in tweet_array]
+
+    def get_full_tweet(self, tweet_id):
+        self.logger.debug(f"Requesting DB for tweet: {tweet_id}")
+        tweet = get_db_full_tweet_with_user(self.Session, tweet_id)
+        if tweet:
+            self.logger.debug(f"Received tweet: {tweet.Tweet.tweet_id}")
+        else:
+            self.logger.error(f"Received not tweet: {tweet}")
+        return tweet
     # def delete_selected(self, file_list):
     #     if file_list is []:
     #         self.logger.warning('List is empty!')
@@ -382,40 +397,49 @@ class TwitterOperator(TwitterApi):
     #         except PermissionError as pe:
     #             self.logger.error(f'File: {f}, {pe}')
 
-    def drop_tweet_in_df(self, index):
-        if self.DF is not None:
-            df = self.DF
-            if 0 > index > len(df):
-                self.logger.error("Invalid index, can not drop tweet")
-                return None
+    # def drop_tweet_in_df(self, index):
+    #     if self.DF is not None:
+    #         df = self.DF
+    #         if 0 > index > len(df):
+    #             self.logger.error("Invalid index, can not drop tweet")
+    #             return None
+    #
+    #         df = df.drop(df.index[index])
+    #         if self.filter_conditions(df):
+    #             self.logger.debug(f"Successfully dropped this tweet, index: {index}")
+    #             self.DF = df
+    #     else:
+    #         self.logger.warning('DF is empty. Load some tweets first.')
 
-            df = df.drop(df.index[index])
-            if self.filter_conditions(df):
-                self.logger.debug(f"Successfully dropped this tweet, index: {index}")
-                self.DF = df
-        else:
-            self.logger.warning('DF is empty. Load some tweets first.')
-
-    def drop_duplicates_from_df(self, keep_new=True):
-        if keep_new:
-            keep = 'last'
-        else:
-            keep = 'first'
-
-        if self.DF is not None:
-            df = self.DF
-            df = df.sort_values('timestamp').drop_duplicates(subset=['id'], keep=keep)
-            if self.filter_conditions(df):
-                self.logger.debug("Successfully dropped duplicates")
-                self.DF = df
-                return True
-            else:
-                self.logger.warning("Could not drop tweet duplicates")
-        else:
-            self.logger.warning('DF is empty. Load some tweets first.')
+    # def drop_duplicates_from_df(self, keep_new=True):
+    #     if keep_new:
+    #         keep = 'last'
+    #     else:
+    #         keep = 'first'
+    #
+    #     if self.DF is not None:
+    #         df = self.DF
+    #         df = df.sort_values('timestamp').drop_duplicates(subset=['id'], keep=keep)
+    #         if self.filter_conditions(df):
+    #             self.logger.debug("Successfully dropped duplicates")
+    #             self.DF = df
+    #             return True
+    #         else:
+    #             self.logger.warning("Could not drop tweet duplicates")
+    #     else:
+    #         self.logger.warning('DF is empty. Load some tweets first.')
 
     # @staticmethod
     def export_tweet_to_database(self, tweet, delay=0):
+        """
+
+        Args:
+            tweet:
+            delay:
+
+        Returns:
+
+        """
         if delay > 0:
             time.sleep(delay)
 
@@ -480,71 +504,16 @@ class TwitterOperator(TwitterApi):
             user_lang=user_dict.get('lang')
         )
 
-    # def filter_by_existing_key(self, key, inverted=False):  # Fix exceptions, bool type
-    #     if not key or key == '' or key not in self.DF.keys():
-    #         self.logger.warning('Invalid key to filter.')
-    #         return False
-    #     df = self.DF
-    #     if df is None:
-    #         return False
-    #
-    #     if inverted:
-    #         df = df.loc[(df[key] is None) | (df[key] == 0) | (df[key] == 'None')]
-    #     else:
-    #         df = df.loc[(df[key] is not None) & (df[key] != 0) & (df[key] != 'None')]
-    #
-    #     if self.filter_conditions(df):
-    #         self.logger.debug(f"Successfully filtered by existing key: {key}")
-    #         self.DF = df
-    #         return True
-    #     else:
-    #         return False
+    def fork_method(self, method_to_fork, *args, **kwargs):
+        self.logger.debug(f"Forking '{method_to_fork.__name__}'")
+        threading.excepthook = _except_handler
+        subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
+        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
+        subprocess.start()
+        self.threads += [subprocess]
+        self.th_num += 1
+        return subprocess
 
-    # def filter_conditions(self, df):
-    #     if df.shape[0] > 0 and df.shape != self.DF.shape:
-    #         return True
-    #     elif df.shape[0] > 0:
-    #         self.logger.debug('DF size is the same.')
-    #         return False
-    #     else:
-    #         self.logger.debug('DF is empty.')
-    #         return False
-
-    # def filter_df_by_lang(self, lang, inverted=False):
-    #     lang = str(lang)
-    #     if self.DF is not None:
-    #         if inverted:
-    #             df = self.DF.loc[lambda _df: _df['lang'] != lang]
-    #         else:
-    #             df = self.DF.loc[lambda _df: _df['lang'] == lang]
-    #
-    #         if self.filter_conditions(df):
-    #             self.DF = df
-    #             self.logger.debug(f"Successfully filtered by language: {lang}")
-    #             return True
-    #     else:
-    #         self.logger.warning('DF is empty. Load some tweets first.')
-
-    # def filter_df_search_phrases(self, words, only_in_text=True, inverted=False):
-    #     if self.DF is None:
-    #         self.logger.warning('DF is empty. Load some tweets first.')
-    #         return False
-    #
-    #     if only_in_text:
-    #         method = TwitterOperator.check_series_words_in_text
-    #     else:
-    #         method = TwitterOperator.check_series_words_anywhere
-    #     stages = re.split(';', words)  # Separating stages
-    #     df = self.DF
-    #
-    #     for filtration_stage in stages:
-    #         self.logger.debug(f"Filtering df with phrases: {filtration_stage}, method: {method}")
-    #         df = df.loc[lambda _df: method(_df, filtration_stage, inverted=inverted)]
-    #
-    #     if self.filter_conditions(df):
-    #         self.DF = df
-    #         self.logger.debug(f"Successfully filtered tweets by phrases")
-    #         return True
 
     # def filter_df_by_timestamp(self, time_stamp_min, time_stamp_max):
     #     if self.DF is not None:
@@ -627,109 +596,28 @@ class TwitterOperator(TwitterApi):
     #     unique = self.DF[key].unique()
     #     return unique
 
-    def fork_method(self, method_to_fork, *args, **kwargs):
-        self.logger.debug(f"Forking '{method_to_fork.__name__}'")
-        threading.excepthook = _except_handler
-        subprocess = threading.Thread(target=lambda: method_to_fork(*args, **kwargs))
-        subprocess.__name__ = f'Thread #{self.th_num} ' + method_to_fork.__name__
-        subprocess.start()
-        self.threads += [subprocess]
-        self.th_num += 1
-        return subprocess
 
-    # def load_df(self, file_list):
-    #     if type(file_list) is str:
-    #         file_list = [file_list]
-    #     valid_load = True
-    #     self.DF = None
-    #     self.loaded_to_DF = []
-    #     for file in file_list:
-    #         if os.path.isabs(file):
-    #             file_path = file
-    #         else:
-    #             file_path = os.path.abspath(os.path.join(self._data_dir, file))
-    #         try:
-    #             self.logger.info(f"Loading: {file}")
-    #             df = pd.read_csv(str(file_path), sep=';', encoding='utf8')
-    #         except ParserError as pe:
-    #             self.logger.error(f"Pandas Error: Can not load this file {file}.{pe}")
-    #             valid_load = False
-    #             continue
-    #
-    #         except UnicodeDecodeError as ue:
-    #             self.logger.error(f"Decode Error in file: {file}. {ue}")
-    #             valid_load = False
-    #             continue
-    #
-    #         self.loaded_to_DF += [file]
-    #         if self.DF is None:
-    #             self.DF = df
-    #         else:
-    #             self.DF = pd.concat([self.DF, df], ignore_index=True)
-    #     return valid_load
+    def get_tweets_by_words(self, words):
+        self.logger.debug(f"Requesting tweets from database (words == {words})")
+        tweets = filter_db_search_words(self.Session, words)
+        self.logger.debug(f"Received {len(tweets)} tweets from db.")
+        return tweets
 
-    # def merge_selected(self, file_list):
-    #     if not file_list:
-    #         self.add_log('Error. Select files!')
-    #         return None
-    #     if len(file_list) <= 1:
-    #         self.add_log('You can not merge this.')
-    #         return None
-    #
-    #     now = datetime.datetime.now()
-    #     merged_file = 'merged_' \
-    #                   + f'{now.year}'.rjust(4, '0') \
-    #                   + f'{now.month}'.rjust(2, '0') \
-    #                   + f'{now.day}'.rjust(2, '0') \
-    #                   + '_' + f'{now.hour}'.rjust(2, '0') \
-    #                   + '-' + f'{now.minute}'.rjust(2, '0') \
-    #                   + '-' + f'{now.second}'.rjust(2, '0') \
-    #                   + '.csv'
-    #
-    #     file_path = os.path.join(self._data_dir, merged_file)
-    #     with open(file_path, 'wt', encoding='utf8') as f:
-    #         for i, file in enumerate(file_list):
-    #             curr_file_path = os.path.join(self._data_dir, file)
-    #             df = pd.read_csv(curr_file_path, sep=';', encoding='utf8')
-    #             if i == 0:
-    #                 df.to_csv(f, header=True, sep=';', encoding='utf8', index=False)
-    #             else:
-    #                 df.to_csv(f, header=False, sep=';', encoding='utf8', index=False)
-    #             try:
-    #                 os.remove(curr_file_path)
-    #             except PermissionError as pe:
-    #                 self.logger.error(f'Merge to file: {file}, {pe}')
-    #
-    #     self.logger.debug(f'Merged to file: {merged_file}')
+    def get_tweets_by_phrases(self, words):
+        self.logger.debug(f"Requesting tweets from database (phrases == {words})")
+        tweets = filter_db_search_phrases(self.Session, words)
+        self.logger.debug(f"Received {len(tweets)} tweets from db.")
+        return tweets
 
-    # @staticmethod
-    # def merge_without_duplicates(files, output_filename=None):
-    #     app = TwitterOperator()
-    #     if not output_filename:
-    #         default_name = 'Auto_Merge' + '_' + app.now_as_text()
-    #         file_with_ext = default_name + '.csv'
-    #     else:
-    #         file_with_ext = output_filename + '.csv'
-    #
-    #     valid = app.load_df(files)
-    #     if valid:
-    #         resp = app.drop_duplicates_from_df()
-    #     if valid and resp is not False:  # If drop duplicates fails, process further anyway
-    #         if output_filename:
-    #             valid = app.save_current_df(full_name=output_filename)
-    #         else:
-    #             valid = app.save_current_df(full_name=default_name)
-    #     if valid:  # Delete only if chain is valid
-    #         for curr_file in files:
-    #             if file_with_ext == curr_file:
-    #                 app.logger.warning(f"File names are the same! Not deleting: {curr_file}")
-    #                 continue
-    #             curr_file_path = os.path.join(app._data_dir, curr_file)
-    #             try:
-    #                 os.remove(curr_file_path)
-    #                 app.logger.debug(f"Removed this file: {curr_file_path}")
-    #             except PermissionError as pe:
-    #                 app.logger.error(f"Can not remove: {curr_file_path}, {pe}")
+    def get_tweets_by_lang(self, lang, inverted=False):
+        if not inverted:
+            self.logger.debug(f"Requesting tweets from database(lang == {lang})")
+        else:
+            self.logger.debug(f"Requesting tweets from database(lang != {lang})")
+        tweets = filter_by_lang(self.Session, lang, inverted)
+        self.logger.debug(f"Received {len(tweets)} tweets from db.")
+        return tweets
+
 
     @staticmethod
     def now_as_text():
@@ -741,27 +629,6 @@ class TwitterOperator(TwitterApi):
                + '-' + f'{now.minute}'.rjust(2, '0') \
                + '-' + f'{now.second}'.rjust(2, '0')
         return text
-
-    # def reload_df(self):
-    #     self.DF = None
-    #     text = 'Reloading Tweets:'
-    #     if not self.loaded_to_DF:
-    #         self.logger.warning('Never loaded anything!')
-    #         return False
-    #
-    #     for file in self.loaded_to_DF:
-    #         file_path = os.path.join(self._data_dir, file)
-    #         try:
-    #             df = pd.read_csv(file_path, sep=';', encoding='utf8')
-    #             text += f'\n{file}'
-    #             if self.DF is None:
-    #                 self.DF = df
-    #             else:
-    #                 self.DF = pd.concat([self.DF, df], ignore_index=True)
-    #         except FileNotFoundError:
-    #             self.logger.error(f'Can not reload missing file: {file}')
-    #             continue
-    #     self.logger.info(text)
 
     # def save_current_df(self, full_name=None, extra_text=None):
     #     if extra_text:

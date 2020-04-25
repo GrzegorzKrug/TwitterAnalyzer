@@ -1,17 +1,39 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, BigInteger
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import ProgrammingError, IntegrityError
+from sqlalchemy.ext.declarative import declarative_base
+from .custom_logger import define_logger
 from sqlalchemy.orm import sessionmaker
 from psycopg2 import OperationalError
-from .custom_logger import define_logger
+from sqlalchemy import create_engine
 
 import time
-import os
 import sys
+import os
+import re
 
 Base = declarative_base()
 logger = define_logger("DB_Orm")
+
+
+class User(Base):
+    __tablename__ = "user"
+    user_id = Column(BigInteger, primary_key=True)
+    user_name = Column(String)
+    screen_name = Column(String)
+    user_location = Column(String)
+    description = Column(String)
+    user_url = Column(String)
+    followers_count = Column(String)
+    friends_count = Column(String)
+    listed_count = Column(String)
+    created_at = Column(BigInteger)
+    verified = Column(Boolean)
+    statuses_count = Column(String)
+    user_lang = Column(String)
+    timestamp = Column(BigInteger)
+
+    def __repr__(self):
+        return f"User: {self.user_id}: {self.screen_name} as {self.user_name}"
 
 
 class Tweet(Base):
@@ -42,7 +64,7 @@ class Tweet(Base):
     source = Column(String)
     truncated = Column(String)
     urls = Column(String)
-    user_id = Column(BigInteger)
+    user_id = Column(BigInteger, ForeignKey('user.user_id'))
     user_mentions = Column(String)
     withheld_copyright = Column(String)
     withheld_in_countries = Column(String)
@@ -51,27 +73,6 @@ class Tweet(Base):
 
     def __repr__(self):
         return f"{self.tweet_id}: ".ljust(20) + f"{self.full_text}"
-
-
-class User(Base):
-    __tablename__ = "user"
-    user_id = Column(BigInteger, primary_key=True)
-    user_name = Column(String)
-    screen_name = Column(String)
-    user_location = Column(String)
-    description = Column(String)
-    user_url = Column(String)
-    followers_count = Column(String)
-    friends_count = Column(String)
-    listed_count = Column(String)
-    created_at = Column(BigInteger)
-    verified = Column(Boolean)
-    statuses_count = Column(String)
-    user_lang = Column(String)
-    timestamp = Column(BigInteger)
-
-    def __repr__(self):
-        return f"User: {self.user_id}: {self.screen_name} as {self.user_name}"
 
 
 # class TweetWork(Tweet):  # not working
@@ -169,6 +170,25 @@ def add_tweet_with_user(
         user_lang=None
 ):
 
+    add_user(
+        Session=Session,
+        user_id=user_id,
+        user_name=user_name,
+        screen_name=screen_name,
+        user_location=user_location,
+        description=description,
+        user_url=user_url,
+        followers_count=followers_count,
+        friends_count=friends_count,
+        listed_count=listed_count,
+        created_at=user_created_at,
+        verified=verified,
+        statuses_count=statuses_count,
+        user_lang=user_lang,
+        timestamp=timestamp
+    )
+
+
     tweet = Tweet(tweet_id=str(tweet_id),
                   timestamp=timestamp,
                   contributors=contributors,
@@ -210,25 +230,6 @@ def add_tweet_with_user(
         logger.warning(f"Possible tweet duplicate: {tweet_id}")
         session.rollback()
         pass
-
-    add_user(
-        Session=Session,
-        user_id=user_id,
-        user_name=user_name,
-        screen_name=screen_name,
-        user_location=user_location,
-        description=description,
-        user_url=user_url,
-        followers_count=followers_count,
-        friends_count=friends_count,
-        listed_count=listed_count,
-        created_at=user_created_at,
-        verified=verified,
-        statuses_count=statuses_count,
-        user_lang=user_lang,
-        timestamp=timestamp
-    )
-
 
 def add_user(
         Session,
@@ -289,5 +290,87 @@ def insert_to_table(session, table_object):
         logger.error(f"ProgrammingError: {pe}")
 
 
-# if __name__ == '__main__':
-#     initialize()
+def filter_by_lang(Session, lang, inverted=False):
+    """
+
+    Args:
+        lang: language to filter
+        inverted:
+
+    Returns:
+
+    """
+    lang = str(lang)
+    session = Session()
+    if not inverted:
+        tweets = session.query(Tweet.tweet_id, Tweet.lang).filter(Tweet.lang == lang).all()
+    else:
+        tweets = session.query(Tweet.tweet_id, Tweet.lang).filter(Tweet.lang != lang).all()
+    session.close()
+    return tweets
+
+
+def filter_by_existing_key(Session, key, inverted=False):
+    """
+    Filter db, to get all tweets with key
+    Args:
+        key: string
+        inverted: bool, inverted filtraion
+
+    Returns:
+
+    """
+    session = Session()
+    if not inverted:
+        text = f"session.query(Tweet.tweet_id, Tweet.{key}).filter(Tweet.{key} != 'None').all()"
+    else:
+        text = f"session.query(Tweet.tweet_id, Tweet.{key}).filter(Tweet.{key} == 'None').all()"
+    tweets = eval(text)
+    return tweets
+
+
+def filter_db_search_words(Session, words):
+    """
+
+    Args:
+        Session:
+        words:
+
+    Returns:
+
+    """
+    # stages = re.split(';', words)  # Separating stages
+    words = words.split()
+    session = Session()
+    tweets = []
+    for word in words:
+        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if word.lower() in tweet[1].lower()]
+        tweets += output
+    return tweets
+
+
+def filter_db_search_phrases(Session, words):
+    """
+
+    Args:
+        Session:
+        words:
+
+    Returns:
+
+    """
+    stages = re.split(';', words)  # Separating stages
+    # words = words.split()
+    session = Session()
+    tweets = []
+    for stage in stages:
+        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if stage.lower() in tweet[1].lower()]
+        tweets += output
+    return tweets
+
+
+def get_db_full_tweet_with_user(Session, tweet_id):
+    session = Session()
+    tweet = session.query(Tweet, User).join(User).filter(Tweet.tweet_id == tweet_id).first()
+    return tweet
+

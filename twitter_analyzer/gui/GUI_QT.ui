@@ -148,6 +148,9 @@ p, li { white-space: pre-wrap; }
         </property>
         <item row="2" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_reload_DF">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>Reload DF from the same files again.</string>
           </property>
@@ -168,6 +171,9 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="3" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_showTweets">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>Shows currently loaded DF</string>
           </property>
@@ -181,6 +187,9 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="11" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_HideEmptyValues">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Hide empty values</string>
           </property>
@@ -221,6 +230,9 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="10" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
@@ -244,6 +256,9 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="1" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_load_selected_csv_2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>Loads files from tree.</string>
           </property>
@@ -254,6 +269,9 @@ p, li { white-space: pre-wrap; }
         </item>
         <item row="9" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_DisplayShortQuoteStatus">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Short quote and retweet</string>
           </property>
@@ -348,136 +366,6 @@ p, li { white-space: pre-wrap; }
          <attribute name="toolTip">
           <string>Manage Tweet Files in 'tweets' directory</string>
          </attribute>
-         <widget class="QPushButton" name="pushButton_delete100">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>180</y>
-            <width>101</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>Delete CSV files that have less than 100 Tweets</string>
-          </property>
-          <property name="toolTipDuration">
-           <number>-1</number>
-          </property>
-          <property name="text">
-           <string>Delete &lt; 100</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_delete500">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>210</y>
-            <width>101</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>Delete CSV files that have less than 500 Tweets</string>
-          </property>
-          <property name="toolTipDuration">
-           <number>-1</number>
-          </property>
-          <property name="text">
-           <string>Delete &lt; 500</string>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>150</y>
-            <width>121</width>
-            <height>121</height>
-           </rect>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <widget class="QLabel" name="label_3">
-           <property name="geometry">
-            <rect>
-             <x>20</x>
-             <y>10</y>
-             <width>71</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Clean up:</string>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QPushButton" name="pushButton_load_selected_csv">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>111</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Load selected</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_export_DF_7">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>80</y>
-            <width>91</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="toolTip">
-           <string>Split DF into X pieces and saves.</string>
-          </property>
-          <property name="text">
-           <string>Split DF</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_DF_comment_3">
-          <property name="geometry">
-           <rect>
-            <x>120</x>
-            <y>80</y>
-            <width>31</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="toolTip">
-           <string>Number of pieces to split.</string>
-          </property>
-          <property name="text">
-           <string>2</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
          <widget class="QPushButton" name="pushButton_Magic_Debug">
           <property name="geometry">
            <rect>
@@ -491,13 +379,6 @@ p, li { white-space: pre-wrap; }
            <string>Magic Debug</string>
           </property>
          </widget>
-         <zorder>frame</zorder>
-         <zorder>pushButton_delete100</zorder>
-         <zorder>pushButton_delete500</zorder>
-         <zorder>pushButton_load_selected_csv</zorder>
-         <zorder>pushButton_export_DF_7</zorder>
-         <zorder>lineEdit_DF_comment_3</zorder>
-         <zorder>pushButton_Magic_Debug</zorder>
         </widget>
         <widget class="QWidget" name="Request">
          <attribute name="title">
@@ -578,21 +459,20 @@ color: rgb(255, 255, 255);</string>
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>70</y>
+            <y>100</y>
             <width>141</width>
             <height>41</height>
            </rect>
           </property>
           <property name="text">
-           <string>Get parent tweets
-from DF</string>
+           <string>Get parent tweets</string>
           </property>
          </widget>
          <widget class="QPushButton" name="pushButton_Request_Status">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>140</y>
+            <y>170</y>
             <width>141</width>
             <height>23</height>
            </rect>
@@ -608,7 +488,7 @@ from DF</string>
           <property name="geometry">
            <rect>
             <x>160</x>
-            <y>140</y>
+            <y>170</y>
             <width>151</width>
             <height>23</height>
            </rect>
@@ -617,18 +497,17 @@ from DF</string>
            <string>Input index for Jump button.</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="pushButton_request_parent_tweets_from_files">
+         <widget class="QPushButton" name="pushButton_collect60">
           <property name="geometry">
            <rect>
-            <x>160</x>
+            <x>10</x>
             <y>70</y>
             <width>141</width>
-            <height>41</height>
+            <height>23</height>
            </rect>
           </property>
           <property name="text">
-           <string>Get parent tweets
-from files</string>
+           <string>60 Chunks : 60mins</string>
           </property>
          </widget>
         </widget>
@@ -652,7 +531,7 @@ from files</string>
            <string>Save DF to .csv File, Name is optional</string>
           </property>
           <property name="text">
-           <string>Save DF</string>
+           <string>Export to csv</string>
           </property>
          </widget>
          <widget class="QLineEdit" name="lineEdit_DF_comment">
@@ -745,7 +624,7 @@ from files</string>
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split words with ','.&lt;/p&gt;&lt;p&gt;To make sequential search split phrases with ';'.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Find in text</string>
+                <string>Find words</string>
                </property>
               </widget>
              </item>
@@ -772,10 +651,10 @@ from files</string>
              <item row="3" column="0">
               <widget class="QPushButton" name="pushButton_filter_search_words_anywhere">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split words with ','.&lt;/p&gt;&lt;p&gt;To make sequential search split phrases with ';'.&lt;/p&gt;&lt;p&gt;Use this to search in keys and all fields available(lang, location etc.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split phrases with semilocon ;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Find in any field</string>
+                <string>Find phrases</string>
                </property>
               </widget>
              </item>
