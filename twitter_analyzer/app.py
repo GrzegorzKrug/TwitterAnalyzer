@@ -34,17 +34,17 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.actionWho_am_I.triggered.connect(self.show_me)
         self.actionRefresh_GUI.triggered.connect(self.refresh_gui)
         self.actionTweet_Description.triggered.connect(self.show_tweet_keys)
-
         # self.label_login_status.mousePressEvent = self.update_status
 
         'Requesting methods'
         self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.download_full_chunk))
         self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
+        self.pushButton_collect60.clicked.connect(lambda f: self.fork_method(self.download60_chunks))
         self.pushButton_Request_Status.clicked.connect(self.request_status_from_box)
-        # self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: self.fork_method(
-        #         method_to_fork=self.download_parent_tweets,
-        #         df=self.DF
-        # ))
+        self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: self.fork_method(
+                method_to_fork=self.download_parent_tweets,
+                tweet_list=self.tweet_list
+        ))
 
         'Settings'
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
@@ -58,6 +58,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_open_in_browser.clicked.connect(self.open_in_browser)
 
         'Displaying Tweets'
+        self.pushButton_ShowTweetAll.clicked.connect(self.show_all_tweets)
         self.pushButton_ShowTweet.clicked.connect(self.show_current_tweet)
         self.pushButton_NextTweet.clicked.connect(self.show_next_tweet)
         self.pushButton_PreviousTweet.clicked.connect(self.show_prev_tweet)
@@ -69,7 +70,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.trigger_filter_by_lang('en'))
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.trigger_filter_by_lang)
         # self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.trigger_filter_by_non_empty_key)
-        # self.pushButton_FilterDF_TweetID.clicked.connect(self.trigger_filter_by_tweet_id)
+        self.pushButton_FilterDF_TweetID.clicked.connect(self.trigger_filter_by_tweet_id)
         # self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_by_age)
         # self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_by_date)
         self.pushButton_filter_search_words.clicked.connect(
@@ -228,6 +229,11 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         else:
             text = "Not having any information about you."
         self.pop_window(text)
+
+    def show_all_tweets(self):
+        tweets = self.get_all_tweets()
+        self.set_tweet_list(tweets)
+        self.show_current_tweet()
 
     def show_current_tweet(self):
         ind = self.current_tweet_index
@@ -423,27 +429,27 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         tweets = self.get_tweets_by_lang(lang, inverted)
         self.tweet_list = tweets
         self.set_tweet_list(tweets)
+        self.show_current_tweet()
 
     def trigger_filter_by_search_words(self):
         words = self.lineEdit_filter_words.text()
         tweets = self.get_tweets_by_words(words)
         self.tweet_list = tweets
         self.set_tweet_list(tweets)
+        self.show_current_tweet()
 
     def trigger_filter_by_search_phrases(self):
         words = self.lineEdit_filter_words.text()
         tweets = self.get_tweets_by_phrases(words)
         self.set_tweet_list(tweets)
+        self.show_current_tweet()
 
-    # def trigger_filter_by_tweet_id(self):
-    #     text = self.lineEdit_tweet_id.text()
-    #     if len(text) < 0:
-    #         self.add_log("This is not valid ID")
-    #     inverted = self.check_settings_inverted()
-    #     valid = self.filter_df_by_tweet_id(text, inverted=inverted)
-    #     if valid:
-    #         self.currTweetDF_ind = 0
-    #         self.show_current_tweet_from_df()
+    def trigger_filter_by_tweet_id(self):
+        tweet_id = int(self.lineEdit_tweet_id.text())
+        tweets = self.get_tweet_by_id(tweet_id)
+        if tweets:
+            self.set_tweet_list(tweets)
+            self.show_current_tweet()
 
     # def trigger_filter_by_user(self):
     #     user_text = self.lineEdit_user_input.text()

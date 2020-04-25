@@ -91,7 +91,7 @@ def get_engine():
     host = os.getenv('DB_ACCES_NAME', '127.0.0.1')
     port = 5432
     url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
-    engine = create_engine(url,
+    engine = create_engine(url, pool_size=50,
                            connect_args={'client_encoding': 'utf8'})
     return engine
 
@@ -188,7 +188,6 @@ def add_tweet_with_user(
         timestamp=timestamp
     )
 
-
     tweet = Tweet(tweet_id=str(tweet_id),
                   timestamp=timestamp,
                   contributors=contributors,
@@ -230,6 +229,8 @@ def add_tweet_with_user(
         logger.warning(f"Possible tweet duplicate: {tweet_id}")
         session.rollback()
         pass
+    session.close()
+
 
 def add_user(
         Session,
@@ -271,6 +272,7 @@ def add_user(
                      f'user_id: {user_id}, timestamp: {timestamp}')
     except IntegrityError:
         logger.warning(f"Possible user duplicate: {user_id}, {screen_name}")
+    session.close()
 
 
 def get_database_connectors() -> "Engine, Session":
@@ -371,6 +373,12 @@ def filter_db_search_phrases(Session, words):
 
 def get_db_full_tweet_with_user(Session, tweet_id):
     session = Session()
+    tweet_id = int(tweet_id)
     tweet = session.query(Tweet, User).join(User).filter(Tweet.tweet_id == tweet_id).first()
     return tweet
 
+
+def get_db_all_tweet_list(Session):
+    session = Session()
+    tweets = session.query(Tweet.tweet_id).all()
+    return tweets

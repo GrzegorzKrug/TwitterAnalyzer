@@ -20,7 +20,7 @@ from pandas.errors import ParserError
 from .database_operator import (
     get_database_connectors, add_tweet_with_user,
     filter_db_search_words, filter_db_search_phrases, filter_by_lang,
-    get_db_full_tweet_with_user
+    get_db_full_tweet_with_user, get_db_all_tweet_list
 )
 
 
@@ -269,7 +269,7 @@ class TwitterOperator(TwitterApi):
                 this_status = _app.request_status(tweet_id)
 
                 if this_status:
-                    _app.add_timestamp_attr(this_status)
+                    _app.tweet_pre_process(this_status)
                     _app.export_tweet_to_database(this_status)
                     break
                 else:
@@ -356,6 +356,11 @@ class TwitterOperator(TwitterApi):
     #     self.logger.debug(f'Done removing')
 
     @staticmethod
+    def download60_chunks():
+        _app = TwitterOperator(auto_login=True)
+        _app.auto_collect_home_tab(n=60, chunk_size=200, interval=60)
+
+    @staticmethod
     def download10_chunks():
         _app = TwitterOperator(auto_login=True)
         _app.auto_collect_home_tab(n=10, chunk_size=200, interval=60)
@@ -365,27 +370,46 @@ class TwitterOperator(TwitterApi):
         _app = TwitterOperator()
         _app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
 
-    # @staticmethod
-    # def download_parent_tweets(df=None):
-    #     if df is None:
-    #         TwitterOperator().logger.error(f"Missing input, df: {df}")
-    #         return None
-    #     _app = TwitterOperator(auto_login=False)
-    #     _app.DF = df.copy()
-    #     status_list = _app.find_parent_tweets()
-    #     _app.collect_status_list(status_list=status_list)
+    @staticmethod
+    def download_parent_tweets(tweet_list=None):
+        if tweet_list is None:
+            TwitterOperator().logger.error(f"Missing input, tweet_list: {tweet_list}")
+            return None
+        _app = TwitterOperator(auto_login=False)
+        _app.tweet_list = tweet_list.copy()
+        status_list = _app.find_parent_tweets()
+        _app.collect_status_list(status_list=status_list)
 
     def set_tweet_list(self, tweet_array):
-        self.tweet_list = [tweet_id for tweet_id, _ in tweet_array]
+        if tweet_array:
+            try:
+                self.tweet_list = [tweet.tweet_id for tweet in tweet_array]
+            except AttributeError:
+                self.tweet_list = [tweet.Tweet.tweet_id for tweet in tweet_array]
+
+            self.current_tweet_index = 0
+        else:
+            self.logger.warning(f"Can not set tweet list, new list is empty")
+
+    def get_all_tweets(self):
+        self.logger.debug(f"Requesting all tweets")
+        tweets = get_db_all_tweet_list(self.Session)
+        if tweets:
+            self.logger.debug(f"Received tweets: {len(tweets)}")
+            return tweets
+        else:
+            self.logger.error(f"Received not tweet: {tweets}")
+            return None
 
     def get_full_tweet(self, tweet_id):
-        self.logger.debug(f"Requesting DB for tweet: {tweet_id}")
+        self.logger.debug(f"Requesting from DB tweet: {tweet_id}")
         tweet = get_db_full_tweet_with_user(self.Session, tweet_id)
         if tweet:
             self.logger.debug(f"Received tweet: {tweet.Tweet.tweet_id}")
         else:
             self.logger.error(f"Received not tweet: {tweet}")
         return tweet
+
     # def delete_selected(self, file_list):
     #     if file_list is []:
     #         self.logger.warning('List is empty!')
@@ -514,7 +538,6 @@ class TwitterOperator(TwitterApi):
         self.th_num += 1
         return subprocess
 
-
     # def filter_df_by_timestamp(self, time_stamp_min, time_stamp_max):
     #     if self.DF is not None:
     #         df = self.DF.loc[lambda _df: self.check_series_time_condition(
@@ -528,25 +551,15 @@ class TwitterOperator(TwitterApi):
     #     else:
     #         self.logger.warning('DF is empty. Load some tweets first.')
 
-    # def filter_df_by_tweet_id(self, tweet_id, inverted=False):
-    #     try:
-    #         tweet_id = int(tweet_id)
-    #     except ValueError as ve:
-    #         self.logger.warning(f"Invalid Tweet id. {ve}")
-    #         return None
-    #
-    #     if self.DF is not None:
-    #         if inverted:
-    #             df = self.DF.loc[lambda _df: _df['id'] != tweet_id]
-    #         else:
-    #             df = self.DF.loc[lambda _df: _df['id'] == tweet_id]
-    #
-    #         if self.filter_conditions(df):
-    #             self.DF = df
-    #             self.logger.debug(f"Successfully filtered tweets by tweet_id: {tweet_id}")
-    #             return True
-    #     else:
-    #         self.logger.warning('DF is empty. Load some tweets first.')
+    def get_tweet_by_id(self, tweet_id):
+        self.logger.debug(f"Requesting tweets from database (tweet_id == {tweet_id})")
+        tweet = get_db_full_tweet_with_user(self.Session, tweet_id)
+        if tweet:
+            self.logger.debug(f"Received {len(tweet)} tweets from db.")
+            return [tweet]
+        else:
+            self.logger.error(f"Received not tweet: {tweet}.")
+            return None
 
     # def filter_df_by_user(self, user_text, inverted=False):
     #     if self.DF is not None:
@@ -567,24 +580,25 @@ class TwitterOperator(TwitterApi):
     #     files = glob.glob(os.path.join(path, 'Tweets*.csv'))
     #     return files
 
-    # def find_parent_tweets(self, retweets=True, quoted=True):
-    #     """Method will search quoted status ids and retweets id in current DF"""
-    #     if self.DF is None:
-    #         self.logger.warning("Load DF first")
-    #         return False
-    #     parent_ids = []
-    #
-    #     if quoted:  # Search parents in quoted tweets
-    #         for tweet in self.DF['quoted_status_id']:
-    #             if tweet != "None":
-    #                 parent_ids.append(tweet)
-    #
-    #     if retweets:  # Search parents in retweets
-    #         for tweet in self.DF['retweeted_status']:
-    #             if tweet != 'None':
-    #                 tweet_dict = ast.literal_eval(tweet)
-    #                 parent_ids.append(tweet_dict['id'])
-    #     return parent_ids
+    def find_parent_tweets(self, retweets=True, quoted=True):
+        """Method will search quoted status ids and retweets id in current DF"""
+        if not self.tweet_list:
+            self.logger.warning("Select some tweet first")
+            return False
+
+        parent_ids = []
+        tweets = [self.get_full_tweet(tweet_id) for tweet_id in self.tweet_list]
+
+        for tw in tweets:
+            if quoted:  # Search parents in quoted tweets
+                if tw.Tweet.quoted_status_id != 'None':
+                    parent_ids.append(tw.Tweet.quoted_status_id)
+                    continue
+            if retweets:  # Search parents in retweet
+                if tw.Tweet.retweeted_status_id != 'None':
+                    parent_ids.append(tw.Tweet.retweeted_status_id)
+
+        return parent_ids
 
     # def get_distinct_values_from_df(self, key):
     #     """Retrieve unique values from currently loaded DF"""
@@ -595,7 +609,6 @@ class TwitterOperator(TwitterApi):
     #
     #     unique = self.DF[key].unique()
     #     return unique
-
 
     def get_tweets_by_words(self, words):
         self.logger.debug(f"Requesting tweets from database (words == {words})")

@@ -159,7 +159,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="15" column="0">
+        <item row="16" column="0">
          <widget class="QPushButton" name="pushButton_PreviousTweet">
           <property name="toolTip">
            <string>Show previous Tweet from DF</string>
@@ -198,7 +198,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="15" column="1">
+        <item row="16" column="1">
          <widget class="QPushButton" name="pushButton_NextTweet">
           <property name="toolTip">
            <string>Show next Tweet from DF</string>
@@ -208,7 +208,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="12" column="0" colspan="2">
+        <item row="13" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_ShowTweet">
           <property name="toolTip">
            <string>Show first Tweet from DF</string>
@@ -218,7 +218,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="16" column="0">
+        <item row="17" column="0">
          <widget class="QPushButton" name="pushButton_JumpToTweet">
           <property name="toolTip">
            <string>Jumps to Tweet in DF, define index in box.</string>
@@ -247,7 +247,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="16" column="1">
+        <item row="17" column="1">
          <widget class="QLineEdit" name="lineEdit_JumpToTweet">
           <property name="toolTip">
            <string>Input index for Jump button.</string>
@@ -280,8 +280,11 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="13" column="0" colspan="2">
+        <item row="14" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_drop_current_tweet">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>Drops tweet from current Dataframe only.</string>
           </property>
@@ -293,7 +296,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="14" column="0" colspan="2">
+        <item row="15" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_open_in_browser">
           <property name="text">
            <string>Open in browser</string>
@@ -315,6 +318,13 @@ p, li { white-space: pre-wrap; }
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="12" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_ShowTweetAll">
+          <property name="text">
+           <string>Load all Tweets</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -357,7 +367,7 @@ p, li { white-space: pre-wrap; }
          <number>-1</number>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="Files">
          <attribute name="title">
@@ -593,6 +603,9 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="3" column="3">
               <widget class="QPushButton" name="pushButton_FilterDF_by_NonEmptyKey">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>Filter Tweets with non empty fields. Display fields in Help menu</string>
                </property>
@@ -683,6 +696,9 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="1" column="3">
               <widget class="QPushButton" name="pushButton_drop_old_duplicates">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>Keep only oldest tweets</string>
                </property>
@@ -693,6 +709,9 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="2" column="3">
               <widget class="QPushButton" name="pushButton_drop_new_duplicates">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>Keep only newest tweets</string>
                </property>
@@ -921,6 +940,9 @@ color: rgb(255, 255, 255);</string>
           </layout>
          </widget>
          <widget class="QPushButton" name="pushButton_deleteSelected">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>280</x>
@@ -945,6 +967,9 @@ color: rgb(255, 255, 255);</string>
           </property>
          </widget>
          <widget class="QPushButton" name="pushButton_merge_selected">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -969,6 +994,9 @@ color: rgb(255, 255, 255);</string>
           </property>
          </widget>
          <widget class="QPushButton" name="pushButton_merge_without_duplicates">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>110</x>
