@@ -367,7 +367,7 @@ p, li { white-space: pre-wrap; }
          <number>-1</number>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="Files">
          <attribute name="title">
@@ -481,8 +481,8 @@ color: rgb(255, 255, 255);</string>
          <widget class="QPushButton" name="pushButton_Request_Status">
           <property name="geometry">
            <rect>
-            <x>10</x>
-            <y>170</y>
+            <x>180</x>
+            <y>10</y>
             <width>141</width>
             <height>23</height>
            </rect>
@@ -497,8 +497,8 @@ color: rgb(255, 255, 255);</string>
          <widget class="QLineEdit" name="lineEdit_request_statusId">
           <property name="geometry">
            <rect>
-            <x>160</x>
-            <y>170</y>
+            <x>180</x>
+            <y>40</y>
             <width>151</width>
             <height>23</height>
            </rect>
@@ -518,6 +518,19 @@ color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
            <string>60 Chunks : 60mins</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButton_request_tweet_update">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>150</y>
+            <width>141</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Update tweets</string>
           </property>
          </widget>
         </widget>

@@ -46,7 +46,6 @@ class TwitterOperator(TwitterApi):
         self.loaded_to_DF = []
         self.logger = define_logger("Operator")
         self.engine, self.Session = get_database_connectors()
-        self.save_tweet_in_db = add_tweet_with_user
         locale.setlocale(locale.LC_ALL, 'en_GB.utf8')
 
         if auto_login:
@@ -234,7 +233,7 @@ class TwitterOperator(TwitterApi):
     #             return resp
     #         return False
 
-    def collect_status_list(self, status_list):
+    def collect_status_list(self, status_list, overwrite=False):
         """Requests all status from List"""
         if type(status_list) is not list:
             self.logger.error(f"This is not list: '{status_list}'")
@@ -253,7 +252,8 @@ class TwitterOperator(TwitterApi):
 
             th = self.fork_method(
                 method_to_fork=self.collect_status_list_thread,
-                tweet_id=status_id)
+                tweet_id=status_id,
+                overwrite=overwrite)
             threads.append(th)
 
         for th in threads:
@@ -263,14 +263,14 @@ class TwitterOperator(TwitterApi):
         return True
 
     @staticmethod
-    def collect_status_list_thread(tweet_id):
+    def collect_status_list_thread(tweet_id, overwrite=False):
         _app = TwitterOperator()
         while True:
             try:
                 this_status = _app.request_status(tweet_id)
                 if this_status:
                     _app.tweet_pre_process(this_status)
-                    _app.export_tweet_to_database(this_status)
+                    _app.export_tweet_to_database(this_status, overwrite=overwrite)
                     break
                 else:
                     _app.logger.error("No tweets, None object received.")
@@ -456,12 +456,13 @@ class TwitterOperator(TwitterApi):
     #         self.logger.warning('DF is empty. Load some tweets first.')
 
     # @staticmethod
-    def export_tweet_to_database(self, tweet, delay=0):
+    def export_tweet_to_database(self, tweet, delay=0, overwrite=False):
         """
 
         Args:
             tweet:
             delay:
+            overwrite:
 
         Returns:
 
@@ -481,8 +482,9 @@ class TwitterOperator(TwitterApi):
             # self.logger.debug(f"No website found: {user_dict['entities']}")
             user_website = None
 
-        self.save_tweet_in_db(
+        add_tweet_with_user(
             self.Session,
+            overwrite=overwrite,
             tweet_id=tweet.get('id', None),
             timestamp=tweet.get('timestamp', None),
             contributors=tweet.get('contributors', None),
@@ -504,8 +506,9 @@ class TwitterOperator(TwitterApi):
             quoted_status_id=tweet.get('quoted_status_id', None),
             retweet_count=tweet.get('retweet_count', None),
             retweeted=tweet.get('retweeted', None),
+            retweeted_status_id=tweet.get('retweeted_status', {}).get('id', None),
             scopes=tweet.get('scopes', None),
-            source=tweet.get('source', None),
+            source_status_id=tweet.get('entities', {}).get('media', [{}])[0].get('source_status_id', None),
             truncated=tweet.get('truncated', None),
             urls=tweet.get('urls', None),
             user_mentions=tweet.get('user_mentions', None),
@@ -557,7 +560,7 @@ class TwitterOperator(TwitterApi):
         self.logger.debug(f"Requesting tweets from database (tweet_id == {tweet_id})")
         tweet = get_db_full_tweet_with_user(self.Session, tweet_id)
         if tweet:
-            self.logger.debug(f"Received {len(tweet)} tweets from db.")
+            self.logger.debug(f"Received {tweet_id} tweets from db.")
             return [tweet]
         else:
             self.logger.error(f"Received not tweet: {tweet}.")

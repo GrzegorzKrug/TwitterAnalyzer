@@ -45,6 +45,11 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                 method_to_fork=self.download_parent_tweets,
                 tweet_list=self.tweet_list
         ))
+        self.pushButton_request_tweet_update.clicked.connect(lambda: self.fork_method(
+                method_to_fork=self.collect_status_list,
+                status_list=self.tweet_list,
+                overwrite=True
+        ))
 
         'Settings'
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
@@ -291,6 +296,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         text += "quoted_status_id".ljust(25) + f"{tweet.Tweet.quoted_status_id}\n"
         text += "retweet_count".ljust(25) + f"{tweet.Tweet.retweet_count}\n"
         text += "retweeted_status_id".ljust(25) + f"{tweet.Tweet.retweeted_status_id}\n"
+        text += "source_status_id".ljust(25) + f"{tweet.Tweet.source_status_id}\n"
         text += "user_id".ljust(25) + f"{tweet.Tweet.user_id}\n"
         text += "user_mentions".ljust(25) + f"{tweet.Tweet.user_mentions}\n"
         text += "screen_name".ljust(25) + f"{tweet.User.screen_name}\n"

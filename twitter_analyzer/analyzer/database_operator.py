@@ -61,7 +61,7 @@ class Tweet(Base):
     retweeted = Column(String)
     retweeted_status_id = Column(String)
     scopes = Column(String)
-    source = Column(String)
+    source_status_id = Column(String)
     truncated = Column(String)
     urls = Column(String)
     user_id = Column(BigInteger, ForeignKey('user.user_id'))
@@ -127,6 +127,8 @@ def add_tweet_with_user(
         user_id,
         user_name,
         screen_name,
+        #
+        overwrite=False,
 
         # Tweet optional
         contributors=None,
@@ -148,7 +150,7 @@ def add_tweet_with_user(
         retweeted=None,
         retweeted_status_id=None,
         scopes=None,
-        source=None,
+        source_status_id=None,
         truncated=None,
         urls=None,
         user_mentions=None,
@@ -185,7 +187,8 @@ def add_tweet_with_user(
         verified=verified,
         statuses_count=statuses_count,
         user_lang=user_lang,
-        timestamp=timestamp
+        timestamp=timestamp,
+        overwrite=overwrite
     )
 
     tweet = Tweet(tweet_id=str(tweet_id),
@@ -211,7 +214,7 @@ def add_tweet_with_user(
                   retweeted=retweeted,
                   retweeted_status_id=str(retweeted_status_id),
                   scopes=scopes,
-                  source=source,
+                  source_status_id=source_status_id,
                   truncated=truncated,
                   urls=urls,
                   user_id=str(user_id),
@@ -219,9 +222,16 @@ def add_tweet_with_user(
                   withheld_copyright=withheld_copyright,
                   withheld_in_countries=withheld_in_countries,
                   withheld_scope=withheld_scope,
-                  tweet_mode=tweet_mode)
+                  tweet_mode=tweet_mode,
+                  )
 
     session = Session()
+    if overwrite:
+        tw = session.query(Tweet).filter(Tweet.tweet_id == tweet_id).first()
+        if tw:
+            logger.debug(f"Deleting tweet: {tweet_id}")
+            session.delete(tw)
+            session.flush()
     try:
         insert_to_table(session, tweet)
         logger.debug(f'Inserting tweet to table, id: {tweet_id}, timestamp: {timestamp}')
@@ -247,7 +257,8 @@ def add_user(
         verified,
         statuses_count,
         user_lang,
-        timestamp
+        timestamp,
+        overwrite=False
 ):
     session = Session()
     user = User(
@@ -266,12 +277,18 @@ def add_user(
         user_lang=user_lang,
         timestamp=timestamp
     )
+    # if overwrite:
+    #     tw = session.query(User).filter(User.user_id == user_id).first()
+    #     if tw:
+    #         logger.debug(f"Deleting user: {screen_name}")
+    #         session.delete(tw)
+    #         session.flush()
     try:
         insert_to_table(session, user)
         logger.debug(f'Inserted user to table. screen_name: {screen_name:>20}, '
                      f'user_id: {user_id}, timestamp: {timestamp}')
     except IntegrityError:
-        logger.warning(f"Possible user duplicate: {user_id}, {screen_name}")
+        logger.warning(f"User in table: {user_id}, {screen_name}")
     session.close()
 
 
