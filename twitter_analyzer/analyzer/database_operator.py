@@ -3,7 +3,7 @@ from sqlalchemy.exc import ProgrammingError, IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from .custom_logger import define_logger
 from sqlalchemy.orm import sessionmaker
-from psycopg2 import OperationalError
+from sqlalchemy.exc import OperationalError
 from sqlalchemy import create_engine
 
 import time
@@ -286,10 +286,9 @@ def insert_to_table(session, table_object):
         session.add(table_object)
         session.commit()
     except OperationalError as e:
-        logger.error(f"OperationalError: {e}")
-
+        logger.error(f"OperationalError when inserting to table.")
     except ProgrammingError as pe:
-        logger.error(f"ProgrammingError: {pe}")
+        logger.error(f"ProgrammingError when inserting to table.")
 
 
 def filter_by_lang(Session, lang, inverted=False):

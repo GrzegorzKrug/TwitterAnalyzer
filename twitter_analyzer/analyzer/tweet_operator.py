@@ -244,12 +244,13 @@ class TwitterOperator(TwitterApi):
         n = len(status_list)
         threads = []
         for st, status_id in enumerate(status_list):
+            # Join threads every 25
             if st % 25 == 0:
                 for th in threads:
                     th.join()
                 threads = []
+                self.logger.debug(f"Fetching status progress: {st:>5} ({st/n*100:^3.4f}%) / {n}")
 
-                self.logger.debug(f"Fetching status progress: {st:>5} ({st/n:^5.1f}%) / {n}")
             th = self.fork_method(
                 method_to_fork=self.collect_status_list_thread,
                 tweet_id=status_id)
@@ -267,7 +268,6 @@ class TwitterOperator(TwitterApi):
         while True:
             try:
                 this_status = _app.request_status(tweet_id)
-
                 if this_status:
                     _app.tweet_pre_process(this_status)
                     _app.export_tweet_to_database(this_status)
@@ -281,11 +281,11 @@ class TwitterOperator(TwitterApi):
                 time.sleep(60)
 
             except ApiNotFound as nf:
-                _app.logger.error(f'{nf} Not Found this tweet: {tweet_id}')
+                _app.logger.error(f"ApiNotFound error Tweet: {tweet_id}, {nf}")
                 return None
 
             except Unauthorized as un:
-                _app.logger.error(f"{un}, Tweet: {tweet_id}")
+                _app.logger.error(f"Unauthorized error Tweet: {tweet_id}, {un}")
                 return None
 
         _app.logger.debug(f"Status saved: {tweet_id}")

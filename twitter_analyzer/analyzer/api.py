@@ -109,11 +109,11 @@ class TwitterApi:
         # elif resp_code == 400:
         # pass
         elif resp_code == 401:
-            raise Unauthorized({response.json()})
+            raise Unauthorized(str(response.json()))
         elif resp_code == 403:
-            raise Unauthorized({response.json()})
+            raise Unauthorized(str(response.json()))
         elif resp_code == 404:
-            raise ApiNotFound({response.json()})
+            raise ApiNotFound(str(response.json()))
         elif resp_code == 429:
             raise TooManyRequests('Error 429, too many requests.')
         else:
