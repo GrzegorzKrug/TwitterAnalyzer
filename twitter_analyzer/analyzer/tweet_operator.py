@@ -20,7 +20,7 @@ from pandas.errors import ParserError
 from .database_operator import (
     get_database_connectors, add_tweet_with_user,
     filter_db_search_words, filter_db_search_phrases, filter_by_lang,
-    get_db_full_tweet_with_user, get_db_all_tweet_list
+    get_db_full_tweet_with_user, get_db_all_tweet_list, drop_existing_tweets
 )
 
 
@@ -249,7 +249,7 @@ class TwitterOperator(TwitterApi):
                 for th in threads:
                     th.join()
                 threads = []
-                self.logger.debug(f"Fetching status progress: {st:>5} ({st/n*100:^3.4f}%) / {n}")
+                self.logger.debug(f"Fetching status progress: {st/n*100:^2.2f}% ({st:>4} / {n})")
 
             th = self.fork_method(
                 method_to_fork=self.collect_status_list_thread,
@@ -378,6 +378,8 @@ class TwitterOperator(TwitterApi):
         _app = TwitterOperator(auto_login=False)
         _app.tweet_list = tweet_list.copy()
         status_list = _app.find_parent_tweets()
+        status_list = drop_existing_tweets(_app.Session, status_list)
+        _app.logger.debug(f"Starting download of {len(status_list)} parent tweets")
         _app.collect_status_list(status_list=status_list)
 
     def set_tweet_list(self, tweet_array):

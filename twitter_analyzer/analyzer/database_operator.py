@@ -381,3 +381,11 @@ def get_db_all_tweet_list(Session):
     session = Session()
     tweets = session.query(Tweet.tweet_id).all()
     return tweets
+
+
+def drop_existing_tweets(Session, tweet_id_list):
+    sess = Session()
+    tweets = [tw_id for tw_id in tweet_id_list if not sess.query(Tweet).filter(Tweet.tweet_id == tw_id).first()]
+    return tweets
+
+
