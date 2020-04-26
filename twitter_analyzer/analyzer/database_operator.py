@@ -91,7 +91,7 @@ def get_engine():
     host = os.getenv('DB_ACCES_NAME', '127.0.0.1')
     port = 5432
     url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
-    engine = create_engine(url, pool_size=50,
+    engine = create_engine(url, pool_size=250,
                            connect_args={'client_encoding': 'utf8'})
     return engine
 
@@ -358,10 +358,20 @@ def filter_db_search_words(Session, words):
 
     """
     # stages = re.split(';', words)  # Separating stages
+
     words = words.split()
+    for i, word in enumerate(words):
+        word = ''.join(letter for letter in word if letter not in "!?,. ;'\\\"()!@#$%^&*()_)+_-[]")
+        word = word.lstrip(" ").rstrip(" ")
+        words[i] = word
+    words = [word for word in words if len(word) > 0]
+
     session = Session()
     tweets = []
+
+    logger.debug(f"Searching tweets, words: {words}")
     for word in words:
+
         output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if word.lower() in tweet[1].lower()]
         tweets += output
     return tweets
@@ -377,12 +387,18 @@ def filter_db_search_phrases(Session, words):
     Returns:
 
     """
-    stages = re.split(';', words)  # Separating stages
-    # words = words.split()
+    stages = re.split(r'[,.!;?]', words)  # Separating stages
+    for i, word in enumerate(stages):
+        word = ''.join(letter for letter in word if letter not in "'\\\"()@#$%^&*()_)+_-[]")
+        word = word.lstrip(" ").rstrip(" ")
+        stages[i] = word
+    phrases = [phrases for phrases in stages if len(phrases) > 0]
+
     session = Session()
     tweets = []
-    for stage in stages:
-        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if stage.lower() in tweet[1].lower()]
+    logger.debug(f"Searching tweets, phrases: {phrases}")
+    for phrase in phrases:
+        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if phrase.lower() in tweet[1].lower()]
         tweets += output
     return tweets
 
