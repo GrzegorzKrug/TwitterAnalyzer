@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:  
+  postgres_db:
+#      build: .
+      image: postgres:10.0-alpine
+      command: postgres -c 'max_connections=500'
+      volumes:
+        - ./postgres-data:/var/lib/postgresql/data
+      environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=admin
+        - POSTGRES_PASSWORD=docker
+      ports:
+        - 5432:5432
+  db_initiator:
+#    image: python:3.8.1-alpine
+    build:
+      context: twitter_analyzer/.
+      dockerfile: DBInitiatorFile
+    volumes:
+    - ./twitter_analyzer:/app
+    links:
+      - 'postgres_db:db'
+    environment:
+      - DB_ACCES_NAME=db
+    #      - POSTGRES_PORT=5433
+    #      - POSTGRES_DB=postgres
+    image: db_initiator  # image name
+    command: bash -c "python /app/database_initialize.py"
+    ports:
+      - '5433'
