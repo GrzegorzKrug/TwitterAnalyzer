@@ -1,28 +1,24 @@
 # tweet_operator.py
 # Grzegorz Krug
 
-import pandas as pd
+from celery import Celery
 import threading
 import calendar
 import datetime
 import locale
-import glob
 import time
 import ast
 import sys
-import re
 import os
 
 from .custom_logger import define_logger
 from .api import TwitterApi
 from .api import Unauthorized, ApiNotFound, TooManyRequests
-from pandas.errors import ParserError
 from .database_operator import (
     get_database_connectors, add_tweet_with_user,
     filter_db_search_words, filter_db_search_phrases, filter_by_lang,
     get_db_full_tweet_with_user, get_db_all_tweet_list, drop_existing_tweets
 )
-
 
 except_logger = define_logger("Operator_exception")
 
@@ -248,12 +244,12 @@ class TwitterOperator(TwitterApi):
                 for th in threads:
                     th.join()
                 threads = []
-                self.logger.debug(f"Fetching status progress: {st/n*100:^2.2f}% ({st:>4} / {n})")
+                self.logger.debug(f"Fetching status progress: {st / n * 100:^2.2f}% ({st:>4} / {n})")
 
             th = self.fork_method(
-                method_to_fork=self.collect_status_list_thread,
-                tweet_id=status_id,
-                overwrite=overwrite)
+                    method_to_fork=self.collect_status_list_thread,
+                    tweet_id=status_id,
+                    overwrite=overwrite)
             threads.append(th)
 
         for th in threads:
@@ -309,7 +305,7 @@ class TwitterOperator(TwitterApi):
 
         if len(home_tweets) != chunk_size:
             self.logger.warning(
-                'Missing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size))
+                    'Missing Tweets! Got {}, expected {}'.format(len(home_tweets), str(chunk_size))
             )
         if home_tweets:
             for tweet in home_tweets:
@@ -483,54 +479,54 @@ class TwitterOperator(TwitterApi):
             user_website = None
 
         add_tweet_with_user(
-            self.Session,
-            overwrite=overwrite,
-            tweet_id=tweet.get('id', None),
-            timestamp=tweet.get('timestamp', None),
-            contributors=tweet.get('contributors', None),
-            coordinates=tweet.get('coordinates', None),
-            created_at=tweet.get('created_at', None),
-            current_user_retweet=tweet.get('current_user_retweet', None),
-            favorite_count=tweet.get('favorite_count', None),
-            favorited=tweet.get('favorited', None),
-            full_text=tweet.get('full_text', None),
-            geo=tweet.get('geo', None),
-            hashtags=tweet.get('hashtags', None),
-            in_reply_to_status_id=tweet.get('in_reply_to_status_id', None),
-            in_reply_to_user_id=tweet.get('in_reply_to_user_id', None),
-            lang=tweet.get('lang', None),
-            location=tweet.get('location', None),
-            media=tweet.get('media', None),
-            place=tweet.get('place', None),
-            possibly_sensitive=tweet.get('possibly_sensitive', None),
-            quoted_status_id=tweet.get('quoted_status_id', None),
-            retweet_count=tweet.get('retweet_count', None),
-            retweeted=tweet.get('retweeted', None),
-            retweeted_status_id=tweet.get('retweeted_status', {}).get('id', None),
-            scopes=tweet.get('scopes', None),
-            source_status_id=tweet.get('entities', {}).get('media', [{}])[0].get('source_status_id', None),
-            truncated=tweet.get('truncated', None),
-            urls=tweet.get('urls', None),
-            user_mentions=tweet.get('user_mentions', None),
-            withheld_copyright=tweet.get('withheld_copyright', None),
-            withheld_in_countries=tweet.get('withheld_in_countries', None),
-            withheld_scope=tweet.get('withheld_scope', None),
-            tweet_mode=tweet.get('tweet_mode', None),
+                self.Session,
+                overwrite=overwrite,
+                tweet_id=tweet.get('id', None),
+                timestamp=tweet.get('timestamp', None),
+                contributors=tweet.get('contributors', None),
+                coordinates=tweet.get('coordinates', None),
+                created_at=tweet.get('created_at', None),
+                current_user_retweet=tweet.get('current_user_retweet', None),
+                favorite_count=tweet.get('favorite_count', None),
+                favorited=tweet.get('favorited', None),
+                full_text=tweet.get('full_text', None),
+                geo=tweet.get('geo', None),
+                hashtags=tweet.get('hashtags', None),
+                in_reply_to_status_id=tweet.get('in_reply_to_status_id', None),
+                in_reply_to_user_id=tweet.get('in_reply_to_user_id', None),
+                lang=tweet.get('lang', None),
+                location=tweet.get('location', None),
+                media=tweet.get('media', None),
+                place=tweet.get('place', None),
+                possibly_sensitive=tweet.get('possibly_sensitive', None),
+                quoted_status_id=tweet.get('quoted_status_id', None),
+                retweet_count=tweet.get('retweet_count', None),
+                retweeted=tweet.get('retweeted', None),
+                retweeted_status_id=tweet.get('retweeted_status', {}).get('id', None),
+                scopes=tweet.get('scopes', None),
+                source_status_id=tweet.get('entities', {}).get('media', [{}])[0].get('source_status_id', None),
+                truncated=tweet.get('truncated', None),
+                urls=tweet.get('urls', None),
+                user_mentions=tweet.get('user_mentions', None),
+                withheld_copyright=tweet.get('withheld_copyright', None),
+                withheld_in_countries=tweet.get('withheld_in_countries', None),
+                withheld_scope=tweet.get('withheld_scope', None),
+                tweet_mode=tweet.get('tweet_mode', None),
 
-            # User data
-            user_id=user_dict.get('id'),
-            user_name=user_dict.get('name'),
-            screen_name=user_dict.get('screen_name'),
-            user_location=user_dict.get('location'),
-            description=user_dict.get('description'),
-            user_url=user_website,
-            followers_count=user_dict.get('followers_count'),
-            friends_count=user_dict.get('friends_count'),
-            listed_count=user_dict.get('listed_count'),
-            user_created_at=user_dict.get('user_created_at'),
-            verified=user_dict.get('verified'),
-            statuses_count=user_dict.get('statuses_count'),
-            user_lang=user_dict.get('lang')
+                # User data
+                user_id=user_dict.get('id'),
+                user_name=user_dict.get('name'),
+                screen_name=user_dict.get('screen_name'),
+                user_location=user_dict.get('location'),
+                description=user_dict.get('description'),
+                user_url=user_website,
+                followers_count=user_dict.get('followers_count'),
+                friends_count=user_dict.get('friends_count'),
+                listed_count=user_dict.get('listed_count'),
+                user_created_at=user_dict.get('user_created_at'),
+                verified=user_dict.get('verified'),
+                statuses_count=user_dict.get('statuses_count'),
+                user_lang=user_dict.get('lang')
         )
 
     def fork_method(self, method_to_fork, *args, **kwargs):
@@ -636,7 +632,6 @@ class TwitterOperator(TwitterApi):
         self.logger.debug(f"Received {len(tweets)} tweets from db.")
         return tweets
 
-
     @staticmethod
     def now_as_text():
         now = datetime.datetime.now()
@@ -693,7 +688,7 @@ class TwitterOperator(TwitterApi):
             timestamp = int(datetime.datetime.now().timestamp())
 
         date = datetime.date.fromtimestamp(timestamp)
-        date_rest = timestamp % (3600*24)  # Capture rest from day 3600 second * 24 hours
+        date_rest = timestamp % (3600 * 24)  # Capture rest from day 3600 second * 24 hours
 
         year = year + date.year
         month = month + date.month
@@ -712,7 +707,7 @@ class TwitterOperator(TwitterApi):
         new_timestamp = calendar.timegm(new_date.timetuple())
 
         # Add minutes, hours, day offset and rest from timestamp
-        return new_timestamp + minute*60 + hour*3600 + day*24*3600 + date_rest
+        return new_timestamp + minute * 60 + hour * 3600 + day * 24 * 3600 + date_rest
 
 
 if __name__ == "__main__":

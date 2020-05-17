@@ -171,24 +171,23 @@ def add_tweet_with_user(
         statuses_count=None,
         user_lang=None
 ):
-
     add_user(
-        Session=Session,
-        user_id=user_id,
-        user_name=user_name,
-        screen_name=screen_name,
-        user_location=user_location,
-        description=description,
-        user_url=user_url,
-        followers_count=followers_count,
-        friends_count=friends_count,
-        listed_count=listed_count,
-        created_at=user_created_at,
-        verified=verified,
-        statuses_count=statuses_count,
-        user_lang=user_lang,
-        timestamp=timestamp,
-        overwrite=overwrite
+            Session=Session,
+            user_id=user_id,
+            user_name=user_name,
+            screen_name=screen_name,
+            user_location=user_location,
+            description=description,
+            user_url=user_url,
+            followers_count=followers_count,
+            friends_count=friends_count,
+            listed_count=listed_count,
+            created_at=user_created_at,
+            verified=verified,
+            statuses_count=statuses_count,
+            user_lang=user_lang,
+            timestamp=timestamp,
+            overwrite=overwrite
     )
 
     tweet = Tweet(tweet_id=str(tweet_id),
@@ -262,20 +261,20 @@ def add_user(
 ):
     session = Session()
     user = User(
-        user_id=user_id,
-        user_name=user_name,
-        screen_name=screen_name,
-        user_location=user_location,
-        description=description,
-        user_url=user_url,
-        followers_count=followers_count,
-        friends_count=friends_count,
-        listed_count=listed_count,
-        created_at=created_at,
-        verified=verified,
-        statuses_count=statuses_count,
-        user_lang=user_lang,
-        timestamp=timestamp
+            user_id=user_id,
+            user_name=user_name,
+            screen_name=screen_name,
+            user_location=user_location,
+            description=description,
+            user_url=user_url,
+            followers_count=followers_count,
+            friends_count=friends_count,
+            listed_count=listed_count,
+            created_at=created_at,
+            verified=verified,
+            statuses_count=statuses_count,
+            user_lang=user_lang,
+            timestamp=timestamp
     )
     # if overwrite:
     #     tw = session.query(User).filter(User.user_id == user_id).first()
@@ -372,7 +371,8 @@ def filter_db_search_words(Session, words):
     logger.debug(f"Searching tweets, words: {words}")
     for word in words:
 
-        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if word.lower() in tweet[1].lower()]
+        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
+                  word.lower() in tweet[1].lower()]
         tweets += output
     return tweets
 
@@ -398,7 +398,8 @@ def filter_db_search_phrases(Session, words):
     tweets = []
     logger.debug(f"Searching tweets, phrases: {phrases}")
     for phrase in phrases:
-        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if phrase.lower() in tweet[1].lower()]
+        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
+                  phrase.lower() in tweet[1].lower()]
         tweets += output
     return tweets
 
@@ -420,5 +421,3 @@ def drop_existing_tweets(Session, tweet_id_list):
     sess = Session()
     tweets = [tw_id for tw_id in tweet_id_list if not sess.query(Tweet).filter(Tweet.tweet_id == tw_id).first()]
     return tweets
-
-
