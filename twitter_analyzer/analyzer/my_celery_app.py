@@ -1,6 +1,8 @@
-from celery import Celery
+from __future__ import absolute_import, unicode_literals
 from celery.concurrency.prefork import TaskPool
 from celery.worker.autoscale import Autoscaler
+from celery import Celery
+
 import time
 import os
 
@@ -9,7 +11,7 @@ password = os.getenv('PASSWORD', 'mypass')
 hostname = os.getenv('HOSTNAME', 'localhost')
 
 broker_url = f'amqp://{user}:{password}@{hostname}:5672/'
-app = Celery('tasks', broker=broker_url)
+app = Celery('tasks', broker=broker_url, namespace="CELERY")
 
 
 # app.conf.worker_pool = TaskPool

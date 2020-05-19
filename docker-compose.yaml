@@ -47,8 +47,8 @@ services:
     environment:
       - HOSTNAME=broker
     volumes:
-      - ./twitter_analyzer/analyzer:/app/
+      - ./twitter_analyzer/analyzer:/analyzer
     depends_on:
       - broker
     restart: always
-    command: bash -c "python /app/tasks.py"
+    command: bash -c "python /analyzer/my_celery_app.py"
