@@ -42,9 +42,12 @@ services:
     image: celeryworker:1.0
     environment:
       - HOSTNAME=broker
+      - DB_ACCES_NAME=db
     volumes:
-      - ./twitter_analyzer/analyzer:/analyzer
+      - ./twitter_analyzer:/app/
     depends_on:
       - broker
     restart: always
-    command: bash -c "python /analyzer/my_celery_app.py"
+#      command: bash -c "python analyzer/my_celery_app.py"
+    command: bash -c "celery -A celery_app worker -l info --without-mingle
+      --without-gossip"
