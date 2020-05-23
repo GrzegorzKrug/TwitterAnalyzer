@@ -10,7 +10,7 @@ password = os.getenv('PASSWORD', 'mypass')
 hostname = os.getenv('HOSTNAME', 'localhost')
 
 broker_url = f'amqp://{user}:{password}@{hostname}:5672/'
-app = Celery('celery_app', broker=broker_url, namespace="celery", include=['celery_app.tasks'])
+app = Celery('tasks', broker=broker_url, namespace="celery", include=['analyzer.tasks'])
 
 # if __name__ == '__main__':
 #     app.start()

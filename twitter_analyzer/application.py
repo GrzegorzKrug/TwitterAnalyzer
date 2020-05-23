@@ -6,6 +6,7 @@ from PyQt5 import QtCore, QtWidgets  # QtGui
 from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
 from twitter_analyzer.analyzer.custom_logger import define_logger
+from analyzer.tasks import download_home_page
 
 import webbrowser
 import datetime
@@ -50,6 +51,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                 status_list=self.tweet_list,
                 overwrite=True
         ))
+        'Celery broadcast'
+        self.pushButton_Magic_Debug_one_home_list.clicked.connect(lambda: download_home_page.delay())
 
         'Settings'
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
@@ -211,6 +214,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     @staticmethod
     def post_action(method, next_method=None):
         """Wrapper to run method after first one"""
+
         def wrapper(*args, **kwargs):
             out = None
             if method:
@@ -218,6 +222,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             if next_method:
                 next_method()
             return out
+
         return wrapper
 
     @staticmethod
@@ -277,7 +282,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         self.current_tweet_index = ind
         tweet = self.get_full_tweet(self.tweet_list[ind])
-        text = f"Index: {ind} of {len(self.tweet_list) -1}\n"
+        text = f"Index: {ind} of {len(self.tweet_list) - 1}\n"
 
         text += "id".ljust(25) + f"{tweet.Tweet.tweet_id}\n"
         text += "timestamp".ljust(25) + f"{tweet.Tweet.timestamp}\n"
@@ -325,10 +330,10 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         model.setRootPath(path)
         self.treeView.setModel(model)
         self.treeView.setRootIndex(model.index(path))
-        self.treeView.setColumnWidth(0, 40*8)
-        self.treeView.setColumnWidth(1, 10*8)
-        self.treeView.setColumnWidth(2, 10*8)
-        self.treeView.setColumnWidth(3, 15*8)
+        self.treeView.setColumnWidth(0, 40 * 8)
+        self.treeView.setColumnWidth(1, 10 * 8)
+        self.treeView.setColumnWidth(2, 10 * 8)
+        self.treeView.setColumnWidth(3, 15 * 8)
         # self.treeView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)  # its defined in GUI.py
 
     # def show_df_info(self):
@@ -525,7 +530,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                '\nwithheld_scope:          <help>' \
                '\ntweet_mode:              <help>'
         self.display(text)
-        
+
+
 # ------ Sorted methods are above --------------------------------------------------------------------------------------
 
 

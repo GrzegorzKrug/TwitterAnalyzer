@@ -154,6 +154,9 @@ class Ui_MainWindow(object):
         self.pushButton_Magic_Debug = QtWidgets.QPushButton(self.Files)
         self.pushButton_Magic_Debug.setGeometry(QtCore.QRect(400, 30, 161, 25))
         self.pushButton_Magic_Debug.setObjectName("pushButton_Magic_Debug")
+        self.pushButton_Magic_Debug_one_home_list = QtWidgets.QPushButton(self.Files)
+        self.pushButton_Magic_Debug_one_home_list.setGeometry(QtCore.QRect(70, 120, 161, 25))
+        self.pushButton_Magic_Debug_one_home_list.setObjectName("pushButton_Magic_Debug_one_home_list")
         self.tabWidget.addTab(self.Files, "")
         self.Request = QtWidgets.QWidget()
         self.Request.setObjectName("Request")
@@ -461,7 +464,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -502,6 +505,7 @@ class Ui_MainWindow(object):
         self.pushButton_check_threads.setText(_translate("MainWindow", "Check Threads"))
         self.checkBox.setText(_translate("MainWindow", "Wrap Logs"))
         self.pushButton_Magic_Debug.setText(_translate("MainWindow", "Magic Debug"))
+        self.pushButton_Magic_Debug_one_home_list.setText(_translate("MainWindow", "1 Home list"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Files), _translate("MainWindow", "Unused"))
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.Files), _translate("MainWindow", "Manage Tweet Files in \'tweets\' directory"))
         self.pushButton_collect1.setText(_translate("MainWindow", "1 Chunk"))
