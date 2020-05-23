@@ -346,7 +346,7 @@ def filter_by_lang(Session, lang, inverted=False):
 #     return tweets
 
 
-def filter_db_search_words(Session, words):
+def filter_db_search_words(Session, input_string):
     """
 
     Args:
@@ -357,23 +357,40 @@ def filter_db_search_words(Session, words):
 
     """
     # stages = re.split(';', words)  # Separating stages
+    input_string = input_string.lower()
+    stages = re.split(r"[;]", input_string)
 
-    words = words.split()
-    for i, word in enumerate(words):
-        word = ''.join(letter for letter in word if letter not in "!?,. ;'\\\"()!@#$%^&*()_)+_-[]")
-        word = word.lstrip(" ").rstrip(" ")
-        words[i] = word
-    words = [word for word in words if len(word) > 0]
+    for stage_ind, stage in enumerate(stages):
+        words = re.split(r"[,. !@#$%^&*]", stage)
+        for i, word in enumerate(words):
+            word = ''.join(letter for letter in word if letter not in "!?,. ;'\\\"()!@#$%^&*()_)+_-[]")
+            word = word.lstrip(" ").rstrip(" ")
+            words[i] = word
+        words = [word for word in words if len(word) > 0]
+        stages[stage_ind] = words
+    stages = [stage for stage in stages if len(stage) > 0]
 
     session = Session()
+
     tweets = []
-
-    logger.debug(f"Searching tweets, words: {words}")
+    # szukam, dudy, @ pis ; elo
+    logger.debug(f"Searching tweets, Staged: {stages}")
+    words = stages[0]
     for word in words:
-
         output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
                   word.lower() in tweet[1].lower()]
         tweets += output
+    tweets = set(tweets)
+    for run_ind in range(1, len(stages)):
+        stage = stages[run_ind]
+        old_tweets = tweets.copy()
+        tweets = []
+        for tweet in old_tweets:
+            for word in stage:
+                if word in tweet[1].lower():
+                    tweets.append(tweet)
+                    break
+
     session.close()
     return tweets
 

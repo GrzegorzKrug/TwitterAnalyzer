@@ -6,7 +6,9 @@ from PyQt5 import QtCore, QtWidgets  # QtGui
 from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
 from twitter_analyzer.analyzer.custom_logger import define_logger
-from analyzer.tasks import download_home_page
+from analyzer.tasks import (
+    get_tweets_from_home_board, download_parent_tweets
+)
 
 import webbrowser
 import datetime
@@ -38,21 +40,19 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         # self.label_login_status.mousePressEvent = self.update_status
 
         'Requesting methods'
-        self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.download_full_chunk))
-        self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
-        self.pushButton_collect60.clicked.connect(lambda f: self.fork_method(self.download60_chunks))
+        self.pushButton_collect1.clicked.connect(lambda: get_tweets_from_home_board.delay())
+        self.pushButton_collect10.clicked.connect(lambda f: get_tweets_from_home_board.delay(n=10, interval=60))
+        self.pushButton_collect60.clicked.connect(lambda f: get_tweets_from_home_board.delay(n=60, interval=60))
         self.pushButton_Request_Status.clicked.connect(self.request_status_from_box)
-        self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: self.fork_method(
-                method_to_fork=self.download_parent_tweets,
+        self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: download_parent_tweets.delay(
                 tweet_list=self.tweet_list
         ))
-        self.pushButton_request_tweet_update.clicked.connect(lambda: self.fork_method(
-                method_to_fork=self.collect_status_list,
-                status_list=self.tweet_list,
-                overwrite=True
-        ))
+        # self.pushButton_request_tweet_update.clicked.connect(lambda: self.fork_method(
+        #         method_to_fork=self.collect_status_list,
+        #         status_list=self.tweet_list,
+        #         overwrite=True
+        # ))
         'Celery broadcast'
-        self.pushButton_Magic_Debug_one_home_list.clicked.connect(lambda: download_home_page.delay())
 
         'Settings'
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
@@ -438,14 +438,12 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             return None
         inverted = self.check_settings_inverted()
         tweets = self.get_tweets_by_lang(lang, inverted)
-        self.tweet_list = tweets
         self.set_tweet_list(tweets)
         self.show_current_tweet()
 
     def trigger_filter_by_search_words(self):
         words = self.lineEdit_filter_words.text()
         tweets = self.get_tweets_by_words(words)
-        self.tweet_list = tweets
         self.set_tweet_list(tweets)
         self.show_current_tweet()
 
@@ -544,9 +542,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 except_logger = define_logger('App_exception')
 
 
-def _except_handler(type=None, value=None, traceback=None):
-    except_logger.exception(f"Uncaught exception: {value}\ntraceback: {traceback}")
-    # ['tb_frame', 'tb_lasti', 'tb_lineno', 'tb_next']
+def _except_handler(type=None, value=None, tb=None):
+    except_logger.exception(f"Uncaught exception: {value}, traceback: {traceback.extract_tb(tb)}")
 
 
 def run_gui():

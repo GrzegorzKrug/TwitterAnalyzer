@@ -17,7 +17,7 @@ from .api import Unauthorized, ApiNotFound, TooManyRequests
 from .database_operator import (
     get_database_connectors, add_tweet_with_user,
     filter_db_search_words, filter_db_search_phrases, filter_by_lang,
-    get_db_full_tweet_with_user, get_db_all_tweet_list, drop_existing_tweets
+    get_db_full_tweet_with_user, get_db_all_tweet_list
 )
 
 except_logger = define_logger("Operator_exception")
@@ -353,33 +353,6 @@ class TwitterOperator(TwitterApi):
     #         else:
     #             pass
     #     self.logger.debug(f'Done removing')
-
-    @staticmethod
-    def download60_chunks():
-        _app = TwitterOperator(auto_login=True)
-        _app.auto_collect_home_tab(n=60, chunk_size=200, interval=60)
-
-    @staticmethod
-    def download10_chunks():
-        _app = TwitterOperator(auto_login=True)
-        _app.auto_collect_home_tab(n=10, chunk_size=200, interval=60)
-
-    @staticmethod
-    def download_full_chunk():
-        _app = TwitterOperator()
-        _app.auto_collect_home_tab(n=1, chunk_size=200, interval=0)
-
-    @staticmethod
-    def download_parent_tweets(tweet_list=None):
-        if tweet_list is None:
-            TwitterOperator().logger.error(f"Missing input, tweet_list: {tweet_list}")
-            return None
-        _app = TwitterOperator(auto_login=False)
-        _app.tweet_list = tweet_list.copy()
-        status_list = _app.find_parent_tweets()
-        status_list = drop_existing_tweets(_app.Session, status_list)
-        _app.logger.debug(f"Starting download of {len(status_list)} parent tweets")
-        _app.collect_status_list(status_list=status_list)
 
     def set_tweet_list(self, tweet_array):
         if tweet_array:
