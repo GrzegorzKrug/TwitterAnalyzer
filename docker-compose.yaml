@@ -42,9 +42,10 @@ services:
     image: celeryworker:1.0
     environment:
       - HOSTNAME=broker
-      - DB_ACCES_NAME=db
+      - DB_ACCES_NAME=postgres_db
     volumes:
       - ./twitter_analyzer/analyzer:/app/analyzer
+      - ./twitter_analyzer/logs:/app/logs
     depends_on:
       - broker
     restart: always

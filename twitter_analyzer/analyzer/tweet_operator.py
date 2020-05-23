@@ -42,7 +42,7 @@ class TwitterOperator(TwitterApi):
         self.loaded_to_DF = []
         self.logger = define_logger("Operator")
         self.engine, self.Session = get_database_connectors()
-        locale.setlocale(locale.LC_ALL, 'en_GB.utf8')
+        # locale.setlocale(locale.LC_ALL, 'en_GB.utf8')
 
         if auto_login:
             valid = self.verify_procedure()
@@ -52,6 +52,9 @@ class TwitterOperator(TwitterApi):
         self.logger.debug("Operator debug:")
 
         sys.exit()
+
+    # def __del__(self):
+    #     self.Session.session.close_all_sessions()
 
     @staticmethod
     def add_timestamp_attr(tweet):

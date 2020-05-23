@@ -302,7 +302,7 @@ def insert_to_table(session, table_object):
         session.add(table_object)
         session.commit()
     except OperationalError as e:
-        logger.error(f"OperationalError when inserting to table.")
+        logger.error(f"OperationalError when inserting to table: '{e}'")
     except ProgrammingError as pe:
         logger.error(f"ProgrammingError when inserting to table.")
 
@@ -327,23 +327,23 @@ def filter_by_lang(Session, lang, inverted=False):
     return tweets
 
 
-def filter_by_existing_key(Session, key, inverted=False):
-    """
-    Filter db, to get all tweets with key
-    Args:
-        key: string
-        inverted: bool, inverted filtraion
-
-    Returns:
-
-    """
-    session = Session()
-    if not inverted:
-        text = f"session.query(Tweet.tweet_id, Tweet.{key}).filter(Tweet.{key} != 'None').all()"
-    else:
-        text = f"session.query(Tweet.tweet_id, Tweet.{key}).filter(Tweet.{key} == 'None').all()"
-    tweets = eval(text)
-    return tweets
+# def filter_by_existing_key(Session, key, inverted=False):
+#     """
+#     Filter db, to get all tweets with key
+#     Args:
+#         key: string
+#         inverted: bool, inverted filtraion
+#
+#     Returns:
+#
+#     """
+#     session = Session()
+#     if not inverted:
+#         text = f"session.query(Tweet.tweet_id, Tweet.{key}).filter(Tweet.{key} != 'None').all()"
+#     else:
+#         text = f"session.query(Tweet.tweet_id, Tweet.{key}).filter(Tweet.{key} == 'None').all()"
+#     tweets = eval(text)
+#     return tweets
 
 
 def filter_db_search_words(Session, words):
@@ -374,6 +374,7 @@ def filter_db_search_words(Session, words):
         output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
                   word.lower() in tweet[1].lower()]
         tweets += output
+    session.close()
     return tweets
 
 
@@ -401,6 +402,7 @@ def filter_db_search_phrases(Session, words):
         output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
                   phrase.lower() in tweet[1].lower()]
         tweets += output
+    session.close()
     return tweets
 
 
@@ -408,16 +410,19 @@ def get_db_full_tweet_with_user(Session, tweet_id):
     session = Session()
     tweet_id = int(tweet_id)
     tweet = session.query(Tweet, User).join(User).filter(Tweet.tweet_id == tweet_id).first()
+    session.close()
     return tweet
 
 
 def get_db_all_tweet_list(Session):
     session = Session()
     tweets = session.query(Tweet.tweet_id).all()
+    session.close()
     return tweets
 
 
 def drop_existing_tweets(Session, tweet_id_list):
-    sess = Session()
-    tweets = [tw_id for tw_id in tweet_id_list if not sess.query(Tweet).filter(Tweet.tweet_id == tw_id).first()]
+    session = Session()
+    tweets = [tw_id for tw_id in tweet_id_list if not session.query(Tweet).filter(Tweet.tweet_id == tw_id).first()]
+    session.close()
     return tweets
