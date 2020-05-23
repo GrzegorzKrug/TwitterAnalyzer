@@ -44,10 +44,10 @@ services:
       - HOSTNAME=broker
       - DB_ACCES_NAME=db
     volumes:
-      - ./twitter_analyzer:/app/
+      - ./twitter_analyzer/analyzer/celery_app:/app/celery_app
     depends_on:
       - broker
     restart: always
-#      command: bash -c "python analyzer/my_celery_app.py"
+#      command: bash -c "python analyzer/celery.py"
     command: bash -c "celery -A celery_app worker -l info --without-mingle
       --without-gossip"
