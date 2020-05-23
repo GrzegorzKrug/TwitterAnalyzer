@@ -13,4 +13,5 @@ broker_url = f'amqp://{user}:{password}@{hostname}:5672/'
 app = Celery('tasks', broker=broker_url, namespace="celery", include=['tasks'])
 
 if __name__ == "__main__":
-    app.worker_main(argv=["--autoscale", "10,3"])
+    pass
+    # app.worker_main(argv=["--autoscale", "10,3"])
