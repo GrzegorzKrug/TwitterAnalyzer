@@ -28,3 +28,16 @@ Gui has 3 main tabs
  - Tweet filtration
  - Tweet analysis
  
+ 
+#
+#### Layers
+ 
+```
+        1. Gui
+        2. Celery
+        3. Tweet operator
+         /               \
+        /                 \
+4. Database operator    4. Api
+```  
+ 

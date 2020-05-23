@@ -1,11 +1,9 @@
 # tweet_operator.py
 # Grzegorz Krug
 
-from celery import Celery
 import threading
 import calendar
 import datetime
-import locale
 import time
 import ast
 import sys

@@ -7,7 +7,7 @@ from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
 from twitter_analyzer.analyzer.custom_logger import define_logger
 from analyzer.tasks import (
-    get_tweets_from_home_board, download_parent_tweets
+    get_tweets_from_home_board, download_parent_tweets, collect_status_list
 )
 
 import webbrowser
@@ -47,11 +47,10 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: download_parent_tweets.delay(
                 tweet_list=self.tweet_list
         ))
-        # self.pushButton_request_tweet_update.clicked.connect(lambda: self.fork_method(
-        #         method_to_fork=self.collect_status_list,
-        #         status_list=self.tweet_list,
-        #         overwrite=True
-        # ))
+        self.pushButton_request_tweet_update.clicked.connect(lambda: collect_status_list.delay(
+                tweet_list=self.tweet_list,
+                overwrite=True
+        ))
         'Celery broadcast'
 
         'Settings'
@@ -543,7 +542,11 @@ except_logger = define_logger('App_exception')
 
 
 def _except_handler(type=None, value=None, tb=None):
-    except_logger.exception(f"Uncaught exception: {value}, traceback: {traceback.extract_tb(tb)}")
+    frames = traceback.extract_tb(tb)
+    text = "\n"
+    for frame in frames:
+        text += f"\n {frame}"
+    except_logger.exception(f"Uncaught exception: {value}, traceback: {text}")
 
 
 def run_gui():
@@ -557,5 +560,5 @@ def run_gui():
 
 
 if __name__ == "__main__":
-    sys.excepthook = _except_handler
+    # sys.excepthook = _except_handler
     run_gui()

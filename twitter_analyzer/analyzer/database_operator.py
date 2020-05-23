@@ -373,14 +373,15 @@ def filter_db_search_words(Session, input_string):
     session = Session()
 
     tweets = []
-    # szukam, dudy, @ pis ; elo
-    logger.debug(f"Searching tweets, Staged: {stages}")
+    logger.debug(f"Searching tweets, staged: {stages}")
+
     words = stages[0]
     for word in words:
         output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
                   word.lower() in tweet[1].lower()]
         tweets += output
-    tweets = set(tweets)
+
+    tweets = set(tweets)  # drop duplicates
     for run_ind in range(1, len(stages)):
         stage = stages[run_ind]
         old_tweets = tweets.copy()
