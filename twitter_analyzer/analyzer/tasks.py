@@ -20,9 +20,10 @@ def download_parent_tweets(tweet_list=None):
     _app = TwitterOperator(auto_login=False)
     _app.tweet_list = tweet_list.copy()
     status_list = _app.find_parent_tweets()
-    status_list = drop_existing_tweets(_app.Session, status_list)
-    _app.logger.debug(f"Starting download of {len(status_list)} parent tweets")
-    _app.collect_status_list(status_list=status_list)
+    if status_list and len(status_list) > 0:
+        status_list = drop_existing_tweets(_app.Session, status_list)
+        _app.logger.debug(f"Starting download of {len(status_list)} parent tweets")
+        _app.collect_status_list(status_list=status_list)
 
 
 @app.task
