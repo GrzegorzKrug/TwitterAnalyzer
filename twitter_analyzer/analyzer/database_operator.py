@@ -75,15 +75,6 @@ class Tweet(Base):
         return f"{self.tweet_id}: ".ljust(20) + f"{self.full_text}"
 
 
-# class TweetWork(Tweet):  # not working
-#     Tweet.__tablename__ = "tweet_work"
-#     Tweet.__tablename__ = "tweet_work"
-#
-#
-# class UserWork(User):  # not working
-#     User.__tablename__ = "user_work"
-
-
 def get_engine():
     dbname = 'postgres'
     user = 'admin'
@@ -107,8 +98,8 @@ def initialize():
             break
         except Exception as e:
             logger.warning(e)
-            if time.time() - t_start > 60:
-                logger.error("Task timeout: 60 sec.")
+            if time.time() - t_start > 120:
+                logger.error("Task timeout: 120 sec.")
                 sys.exit(1)
             logger.debug(f"Waiting for DB.")
             time.sleep(5)
@@ -317,14 +308,18 @@ def filter_by_lang(Session, lang, inverted=False):
     Returns:
 
     """
-    lang = str(lang)
-    session = Session()
-    if not inverted:
-        tweets = session.query(Tweet.tweet_id, Tweet.lang).filter(Tweet.lang == lang).all()
-    else:
-        tweets = session.query(Tweet.tweet_id, Tweet.lang).filter(Tweet.lang != lang).all()
-    session.close()
-    return tweets
+    try:
+        lang = str(lang)
+        session = Session()
+        if not inverted:
+            tweets = session.query(Tweet.tweet_id, Tweet.lang).filter(Tweet.lang == lang).all()
+        else:
+            tweets = session.query(Tweet.tweet_id, Tweet.lang).filter(Tweet.lang != lang).all()
+        session.close()
+        return tweets
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None
 
 
 # def filter_by_existing_key(Session, key, inverted=False):
@@ -356,47 +351,50 @@ def filter_db_search_words(Session, input_string):
     Returns:
 
     """
-    # stages = re.split(';', words)  # Separating stages
-    input_string = input_string.lower()
-    stages = re.split(r"[;]", input_string)
+    try:
+        input_string = input_string.lower()
+        stages = re.split(r"[;]", input_string)
 
-    for stage_ind, stage in enumerate(stages):
-        words = re.split(r"[,. !@#$%^&*]", stage)
-        for i, word in enumerate(words):
-            word = ''.join(letter for letter in word if letter not in "!?,. ;'\\\"()!@#$%^&*()_)+_-[]")
-            word = word.lstrip(" ").rstrip(" ")
-            words[i] = word
-        words = [word for word in words if len(word) > 0]
-        stages[stage_ind] = words
-    stages = [stage for stage in stages if len(stage) > 0]
+        for stage_ind, stage in enumerate(stages):
+            words = re.split(r"[,. !@#$%^&*]", stage)
+            for i, word in enumerate(words):
+                word = ''.join(letter for letter in word if letter not in "!?,. ;'\\\"()!@#$%^&*()_)+_-[]")
+                word = word.lstrip(" ").rstrip(" ")
+                words[i] = word
+            words = [word for word in words if len(word) > 0]
+            stages[stage_ind] = words
+        stages = [stage for stage in stages if len(stage) > 0]
 
-    if len(stages) < 1:
-        return None
+        if len(stages) < 1:
+            return None
 
-    session = Session()
+        session = Session()
 
-    tweets = []
-    logger.debug(f"Searching tweets, staged: {stages}")
-
-    words = stages[0]
-    for word in words:
-        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
-                  word.lower() in tweet[1].lower()]
-        tweets += output
-
-    tweets = set(tweets)  # drop duplicates
-    for run_ind in range(1, len(stages)):
-        stage = stages[run_ind]
-        old_tweets = tweets.copy()
         tweets = []
-        for tweet in old_tweets:
-            for word in stage:
-                if word in tweet[1].lower():
-                    tweets.append(tweet)
-                    break
+        logger.debug(f"Searching tweets, staged: {stages}")
 
-    session.close()
-    return tweets
+        words = stages[0]
+        for word in words:
+            output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
+                      word.lower() in tweet[1].lower()]
+            tweets += output
+
+        tweets = set(tweets)  # drop duplicates
+        for run_ind in range(1, len(stages)):
+            stage = stages[run_ind]
+            old_tweets = tweets.copy()
+            tweets = []
+            for tweet in old_tweets:
+                for word in stage:
+                    if word in tweet[1].lower():
+                        tweets.append(tweet)
+                        break
+
+        session.close()
+        return tweets
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None
 
 
 def filter_db_search_phrases(Session, words):
@@ -409,41 +407,57 @@ def filter_db_search_phrases(Session, words):
     Returns:
 
     """
-    stages = re.split(r'[,.!;?]', words)  # Separating stages
-    for i, word in enumerate(stages):
-        word = ''.join(letter for letter in word if letter not in "'\\\"()@#$%^&*()_)+_-[]")
-        word = word.lstrip(" ").rstrip(" ")
-        stages[i] = word
-    phrases = [phrases for phrases in stages if len(phrases) > 0]
+    try:
+        stages = re.split(r'[,.!;?]', words)  # Separating stages
+        for i, word in enumerate(stages):
+            word = ''.join(letter for letter in word if letter not in "'\\\"()@#$%^&*()_)+_-[]")
+            word = word.lstrip(" ").rstrip(" ")
+            stages[i] = word
+        phrases = [phrases for phrases in stages if len(phrases) > 0]
 
-    session = Session()
-    tweets = []
-    logger.debug(f"Searching tweets, phrases: {phrases}")
-    for phrase in phrases:
-        output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
-                  phrase.lower() in tweet[1].lower()]
-        tweets += output
-    session.close()
-    return tweets
+        session = Session()
+        tweets = []
+        logger.debug(f"Searching tweets, phrases: {phrases}")
+        for phrase in phrases:
+            output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
+                      phrase.lower() in tweet[1].lower()]
+            tweets += output
+        session.close()
+        return tweets
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None
 
 
 def get_db_full_tweet_with_user(Session, tweet_id):
-    session = Session()
-    tweet_id = int(tweet_id)
-    tweet = session.query(Tweet, User).join(User).filter(Tweet.tweet_id == tweet_id).first()
-    session.close()
-    return tweet
+    try:
+        session = Session()
+        tweet_id = int(tweet_id)
+        tweet = session.query(Tweet, User).join(User).filter(Tweet.tweet_id == tweet_id).first()
+        session.close()
+        return tweet
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None
 
 
 def get_db_all_tweet_list(Session):
-    session = Session()
-    tweets = session.query(Tweet.tweet_id).all()
-    session.close()
-    return tweets
+    try:
+        session = Session()
+        tweets = session.query(Tweet.tweet_id).all()
+        session.close()
+        return tweets
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None
 
 
 def drop_existing_tweets(Session, tweet_id_list):
-    session = Session()
-    tweets = [tw_id for tw_id in tweet_id_list if not session.query(Tweet).filter(Tweet.tweet_id == tw_id).first()]
-    session.close()
-    return tweets
+    try:
+        session = Session()
+        tweets = [tw_id for tw_id in tweet_id_list if not session.query(Tweet).filter(Tweet.tweet_id == tw_id).first()]
+        session.close()
+        return tweets
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None

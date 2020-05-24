@@ -45,7 +45,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                 tweet_list=self.tweet_list,
                 overwrite=True
         ))
-        'Celery broadcast'
 
         'Settings'
         self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
