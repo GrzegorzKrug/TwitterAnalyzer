@@ -588,7 +588,10 @@ class TwitterOperator(TwitterApi):
     def get_tweets_by_words(self, words):
         # self.logger.debug(f"Requesting tweets from database (words == '{words}')")
         tweets = filter_db_search_words(self.Session, words)
-        self.logger.debug(f"Received {len(tweets)} tweets from db.")
+        if tweets:
+            self.logger.debug(f"Received {len(tweets)} tweets from db.")
+        else:
+            self.logger.debug(f"Received no tweets.")
         return tweets
 
     def get_tweets_by_phrases(self, words):

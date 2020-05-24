@@ -49,5 +49,15 @@ services:
     depends_on:
       - broker
     restart: always
-#      command: bash -c "python analyzer/celery.py"
-    command: bash -c "celery -A analyzer worker --loglevel=info"
+    #      command: bash -c "python analyzer/celery.py"
+    command: celery -A analyzer worker --loglevel=info
+  beat:
+    image: celeryworker:1.0
+    environment:
+      - HOSTNAME=broker
+    volumes:
+      - ./twitter_analyzer/analyzer:/app/analyzer
+    depends_on:
+      - worker
+    restart: always
+    command: celery -A analyzer beat --loglevel=info

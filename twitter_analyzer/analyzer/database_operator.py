@@ -370,6 +370,9 @@ def filter_db_search_words(Session, input_string):
         stages[stage_ind] = words
     stages = [stage for stage in stages if len(stage) > 0]
 
+    if len(stages) < 1:
+        return None
+
     session = Session()
 
     tweets = []
