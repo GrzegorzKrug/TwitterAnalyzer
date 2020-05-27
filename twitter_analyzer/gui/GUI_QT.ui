@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1440</width>
-    <height>861</height>
+    <width>1069</width>
+    <height>853</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <enum>QLayout::SetMinimumSize</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QGridLayout" name="MainGrid" rowstretch="0,0,0,0,0" columnstretch="20,0,0,0,2,1" columnminimumwidth="700,0,0,150,150,150">
+     <layout class="QGridLayout" name="MainGrid" rowstretch="1,1,1,0,1" columnstretch="20,0,0" rowminimumheight="400,0,0,0,0" columnminimumwidth="300,50,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
@@ -28,16 +28,6 @@
       </property>
       <item row="2" column="2" rowspan="3">
        <layout class="QGridLayout" name="grid_Small5">
-        <item row="2" column="0">
-         <widget class="QPushButton" name="pushButton_Info_screenLog">
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="text">
-           <string>Copy info To Log -&gt;</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <widget class="QCheckBox" name="checkBox_wrap_console">
           <property name="text">
@@ -93,51 +83,6 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="3" colspan="3">
-       <widget class="QTextEdit" name="textEdit_log">
-        <property name="font">
-         <font>
-          <family>Consolas</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOn</enum>
-        </property>
-        <property name="lineWrapMode">
-         <enum>QTextEdit::NoWrap</enum>
-        </property>
-        <property name="lineWrapColumnOrWidth">
-         <number>0</number>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Consolas'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'MS Shell Dlg 2'; font-size:8.25pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3" colspan="3">
-       <widget class="QTreeView" name="treeView">
-        <property name="font">
-         <font>
-          <family>Consolas</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::MultiSelection</enum>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1" colspan="2">
        <layout class="QGridLayout" name="DisplayTweetsGrid" columnstretch="1,0">
         <property name="sizeConstraint">
@@ -146,20 +91,7 @@ p, li { white-space: pre-wrap; }
         <property name="spacing">
          <number>5</number>
         </property>
-        <item row="2" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_reload_DF">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Reload DF from the same files again.</string>
-          </property>
-          <property name="text">
-           <string>Reload DF</string>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="0">
+        <item row="20" column="0">
          <widget class="QPushButton" name="pushButton_PreviousTweet">
           <property name="toolTip">
            <string>Show previous Tweet from DF</string>
@@ -169,23 +101,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_showTweets">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Shows currently loaded DF</string>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="text">
-           <string>DF Info</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="0" colspan="2">
+        <item row="8" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_HideEmptyValues">
           <property name="enabled">
            <bool>false</bool>
@@ -198,7 +114,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="16" column="1">
+        <item row="20" column="1">
          <widget class="QPushButton" name="pushButton_NextTweet">
           <property name="toolTip">
            <string>Show next Tweet from DF</string>
@@ -208,17 +124,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="13" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_ShowTweet">
-          <property name="toolTip">
-           <string>Show first Tweet from DF</string>
-          </property>
-          <property name="text">
-           <string>Show Tweet</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="0">
+        <item row="21" column="0">
          <widget class="QPushButton" name="pushButton_JumpToTweet">
           <property name="toolTip">
            <string>Jumps to Tweet in DF, define index in box.</string>
@@ -228,7 +134,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="10" column="0" colspan="2">
+        <item row="7" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
           <property name="enabled">
            <bool>false</bool>
@@ -247,27 +153,14 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="17" column="1">
+        <item row="21" column="1">
          <widget class="QLineEdit" name="lineEdit_JumpToTweet">
           <property name="toolTip">
            <string>Input index for Jump button.</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_load_selected_csv_2">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Loads files from tree.</string>
-          </property>
-          <property name="text">
-           <string>Load selected to DF</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_DisplayShortQuoteStatus">
           <property name="enabled">
            <bool>false</bool>
@@ -280,7 +173,7 @@ p, li { white-space: pre-wrap; }
           </property>
          </widget>
         </item>
-        <item row="14" column="0" colspan="2">
+        <item row="17" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_drop_current_tweet">
           <property name="enabled">
            <bool>false</bool>
@@ -292,18 +185,11 @@ p, li { white-space: pre-wrap; }
            <string notr="true">background-color: rgb(252, 175, 62);</string>
           </property>
           <property name="text">
-           <string>Drop This Tweet</string>
+           <string>Drop tweet from list</string>
           </property>
          </widget>
         </item>
-        <item row="15" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_open_in_browser">
-          <property name="text">
-           <string>Open in browser</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0">
+        <item row="5" column="0">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -319,47 +205,84 @@ p, li { white-space: pre-wrap; }
           </property>
          </spacer>
         </item>
+        <item row="11" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_request_parent_tweets_from_df">
+          <property name="text">
+           <string>Get parent tweets</string>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_ShowTweet">
+          <property name="toolTip">
+           <string>Show first Tweet from DF</string>
+          </property>
+          <property name="text">
+           <string>Show Tweet</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_open_in_browser">
+          <property name="text">
+           <string>Open in browser</string>
+          </property>
+         </widget>
+        </item>
+        <item row="19" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Delete in DB</string>
+          </property>
+         </widget>
+        </item>
         <item row="12" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_request_tweet_update">
+          <property name="text">
+           <string>Update tweets</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="10" column="0">
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="14" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_ShowTweetAll">
           <property name="text">
-           <string>Load all Tweets</string>
+           <string>Load tweet list</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
-      <item row="2" column="5">
-       <widget class="QPushButton" name="pushButton_clear_log">
-        <property name="styleSheet">
-         <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0, y2:0.028, stop:0 rgba(255, 255, 255, 255), stop:1 rgba(255, 144, 144, 255));</string>
-        </property>
-        <property name="text">
-         <string>Clear Log</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QPushButton" name="pushButton_check_threads">
-        <property name="toolTip">
-         <string>Check currently runing threads and print status.</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>Check Threads</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QCheckBox" name="checkBox">
-        <property name="text">
-         <string>Wrap Logs</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QTabWidget" name="tabWidget">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="toolTip">
          <string/>
         </property>
@@ -367,173 +290,8 @@ p, li { white-space: pre-wrap; }
          <number>-1</number>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
-        <widget class="QWidget" name="Files">
-         <attribute name="title">
-          <string>Unused</string>
-         </attribute>
-         <attribute name="toolTip">
-          <string>Manage Tweet Files in 'tweets' directory</string>
-         </attribute>
-         <widget class="QPushButton" name="pushButton_Magic_Debug">
-          <property name="geometry">
-           <rect>
-            <x>400</x>
-            <y>30</y>
-            <width>161</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Magic Debug</string>
-          </property>
-         </widget>
-        </widget>
-        <widget class="QWidget" name="Request">
-         <attribute name="title">
-          <string>Request</string>
-         </attribute>
-         <attribute name="toolTip">
-          <string>Collect Tweets from tweeter</string>
-         </attribute>
-         <widget class="QPushButton" name="pushButton_collect1">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>141</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>1 Chunk</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_collect10">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>40</y>
-            <width>141</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>10 Chunks : 10mins</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label">
-          <property name="geometry">
-           <rect>
-            <x>470</x>
-            <y>10</y>
-            <width>81</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="toolTip">
-           <string>This status says if credentials were verified by tweeter.</string>
-          </property>
-          <property name="text">
-           <string>Verified:</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_login_status">
-          <property name="geometry">
-           <rect>
-            <x>470</x>
-            <y>30</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="mouseTracking">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>This status says if credentials were verified by tweeter.</string>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(190, 170, 170);
-color: rgb(255, 255, 255);</string>
-          </property>
-          <property name="text">
-           <string>Not yet</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_request_parent_tweets_from_df">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>100</y>
-            <width>141</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Get parent tweets</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_Request_Status">
-          <property name="geometry">
-           <rect>
-            <x>180</x>
-            <y>10</y>
-            <width>141</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="toolTip">
-           <string>Put Tweet id (status) number in box</string>
-          </property>
-          <property name="text">
-           <string>Request tweet</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_request_statusId">
-          <property name="geometry">
-           <rect>
-            <x>180</x>
-            <y>40</y>
-            <width>151</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="toolTip">
-           <string>Input index for Jump button.</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_collect60">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>70</y>
-            <width>141</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>60 Chunks : 60mins</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_request_tweet_update">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>150</y>
-            <width>141</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Update tweets</string>
-          </property>
-         </widget>
-        </widget>
         <widget class="QWidget" name="PrepareData">
          <attribute name="title">
           <string>Prepare Data</string>
@@ -629,6 +387,9 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="pushButton_FilterDF_user">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string/>
                </property>
@@ -888,6 +649,9 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="0" column="0">
               <widget class="QPushButton" name="pushButton_filter_by_Age">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>Save DF to .csv File</string>
                </property>
@@ -898,6 +662,9 @@ color: rgb(255, 255, 255);</string>
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="pushButton_filter_by_Date">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>Save DF to .csv File</string>
                </property>
@@ -1034,6 +801,9 @@ color: rgb(255, 255, 255);</string>
           </property>
          </widget>
          <widget class="QCheckBox" name="checkBox_filtration_keep_drop">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>550</x>
@@ -1047,6 +817,35 @@ color: rgb(255, 255, 255);</string>
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButton_Request_Status">
+          <property name="geometry">
+           <rect>
+            <x>660</x>
+            <y>10</y>
+            <width>141</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="toolTip">
+           <string>Put Tweet id (status) number in box</string>
+          </property>
+          <property name="text">
+           <string>Request tweet</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="lineEdit_request_statusId">
+          <property name="geometry">
+           <rect>
+            <x>660</x>
+            <y>40</y>
+            <width>151</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="toolTip">
+           <string>Input index for Jump button.</string>
           </property>
          </widget>
         </widget>
@@ -1110,7 +909,7 @@ color: rgb(255, 255, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1440</width>
+     <width>1069</width>
      <height>20</height>
     </rect>
    </property>
@@ -1125,7 +924,6 @@ color: rgb(255, 255, 255);</string>
     <property name="title">
      <string>GUI</string>
     </property>
-    <addaction name="actionRefresh_GUI"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1141,11 +939,6 @@ color: rgb(255, 255, 255);</string>
   <action name="actionLogin">
    <property name="text">
     <string>Login</string>
-   </property>
-  </action>
-  <action name="actionRefresh_GUI">
-   <property name="text">
-    <string>Refresh</string>
    </property>
   </action>
   <action name="actionWho_am_I">

@@ -1,0 +1,10 @@
+FROM python:3.8.1
+
+ENV PYTHONUNBUFFERED 1
+
+COPY requirements.txt /app/requirements.txt
+WORKDIR /app
+
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+
+RUN pip install -r requirements.txt

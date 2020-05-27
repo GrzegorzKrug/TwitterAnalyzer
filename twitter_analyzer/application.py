@@ -1,4 +1,4 @@
-# app.py
+# application.py
 # Grzegorz Krug
 
 from PyQt5 import QtCore, QtWidgets  # QtGui
@@ -6,6 +6,9 @@ from PyQt5 import QtCore, QtWidgets  # QtGui
 from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
 from twitter_analyzer.analyzer.custom_logger import define_logger
+from analyzer.tasks import (
+    get_tweets_from_home_board, download_parent_tweets, collect_status_list
+)
 
 import webbrowser
 import datetime
@@ -24,7 +27,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self._init_wrappers()
         self._init_triggers()
         self._init_settings()
-        self.refresh_gui()
 
         self._loaded_files = []  # Last loaded files, for reloading
         self.current_tweet_selected = -1  # Current tweet index from DF
@@ -32,22 +34,15 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     def _init_triggers(self):
         self.actionLogin.triggered.connect(self.validate_credentials)
         self.actionWho_am_I.triggered.connect(self.show_me)
-        self.actionRefresh_GUI.triggered.connect(self.refresh_gui)
         self.actionTweet_Description.triggered.connect(self.show_tweet_keys)
-        # self.label_login_status.mousePressEvent = self.update_status
 
         'Requesting methods'
-        self.pushButton_collect1.clicked.connect(lambda: self.fork_method(self.download_full_chunk))
-        self.pushButton_collect10.clicked.connect(lambda f: self.fork_method(self.download10_chunks))
-        self.pushButton_collect60.clicked.connect(lambda f: self.fork_method(self.download60_chunks))
         self.pushButton_Request_Status.clicked.connect(self.request_status_from_box)
-        self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: self.fork_method(
-                method_to_fork=self.download_parent_tweets,
+        self.pushButton_request_parent_tweets_from_df.clicked.connect(lambda: download_parent_tweets.delay(
                 tweet_list=self.tweet_list
         ))
-        self.pushButton_request_tweet_update.clicked.connect(lambda: self.fork_method(
-                method_to_fork=self.collect_status_list,
-                status_list=self.tweet_list,
+        self.pushButton_request_tweet_update.clicked.connect(lambda: collect_status_list.delay(
+                tweet_list=self.tweet_list,
                 overwrite=True
         ))
 
@@ -56,11 +51,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.checkBox_filtration_keep_drop.clicked.connect(self.change_box_text)
 
         'File Buttons'
-        self.pushButton_clear_log.clicked.connect(self.clear_log)
-        # self.pushButton_export_DF.clicked.connect(lambda: self.save_current_df(extra_text=self.lineEdit_DF_comment.text()))
-        self.pushButton_Info_screenLog.clicked.connect(self.copy_info_to_logs)
-        self.pushButton_check_threads.clicked.connect(self.display_threads)
-        self.pushButton_open_in_browser.clicked.connect(self.open_in_browser)
+        # self.pushButton_export_DF.clicked.connect(
+        #     lambda: self.save_current_df(extra_text=self.lineEdit_DF_comment.text()))
 
         'Displaying Tweets'
         self.pushButton_ShowTweetAll.clicked.connect(self.show_all_tweets)
@@ -68,6 +60,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_NextTweet.clicked.connect(self.show_next_tweet)
         self.pushButton_PreviousTweet.clicked.connect(self.show_prev_tweet)
         self.pushButton_JumpToTweet.clicked.connect(self.jump_to_tweet)
+        self.pushButton_open_in_browser.clicked.connect(self.open_in_browser)
         # self.pushButton_drop_current_tweet.clicked.connect(self.trigger_drop_current_tweet)
 
         'Filtration Buttons'
@@ -89,23 +82,11 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         'Analyze Buttons'
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
 
-        # 'DEBUG'
-        self.pushButton_Magic_Debug.clicked.connect(self.debug)
-
     def _init_wrappers(self):
         self.verify_procedure = self.post_action(self.verify_procedure, self.update_login_box)
 
     def _init_settings(self):
         self.change_info_settings()
-
-    # def go_debug(self):
-    #     print(self.find_parent_tweets())
-
-    def add_log(self, text_line):
-        text_line = str(text_line)
-        text = str(text_line) + '\n' + self.textEdit_log.toPlainText()
-        text = self.add_timestamp_to_text(text)
-        self.textEdit_log.setPlainText(text)
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -134,44 +115,10 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         else:
             self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
 
-    def clear_log(self):
-        self.textEdit_log.setPlainText('')
-
-    def copy_info_to_logs(self):
-        text = '=== Info:'
-        for line in self.plainTextEdit_info.toPlainText().split('\n'):
-            text += '\n\t' + line
-        self.add_log(text)
-        time.sleep(0.8)
-
-    def current_tree_selection(self, ignore_name=False, ignore_extension=False):
-        """Loads currently selected csv file from tree"""
-        files_list = []
-        selected_list = self.treeView.selectedIndexes()
-        for i, item in enumerate(selected_list):
-            if item.column() == 0:
-                files_list += [item.data()]
-        good_files = []
-        for file in files_list:
-            if file[-4:] == '.csv' or ignore_extension:
-                good_files += [file]
-            else:
-                self.add_log("Invalid extension, not CSV: {}".format(file))
-        return good_files
-
     def display_add(self, text):
         old_text = self.plainTextEdit_info.toPlainText()
         text = old_text + '\n' + text
         self.plainTextEdit_info.setPlainText(text)
-
-    def display_threads(self):
-        threads = self.check_threads()
-        if threads:
-            for th in threads:
-                self.add_log(f"Thread is still running: {th}")
-        else:
-            self.add_log(f'All tasks are complete')
-            return False
 
     def display(self, text):
         while len(text) > 1 and \
@@ -180,14 +127,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                  or text[-1] == ' '):
             text = text[:-1]
         self.plainTextEdit_info.setPlainText(text)
-
-    # def load_selected(self) -> None:
-    #     self.current_tweet_index = -1
-    #     file_list = self.current_tree_selection()
-    #     self.load_df(file_list)
-    #     if self.DF is not None:
-    #         self.current_tweet_index = 0
-    #         self.show_current_tweet()
 
     @staticmethod
     def _open_browser(url):
@@ -211,6 +150,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     @staticmethod
     def post_action(method, next_method=None):
         """Wrapper to run method after first one"""
+
         def wrapper(*args, **kwargs):
             out = None
             if method:
@@ -218,6 +158,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             if next_method:
                 next_method()
             return out
+
         return wrapper
 
     @staticmethod
@@ -260,7 +201,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         try:
             ind = int(ind)
         except ValueError:
-            self.add_log('This is not a number')
+            self.logger.error(f"Can not show tweet, this is not number {ind}")
             return None
         if len(self.tweet_list) < 1:
             self.logger.warning(f"Tweet list is empty. Can not display tweet")
@@ -277,7 +218,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         self.current_tweet_index = ind
         tweet = self.get_full_tweet(self.tweet_list[ind])
-        text = f"Index: {ind} of {len(self.tweet_list) -1}\n"
+        text = f"Index: {ind} of {len(self.tweet_list) - 1}\n"
 
         text += "id".ljust(25) + f"{tweet.Tweet.tweet_id}\n"
         text += "timestamp".ljust(25) + f"{tweet.Tweet.timestamp}\n"
@@ -302,9 +243,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         text += "screen_name".ljust(25) + f"{tweet.User.screen_name}\n"
         self.display(text)
 
-    def refresh_gui(self):
-        self.show_tree()
-
     def request_status_from_box(self):
         """
         Collect one ore more tweets with specified ids
@@ -315,36 +253,9 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         try:
             num = int(text)
         except ValueError:
-            self.add_log('This is not a number')
+            self.logger.error(f"Can not show tweet, this is not number {text}")
             return None
         self.collect_status_list([num])
-
-    def show_tree(self):
-        path = self._data_dir
-        model = QtWidgets.QFileSystemModel()
-        model.setRootPath(path)
-        self.treeView.setModel(model)
-        self.treeView.setRootIndex(model.index(path))
-        self.treeView.setColumnWidth(0, 40*8)
-        self.treeView.setColumnWidth(1, 10*8)
-        self.treeView.setColumnWidth(2, 10*8)
-        self.treeView.setColumnWidth(3, 15*8)
-        # self.treeView.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)  # its defined in GUI.py
-
-    # def show_df_info(self):
-    #     if self.DF is None:
-    #         self.add_log('DF is None!')
-    #         return None
-    #     else:
-    #         self.display(f'DF size: {self.DF.shape}')
-    #         self.display_add(str(self.DF.head()))
-
-    # def show_me(self, user_data):
-    #     text = ''
-    #     for key in ['screen_name', 'name', 'id', 'friends_count', 'followers_count', 'following', 'location',
-    #                 'verified', 'lang']:
-    #         text += str(key + ':').ljust(25) + str(user_data[key]) + '\n'
-    #     self.display(text)
 
     # def trigger_analyze_unique(self):
     #     key = self.lineEdit_analyze_unique_key.text()
@@ -429,18 +340,16 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             lang = self.lineEdit_FilterLangOther.text()
             lang = str(lang)
         if lang == '':
-            self.add_log('Box is empty!')
+            self.logger.error('Lang box is empty!')
             return None
         inverted = self.check_settings_inverted()
         tweets = self.get_tweets_by_lang(lang, inverted)
-        self.tweet_list = tweets
         self.set_tweet_list(tweets)
         self.show_current_tweet()
 
     def trigger_filter_by_search_words(self):
         words = self.lineEdit_filter_words.text()
         tweets = self.get_tweets_by_words(words)
-        self.tweet_list = tweets
         self.set_tweet_list(tweets)
         self.show_current_tweet()
 
@@ -482,9 +391,9 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     def validate_credentials(self):
         valid = self.verify_procedure()
         if valid:
-            self.add_log(f"Credentials are valid")
+            self.logger.info(f"Credentials are valid")
         else:
-            self.add_log(f"Credentials are invalid")
+            self.logger.info(f"Credentials are invalid")
 
     def show_tweet_keys(self):
         text = 'Tweet index:             index / last tweet' \
@@ -525,7 +434,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                '\nwithheld_scope:          <help>' \
                '\ntweet_mode:              <help>'
         self.display(text)
-        
+
+
 # ------ Sorted methods are above --------------------------------------------------------------------------------------
 
 
@@ -538,9 +448,12 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 except_logger = define_logger('App_exception')
 
 
-def _except_handler(type=None, value=None, traceback=None):
-    except_logger.exception(f"Uncaught exception: {value}\ntraceback: {traceback}")
-    # ['tb_frame', 'tb_lasti', 'tb_lineno', 'tb_next']
+def _except_handler(type=None, value=None, tb=None):
+    frames = traceback.extract_tb(tb)
+    text = "\n"
+    for frame in frames:
+        text += f"\n {frame}"
+    except_logger.exception(f"Uncaught exception: {value}, traceback: {text}")
 
 
 def run_gui():
@@ -554,5 +467,5 @@ def run_gui():
 
 
 if __name__ == "__main__":
-    sys.excepthook = _except_handler
+    # sys.excepthook = _except_handler
     run_gui()

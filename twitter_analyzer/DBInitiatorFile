@@ -2,5 +2,10 @@ FROM python:3.8.1
 
 ENV PYTHONUNBUFFERED 1
 
+RUN mkdir /app && mkdir /app/analyzer
+COPY database_initialize.py /app
+COPY analyzer/database_operator.py analyzer/custom_logger.py /app/analyzer/
+
 RUN pip install SQLAlchemy==1.3.15 pandas==1.0.1 psycopg2-binary==2.8.4
 
+ENTRYPOINT python /app/database_initialize.py
