@@ -43,8 +43,15 @@ class TwitterApi:
         consumer_secret = os.getenv('CONSUMER_SECRET')
         access_token_key = os.getenv('ACCESS_TOKEN')
         access_token_secret = os.getenv('ACCESS_TOKEN_SECRET')
+
         if not consumer_key or not consumer_secret or not access_token_key or not access_token_secret:
-            raise ValueError("Can not load Credentials")
+            from dotenv import load_dotenv
+            load_dotenv("analyzer/ENV_FILE")
+
+            consumer_key = os.getenv('CONSUMER')
+            consumer_secret = os.getenv('CONSUMER_SECRET')
+            access_token_key = os.getenv('ACCESS_TOKEN')
+            access_token_secret = os.getenv('ACCESS_TOKEN_SECRET')
 
         auth = OAuth1(consumer_key,
                       consumer_secret,
@@ -81,8 +88,8 @@ class TwitterApi:
             return True
         elif resp_code == 202:
             return True
-        # elif resp_code == 400:
-        # pass
+        elif resp_code == 400:
+            raise Unauthorized(str(response.json()))
         elif resp_code == 401:
             raise Unauthorized(str(response.json()))
         elif resp_code == 403:
