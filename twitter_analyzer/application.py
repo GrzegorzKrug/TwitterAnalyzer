@@ -24,7 +24,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.setupUi(main_window)
         TwitterOperator.__init__(self, auto_login=auto_login)
 
-        self._init_wrappers()
         self._init_triggers()
         self._init_settings()
 
@@ -82,8 +81,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         'Analyze Buttons'
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
 
-    def _init_wrappers(self):
-        self.verify_procedure = self.post_action(self.verify_procedure, self.update_login_box)
 
     def _init_settings(self):
         self.change_info_settings()
@@ -378,15 +375,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     #     files = self.current_tree_selection()
     #     self.fork_method(self.merge_without_duplicates, files)
 
-    def update_login_box(self):
-        if self.logged_in:
-            self.label_login_status.setText('True')
-            self.label_login_status.setStyleSheet("background-color: rgb(30, 255, 180);")
-            # self.show_user_info(self.me)  # where is this?
-        else:
-            self.label_login_status.setText('False')
-            self.label_login_status.setStyleSheet("background-color: rgb(255, 149, 151);\n"
-                                                  "color: rgb(255, 255, 255);")
 
     def validate_credentials(self):
         valid = self.verify_procedure()

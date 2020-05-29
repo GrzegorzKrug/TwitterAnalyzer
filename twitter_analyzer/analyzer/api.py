@@ -39,49 +39,24 @@ class TwitterApi:
             return False, None
 
     def _set_auth(self):
-        file_path = os.path.join(os.path.dirname(__file__), 'secret_token.txt')
-        self.logger_api.debug("Loading credentials")
-        try:
-            with open(file_path, 'rt') as token_file:
-                data = json.load(token_file)
-                consumer_key = data['consumer_key']
-                consumer_secret = data['consumer_secret']
-                access_token_key = data['access_token_key']
-                access_token_secret = data['access_token_secret']
+        consumer_key = os.getenv('CONSUMER')
+        consumer_secret = os.getenv('CONSUMER_SECRET')
+        access_token_key = os.getenv('ACCESS_TOKEN')
+        access_token_secret = os.getenv('ACCESS_TOKEN_SECRET')
+        if not consumer_key or not consumer_secret or not access_token_key or not access_token_secret:
+            raise ValueError("Can not load Credentials")
 
-                auth = OAuth1(consumer_key,
-                              consumer_secret,
-                              access_token_key,
-                              access_token_secret)
+        auth = OAuth1(consumer_key,
+                      consumer_secret,
+                      access_token_key,
+                      access_token_secret)
 
-                self.auth = auth
-                self.authSess = OAuth1Session(consumer_key,
-                                              consumer_secret,
-                                              access_token_key,
-                                              access_token_secret)
-                return True
-
-        except FileNotFoundError:
-            with open(file_path, 'wt') as file:
-                data = json.dumps({
-                    "consumer_key": "ABC",
-                    "consumer_secret": "ABC",
-                    "access_token_key": "ABC",
-                    "access_token_secret": "ABC"},
-                    indent=4)
-                file.write(data)
-                self.logger_api.error('File not found. Created blank secret file.')
-                return True
-
-        except json.decoder.JSONDecodeError:
-            msg = "Exception: secret_token.txt is not in json format!"
-            self.logger_api.error(msg)
-            return False
-
-        except KeyError:
-            msg = "Exception: secret_token.txt is missing some keys!"
-            self.logger_api.error(msg)
-            return False
+        self.auth = auth
+        self.authSess = OAuth1Session(consumer_key,
+                                      consumer_secret,
+                                      access_token_key,
+                                      access_token_secret)
+        return True
 
     def _verify_oauth(self):
         try:
@@ -142,31 +117,31 @@ class TwitterApi:
         data = self.authSess.post(full_url, files=files)
         return data.json()['media_id']
 
-#    def postLarge_image(self, imagePath):
-#        fullUrl = self.apiUpload + r'/media/upload.json'
-#        sizeB = os.path.getsize(imagePath)
-#
-#        'Step 1 of 4 INIT'
-#        params = {'command': 'INIT',
-#                  'media_type ': r'image/png',
-#                  'total_bytes': sizeB}
-#
-#        valid, resp_init = self.post_request(fullUrl, params=params)
-#        media_id = resp_init['media_id']
-#        print(media_id)
-#
-#        'Step 2 of 4 Append'
-#        fullUrl = self.apiUpload + r'/media/upload.json'
-#        with open(imagePath, 'rb') as image:
-#            params = {'command': 'APPEND',
-#                      'media_id ': media_id,
-#                      'media': image,
-#                      'segment_index': 0}
-#            files = {}
-#            valid, resp_init = self.post_request(fullUrl, params=params, files=files)
-#            valid, resp_init = self.authSess.post(fullUrl, params=params, files=files)
-#        'Step 3 of 4 Get id'
-#        'Step 4 of 4 Finalize'
+    #    def postLarge_image(self, imagePath):
+    #        fullUrl = self.apiUpload + r'/media/upload.json'
+    #        sizeB = os.path.getsize(imagePath)
+    #
+    #        'Step 1 of 4 INIT'
+    #        params = {'command': 'INIT',
+    #                  'media_type ': r'image/png',
+    #                  'total_bytes': sizeB}
+    #
+    #        valid, resp_init = self.post_request(fullUrl, params=params)
+    #        media_id = resp_init['media_id']
+    #        print(media_id)
+    #
+    #        'Step 2 of 4 Append'
+    #        fullUrl = self.apiUpload + r'/media/upload.json'
+    #        with open(imagePath, 'rb') as image:
+    #            params = {'command': 'APPEND',
+    #                      'media_id ': media_id,
+    #                      'media': image,
+    #                      'segment_index': 0}
+    #            files = {}
+    #            valid, resp_init = self.post_request(fullUrl, params=params, files=files)
+    #            valid, resp_init = self.authSess.post(fullUrl, params=params, files=files)
+    #        'Step 3 of 4 Get id'
+    #        'Step 4 of 4 Finalize'
 
     def post_request(self, full_url, header=None, params=None, files=None):
         if params is None:
@@ -178,7 +153,7 @@ class TwitterApi:
             return True, response.json()
         else:
             return False, None
-        
+
     def post_status(self, text, image_path=None, image_binary=None):
         params = {}
         pic_id = None
@@ -198,14 +173,14 @@ class TwitterApi:
         full_url = self.apiUrl + r'/statuses/update.json'
         self.logger_api.debug(f"Posing status")
         valid, data = self.post_request(full_url, params=params)
-         
+
     def request_status(self, status_id):
         full_url = self.apiUrl + r'/statuses/show.json'
         params = {'id': int(status_id)}
         self.logger_api.debug(f"Requesting status: {status_id}")
         valid, data = self._make_request(full_url, params=params)
         return data
-        
+
     def verify_procedure(self):
         valid, self.me = self._verify_oauth()
         if valid:
@@ -218,6 +193,7 @@ class TwitterApi:
 
 class Unauthorized(Exception):  # 401
     """Base class for Twitter errors"""
+
     @property
     def message(self):
         """Returns the first argument used to construct this error."""
@@ -226,6 +202,7 @@ class Unauthorized(Exception):  # 401
 
 class ApiNotFound(Exception):  # 404
     """Base class for Twitter errors"""
+
     @property
     def message(self):
         """Returns the first argument used to construct this error."""
@@ -234,6 +211,7 @@ class ApiNotFound(Exception):  # 404
 
 class TooManyRequests(Exception):  # 429
     """Base class for Twitter errors"""
+
     @property
     def message(self):
         """Returns the first argument used to construct this error."""

@@ -43,6 +43,8 @@ services:
     environment:
       - HOSTNAME=broker
       - DB_ACCES_NAME=postgres_db
+    env_file:
+      - ./twitter_analyzer/analyzer/ENV_FILE
     volumes:
       - ./twitter_analyzer/analyzer:/app/analyzer
       - ./twitter_analyzer/logs/worker:/app/logs
