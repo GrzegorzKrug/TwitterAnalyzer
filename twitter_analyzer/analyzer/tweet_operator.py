@@ -11,7 +11,7 @@ import os
 
 from .custom_logger import define_logger
 from .api import TwitterApi
-from .api import Unauthorized, ApiNotFound, TooManyRequests
+from .api import Unauthorized, TweetNotFoundError, TooManyRequests
 from .database_operator import (
     get_database_connectors, add_tweet_with_user,
     filter_db_search_words, filter_db_search_phrases, filter_by_lang,
@@ -277,8 +277,8 @@ class TwitterOperator(TwitterApi):
                 _app.logger.warning(f"Collect status list: {tmr}")
                 time.sleep(60)
 
-            except ApiNotFound as nf:
-                _app.logger.error(f"ApiNotFound error Tweet: {tweet_id}, {nf}")
+            except TweetNotFoundError as nf:
+                _app.logger.error(f"TweetNotFoundError: {tweet_id}, {nf}")
                 return None
 
             except Unauthorized as un:

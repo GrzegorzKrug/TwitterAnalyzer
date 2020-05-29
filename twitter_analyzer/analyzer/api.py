@@ -95,7 +95,7 @@ class TwitterApi:
         elif resp_code == 403:
             raise Unauthorized(str(response.json()))
         elif resp_code == 404:
-            raise ApiNotFound(str(response.json()))
+            raise TweetNotFoundError(str(response.json()))
         elif resp_code == 429:
             raise TooManyRequests('Error 429, too many requests.')
         else:
@@ -207,7 +207,7 @@ class Unauthorized(Exception):  # 401
         return self.args[0]
 
 
-class ApiNotFound(Exception):  # 404
+class TweetNotFoundError(Exception):  # 404
     """Base class for Twitter errors"""
 
     @property

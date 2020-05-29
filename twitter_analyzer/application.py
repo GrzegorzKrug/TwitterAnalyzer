@@ -81,7 +81,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         'Analyze Buttons'
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
 
-
     def _init_settings(self):
         self.change_info_settings()
 
@@ -252,7 +251,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         except ValueError:
             self.logger.error(f"Can not show tweet, this is not number {text}")
             return None
-        self.collect_status_list([num])
+        collect_status_list.delay([num])
 
     # def trigger_analyze_unique(self):
     #     key = self.lineEdit_analyze_unique_key.text()
@@ -374,7 +373,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     # def trigger_merge_without_duplicates(self):
     #     files = self.current_tree_selection()
     #     self.fork_method(self.merge_without_duplicates, files)
-
 
     def validate_credentials(self):
         valid = self.verify_procedure()
