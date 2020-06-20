@@ -231,6 +231,9 @@
         </item>
         <item row="19" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Delete in DB</string>
           </property>
@@ -300,6 +303,9 @@
           <string>Analyze loaded DF</string>
          </attribute>
          <widget class="QPushButton" name="pushButton_export_DF">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -438,7 +444,7 @@
              <item row="3" column="0">
               <widget class="QPushButton" name="pushButton_filter_search_words_anywhere">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Split phrases with semilocon ;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>Find phrases or whole sentence, punctuation marks are not supported</string>
                </property>
                <property name="text">
                 <string>Find phrases</string>
