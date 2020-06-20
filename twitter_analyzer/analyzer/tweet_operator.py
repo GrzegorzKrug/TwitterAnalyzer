@@ -7,6 +7,7 @@ import datetime
 import time
 import ast
 import sys
+import csv
 import os
 
 from .custom_logger import define_logger
@@ -424,6 +425,27 @@ class TwitterOperator(TwitterApi):
     #             self.logger.warning("Could not drop tweet duplicates")
     #     else:
     #         self.logger.warning('DF is empty. Load some tweets first.')
+
+    def export_tweets_to_csv(self, tweet_list, file_path):
+        """Exports tweets to new csv file"""
+        tweet, user = tweet_list[0]
+        text_preprocessed = str(tweet.full_text).replace('\n', ' ').replace(',', ' ')
+
+        data_dict = {"user_id": user.user_id,
+                     "screen_name": user.screen_name,
+                     "tweet_id": tweet.tweet_id,
+                     "full_text": text_preprocessed}
+        field_names = ['user_id', 'screen_name', 'tweet_id', 'full_text']
+
+        if os.path.isfile(file_path):
+            with open(file_path, "at", encoding="utf-8") as file:
+                writer = csv.DictWriter(file, fieldnames=field_names)
+                writer.writerow(data_dict)
+        else:
+            with open(file_path, "at", encoding="utf-8") as file:
+                writer = csv.DictWriter(file, fieldnames=field_names)
+                writer.writeheader()
+                writer.writerow(data_dict)
 
     # @staticmethod
     def export_tweet_to_database(self, tweet, delay=0, overwrite=False):

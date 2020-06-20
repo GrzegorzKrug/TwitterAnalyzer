@@ -47,12 +47,13 @@ services:
       - ./twitter_analyzer/analyzer/ENV_FILE
     volumes:
       - ./twitter_analyzer/analyzer:/app/analyzer
-      - ./twitter_analyzer/logs/worker:/app/logs
+      - ./twitter_analyzer/logs_worker:/app/logs
+      - ./twitter_analyzer/exports:/app/exports
     depends_on:
       - broker
     restart: always
     #      command: bash -c "python analyzer/celery.py"
-    command: celery -A analyzer worker --loglevel=info
+    command: bash -c "chmod -R 777 exports && celery -A analyzer worker --loglevel=info"
   beat:
     image: celeryworker:1.0
     environment:

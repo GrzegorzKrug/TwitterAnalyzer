@@ -331,7 +331,7 @@
            </rect>
           </property>
           <property name="toolTip">
-           <string>(optional) You can Add some comment to file name</string>
+           <string>(optional) You can set file name</string>
           </property>
          </widget>
          <widget class="QWidget" name="verticalLayoutWidget_3">

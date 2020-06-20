@@ -7,7 +7,7 @@ from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
 from twitter_analyzer.analyzer.custom_logger import define_logger
 from analyzer.tasks import (
-    get_tweets_from_home_board, download_parent_tweets, collect_status_list
+    download_parent_tweets, collect_status_list, export_tweets_to_csv
 )
 
 import webbrowser
@@ -50,8 +50,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.checkBox_filtration_keep_drop.clicked.connect(self.change_box_text)
 
         'File Buttons'
-        # self.pushButton_export_DF.clicked.connect(
-        #     lambda: self.save_current_df(extra_text=self.lineEdit_DF_comment.text()))
+        self.pushButton_export_DF.clicked.connect(
+                lambda: export_tweets_to_csv.delay(self.tweet_list, name=self.lineEdit_DF_comment.text()))
 
         'Displaying Tweets'
         self.pushButton_ShowTweetAll.clicked.connect(self.show_all_tweets)

@@ -426,7 +426,7 @@ class Ui_MainWindow(object):
         self.pushButton_ShowTweetAll.setText(_translate("MainWindow", "Load tweet list"))
         self.pushButton_export_DF.setToolTip(_translate("MainWindow", "Save DF to .csv File, Name is optional"))
         self.pushButton_export_DF.setText(_translate("MainWindow", "Export to csv"))
-        self.lineEdit_DF_comment.setToolTip(_translate("MainWindow", "(optional) You can Add some comment to file name"))
+        self.lineEdit_DF_comment.setToolTip(_translate("MainWindow", "(optional) You can set file name"))
         self.pushButton_FilterDF_Lang_Polish.setToolTip(_translate("MainWindow", "Filter DF, polish"))
         self.pushButton_FilterDF_Lang_Polish.setText(_translate("MainWindow", "Lang PL"))
         self.pushButton_FilterDF_TweetID.setText(_translate("MainWindow", "TweetId"))
