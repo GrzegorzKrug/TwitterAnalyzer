@@ -59,3 +59,4 @@ def export_tweets_to_csv(tweet_list=None, name=None):
     for tweet_id in tweet_list:
         tweet = _app.get_tweet_by_id(tweet_id)
         _app.export_tweets_to_csv(tweet, file_path)
+    _app.logger.info(f"Successfully export tweets to: {file_name}")
