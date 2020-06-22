@@ -13,7 +13,7 @@ app = Celery('tasks', broker=broker_url, namespace="analyzer_celery", include=['
 app.conf.beat_schedule = {
         'Add-Home-Page': {
                 'task': 'analyzer.tasks.get_tweets_from_home_board',
-                'schedule': 65,
+                'schedule': 90,
         },
 }
 
