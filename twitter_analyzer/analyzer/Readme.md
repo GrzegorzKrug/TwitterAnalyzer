@@ -1,18 +1,13 @@
 # Readme.md
 
 ## Twitter Login
-#### Save your twitter token in this file secret_token.txt
-
-File should look like this example:
-> .\TwitterAnalyzer\secret_token.txt
+#### Save your twitter token in ENV file
 
 ```
-{
-	"consumer_key" : "ABC",
-	"consumer_secret" : "ABC",
-	"access_token_key" : "ABC",
-	"access_token_secret" : "ABC"
-}
+CONSUMER=abc
+CONSUMER_SECRET=abc
+ACCESS_TOKEN=abc
+ACCESS_TOKEN_SECRET=abc
 ```
 
 **Key is case sensitive. If it is not working, check for empty spaces!**
