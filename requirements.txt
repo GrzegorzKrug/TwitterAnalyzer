@@ -9,4 +9,5 @@ pytest==5.3.5
 celery==4.4.2
 python-dotenv==0.13.0
 nltk==3.5
+spacy==2.3.0
 stop-words==2018.7.23

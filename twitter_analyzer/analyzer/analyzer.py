@@ -12,6 +12,7 @@ class Analyzer:
     def __init__(self, file_path):
         """Search and load processed .npy file first, if not found, open csv and do processing"""
         self.file_name = os.path.basename(file_path)
+        self.file_path = file_path
         self.data_dir = 'data_files'
         os.makedirs(self.data_dir, exist_ok=True)
         data = self.load_data()
@@ -21,6 +22,13 @@ class Analyzer:
         else:
             self.data = self.tokenize_file(file_path)
             self.normalize_text(self.data)
+
+    def preprocess(self):
+        print(f"Preprocessing: {self.file_name}")
+        self.data = self.tokenize_file(self.file_path)
+        self.normalize_text(self.data)
+        self.stemming(self.data, 'polish')
+        self.drop_short_words(self.data)
 
     @staticmethod
     def tokenize_file(absolute_file_path):
@@ -44,24 +52,74 @@ class Analyzer:
             return data
 
     @staticmethod
-    def normalize_text(list_array: 'list of pair <index, text>'):
+    def normalize_text(data_array: 'list of pair <index, text>'):
+        """
+        Remove stop words, and symbols. Remove every word shorter than min_word_len
+        Args:
+            data_array:
+            min_word_len: int, default 2
+
+        Returns:
+
+        """
         stop_words = get_stop_words('polish')
         banned_symbols = [':', '"', "'", '.', '`', '”', '„', '/']
         banned_prefix = ['http']
-        for pair in list_array:
+        for pair in data_array:
             text = pair[1]
             text = set(text)
             # print(text)
             text = [word for word in text for pref in banned_prefix if
-                    not word.startswith(pref) and word not in banned_symbols and word not in stop_words
-                    and len(word) > 0]
+                    not word.startswith(pref) and word not in banned_symbols and word not in stop_words]
             pair[1] = text
 
     @staticmethod
-    def stemming(list_array: 'list of pair <index, text>'):
-        stemmer = LancasterStemmer()
-        for pair in list_array:
-            pair[1] = [stemmer.stem(word) for word in pair[1]]
+    def drop_short_words(data_array: 'list of pair <index, text>', min_word_len=2):
+        for pair in data_array:
+            text = pair[1]
+            text = set(text)
+            # print(text)
+            text = [word for word in text if len(word) >= min_word_len]
+            pair[1] = text
+
+    @staticmethod
+    def stemming(data_array: 'list of pair <index, text>', lang=None):
+        """
+        Removes common prefixes and sufixes
+        Args:
+            list_array:
+
+        Returns:
+
+        """
+        if lang == 'english' or lang is None:
+            stemmer = LancasterStemmer()
+            for pair in data_array:
+                pair[1] = [stemmer.stem(word) for word in pair[1]]
+        elif lang == 'polish':
+            common_sufixes = ['łam', 'łem', 'łe', 'ło', 'ować', 'ął',
+                              'ują', 'uję', 'uje', 'uja',
+                              'iemy', 'emy', 'em', 'ie', 'ia', 'eni',
+                              'ęcie', 'ej', 'ę',
+                              'ać', 'amy', 'any', 'anie', 'a', 'ą',
+                              'aj', 'iłem', 'u', 'ach', 'ch', 'ów', 'y',
+                              'ego', 'owym', 'owe', 'o', 'cie', 'c', 'ć', 'owani',
+                              'mi', 'i']
+            for pair in data_array:
+                for sufix in common_sufixes:
+                    pair[1] = [word if not word.endswith(sufix) else word[:-len(sufix)] for word in pair[1]]
+
+    @staticmethod
+    def lematizing(list_array: 'list of pair <index, text>'):
+        """
+        Converts words to basic form
+        Args:
+            list_array:
+
+        Returns:
+
+        """
+        pass
 
     def load_data(self, file_name=None):
         if file_name is None:
@@ -104,5 +162,6 @@ if __name__ == '__main__':
         print(file)
 
     app = Analyzer(file_path=all_files[-1])
-    app.show(20)
+    app.preprocess()
+    app.show(50)
     app.save_data()
