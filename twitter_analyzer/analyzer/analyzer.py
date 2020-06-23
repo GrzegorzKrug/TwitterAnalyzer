@@ -99,9 +99,10 @@ class Analyzer:
         elif lang == 'polish':
             common_sufixes = ['łam', 'łem', 'łe', 'ło', 'ować', 'ął',
                               'ują', 'uję', 'uje', 'uja',
+                              'ęcie', 'ej', 'ę', 'eria',
                               'iemy', 'emy', 'em', 'ie', 'ia', 'eni',
-                              'ęcie', 'ej', 'ę',
                               'ać', 'amy', 'any', 'anie', 'a', 'ą',
+                              'ących',
                               'aj', 'iłem', 'u', 'ach', 'ch', 'ów', 'y',
                               'ego', 'owym', 'owe', 'o', 'cie', 'c', 'ć', 'owani',
                               'mi', 'i']
