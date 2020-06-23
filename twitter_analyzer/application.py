@@ -20,6 +20,8 @@ import time
 
 class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     def __init__(self, main_window, auto_login=False):
+        self.args = main_window, auto_login
+
         Ui_MainWindow.__init__(self)
         self.setupUi(main_window)
         TwitterOperator.__init__(self, auto_login=auto_login)
@@ -34,6 +36,10 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.actionLogin.triggered.connect(self.validate_credentials)
         self.actionWho_am_I.triggered.connect(self.show_me)
         self.actionTweet_Description.triggered.connect(self.show_tweet_keys)
+        self.actionRestart.triggered.connect(lambda: self.__init__(*self.args))
+
+        "Debug Actions"
+        self.actionDebugUsers.triggered.connect(lambda: self.request_followers())
 
         'Requesting methods'
         self.pushButton_Request_Status.clicked.connect(self.request_status_from_box)
@@ -105,6 +111,11 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             self.checkBox_filtration_keep_drop.setText("Filtration: drop")
 
     def change_info_settings(self):
+        """
+        Wrap text box if checkbox has tick
+        Returns:
+
+        """
         checked = True if self.checkBox_wrap_console.checkState() == 2 else False
         if checked:
             self.plainTextEdit_info.setLineWrapMode(QtWidgets.QPlainTextEdit.WidgetWidth)

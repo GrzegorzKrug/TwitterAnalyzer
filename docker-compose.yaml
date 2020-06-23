@@ -53,7 +53,7 @@ services:
       - broker
     restart: always
     #      command: bash -c "python analyzer/celery.py"
-    command: bash -c "chmod -R 777 exports && celery -A analyzer worker --loglevel=info"
+    command: bash -c "chmod -R 777 exports && celery -A analyzer worker --loglevel=info --autoscale=10,3"
   beat:
     image: celeryworker:1.0
     environment:

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1069</width>
-    <height>853</height>
+    <height>877</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <enum>QLayout::SetMinimumSize</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QGridLayout" name="MainGrid" rowstretch="1,1,1,0,1" columnstretch="20,0,0" rowminimumheight="400,0,0,0,0" columnminimumwidth="300,50,0">
+     <layout class="QGridLayout" name="MainGrid" rowstretch="1,1,1,0,1" columnstretch="20,0,0" rowminimumheight="450,0,0,0,0" columnminimumwidth="300,50,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
@@ -91,17 +91,17 @@
         <property name="spacing">
          <number>5</number>
         </property>
-        <item row="20" column="0">
-         <widget class="QPushButton" name="pushButton_PreviousTweet">
+        <item row="25" column="1">
+         <widget class="QPushButton" name="pushButton_NextTweet">
           <property name="toolTip">
-           <string>Show previous Tweet from DF</string>
+           <string>Show next Tweet from DF</string>
           </property>
           <property name="text">
-           <string>&lt;&lt; Prev</string>
+           <string>Next &gt;&gt;</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="2">
+        <item row="10" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_HideEmptyValues">
           <property name="enabled">
            <bool>false</bool>
@@ -114,27 +114,27 @@
           </property>
          </widget>
         </item>
-        <item row="20" column="1">
-         <widget class="QPushButton" name="pushButton_NextTweet">
+        <item row="25" column="0">
+         <widget class="QPushButton" name="pushButton_PreviousTweet">
           <property name="toolTip">
-           <string>Show next Tweet from DF</string>
+           <string>Show previous Tweet from DF</string>
           </property>
           <property name="text">
-           <string>Next &gt;&gt;</string>
+           <string>&lt;&lt; Prev</string>
           </property>
          </widget>
         </item>
-        <item row="21" column="0">
+        <item row="26" column="0">
          <widget class="QPushButton" name="pushButton_JumpToTweet">
           <property name="toolTip">
-           <string>Jumps to Tweet in DF, define index in box.</string>
+           <string>Jumps to tweet from given index.</string>
           </property>
           <property name="text">
-           <string>Jump</string>
+           <string>Jump to</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="0" colspan="2">
+        <item row="9" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
           <property name="enabled">
            <bool>false</bool>
@@ -153,14 +153,14 @@
           </property>
          </widget>
         </item>
-        <item row="21" column="1">
+        <item row="26" column="1">
          <widget class="QLineEdit" name="lineEdit_JumpToTweet">
           <property name="toolTip">
            <string>Input index for Jump button.</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="0" colspan="2">
+        <item row="8" column="0" colspan="2">
          <widget class="QCheckBox" name="checkBox_DisplayShortQuoteStatus">
           <property name="enabled">
            <bool>false</bool>
@@ -173,7 +173,7 @@
           </property>
          </widget>
         </item>
-        <item row="17" column="0" colspan="2">
+        <item row="18" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_drop_current_tweet">
           <property name="enabled">
            <bool>false</bool>
@@ -189,47 +189,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::MinimumExpanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="11" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_request_parent_tweets_from_df">
-          <property name="text">
-           <string>Get parent tweets</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_ShowTweet">
-          <property name="toolTip">
-           <string>Show first Tweet from DF</string>
-          </property>
-          <property name="text">
-           <string>Show Tweet</string>
-          </property>
-         </widget>
-        </item>
-        <item row="16" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_open_in_browser">
-          <property name="text">
-           <string>Open in browser</string>
-          </property>
-         </widget>
-        </item>
-        <item row="19" column="0" colspan="2">
+        <item row="20" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton">
           <property name="enabled">
            <bool>false</bool>
@@ -239,14 +199,7 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_request_tweet_update">
-          <property name="text">
-           <string>Update tweets</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="1">
+        <item row="14" column="1">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -259,8 +212,8 @@
           </property>
          </spacer>
         </item>
-        <item row="10" column="0">
-         <spacer name="verticalSpacer_5">
+        <item row="7" column="0">
+         <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -272,8 +225,67 @@
           </property>
          </spacer>
         </item>
-        <item row="14" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_request_tweet_update">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(198, 251, 255);</string>
+          </property>
+          <property name="text">
+           <string>Update tweets</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_request_parent_tweets_from_df">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(198, 251, 255);</string>
+          </property>
+          <property name="text">
+           <string>Get parent tweets</string>
+          </property>
+         </widget>
+        </item>
+        <item row="21" column="0">
+         <spacer name="verticalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="24" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_open_in_browser">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(215, 255, 223);</string>
+          </property>
+          <property name="text">
+           <string>Open in browser</string>
+          </property>
+         </widget>
+        </item>
+        <item row="23" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_ShowTweet">
+          <property name="toolTip">
+           <string>Show first Tweet from DF</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(215, 255, 223);</string>
+          </property>
+          <property name="text">
+           <string>Show Tweet</string>
+          </property>
+         </widget>
+        </item>
+        <item row="22" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_ShowTweetAll">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(215, 255, 223);</string>
+          </property>
           <property name="text">
            <string>Load tweet list</string>
           </property>
@@ -928,8 +940,9 @@
    </widget>
    <widget class="QMenu" name="actionMenuRefresh_Gui">
     <property name="title">
-     <string>GUI</string>
+     <string>Restart</string>
     </property>
+    <addaction name="actionRestart"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -937,9 +950,17 @@
     </property>
     <addaction name="actionTweet_Description"/>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>Debug</string>
+    </property>
+    <addaction name="actionAction1"/>
+    <addaction name="actionDebugUsers"/>
+   </widget>
    <addaction name="actionMenuAuth"/>
    <addaction name="actionMenuRefresh_Gui"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuDebug"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLogin">
@@ -955,6 +976,21 @@
   <action name="actionTweet_Description">
    <property name="text">
     <string>Tweet Keys</string>
+   </property>
+  </action>
+  <action name="actionRestart">
+   <property name="text">
+    <string>Restart</string>
+   </property>
+  </action>
+  <action name="actionAction1">
+   <property name="text">
+    <string>Action1</string>
+   </property>
+  </action>
+  <action name="actionDebugUsers">
+   <property name="text">
+    <string>DebugUsers</string>
    </property>
   </action>
  </widget>

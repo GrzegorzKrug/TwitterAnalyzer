@@ -276,7 +276,7 @@ class TwitterOperator(TwitterApi):
 
             except TooManyRequests as tmr:
                 _app.logger.warning(f"Collect status list: {tmr}")
-                time.sleep(60)
+                time.sleep(120)
 
             except TweetNotFoundError as nf:
                 _app.logger.error(f"TweetNotFoundError: {tweet_id}, {nf}")

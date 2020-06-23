@@ -1,9 +1,11 @@
 import numpy as np
 import nltk
-from nltk.stem import LancasterStemmer
 import glob
 import csv
 import os
+
+from nltk.stem import LancasterStemmer
+from stop_words import get_stop_words
 
 
 class Analyzer:
@@ -18,7 +20,7 @@ class Analyzer:
             self.data = data
         else:
             self.data = self.tokenize_file(file_path)
-            pass
+            self.normalize_text(self.data)
 
     @staticmethod
     def tokenize_file(absolute_file_path):
@@ -43,14 +45,16 @@ class Analyzer:
 
     @staticmethod
     def normalize_text(list_array: 'list of pair <index, text>'):
-        banned_symbols = [':', '"', "'", '.']
+        stop_words = get_stop_words('polish')
+        banned_symbols = [':', '"', "'", '.', '`', '”', '„', '/']
         banned_prefix = ['http']
         for pair in list_array:
             text = pair[1]
             text = set(text)
             # print(text)
-            text = [word for word in text for bn_pref in banned_prefix if
-                    not word.startswith(bn_pref) and word not in banned_symbols]
+            text = [word for word in text for pref in banned_prefix if
+                    not word.startswith(pref) and word not in banned_symbols and word not in stop_words
+                    and len(word) > 0]
             pair[1] = text
 
     @staticmethod
@@ -77,6 +81,17 @@ class Analyzer:
             np.save(os.path.join(self.data_dir, file_name), self.data)
             print(f"Saved file: {file_name}")
 
+    def show(self, num):
+        if num < 0:
+            pass
+        else:
+            arr = np.random.randint(0, len(self.data), num)
+            for x in arr:
+                try:
+                    print(f"{self.data[x, 0]}: {self.data[x, 1]}")
+                except IndexError:
+                    break
+
 
 if __name__ == '__main__':
     directory = os.path.join(
@@ -89,4 +104,5 @@ if __name__ == '__main__':
         print(file)
 
     app = Analyzer(file_path=all_files[-1])
+    app.show(20)
     app.save_data()

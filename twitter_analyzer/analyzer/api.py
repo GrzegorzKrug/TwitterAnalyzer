@@ -26,6 +26,19 @@ class TwitterApi:
 
     def _make_request(self, full_url, params=None, header=None, extended=True) \
             -> "True, Data or False, None":
+        """
+        Does requests to twitter api and verifies response. Returns 'True' if valid
+        Args:
+            full_url:
+            params:
+            header:
+            extended:
+
+        Returns:
+            tuple:
+                valid - boolean value
+                data - json object of response
+        """
         if params is None:
             params = {}
         if extended:
@@ -80,6 +93,37 @@ class TwitterApi:
         except Unauthorized:
             self.logger_api.error("Authorization failed! Invalid or expired token.")
             return False, None
+
+    def request_followers(self, user_id=None, screen_name=None, cursor=-1):
+        """
+        Requests first 5000 followers
+        Args:
+            user_id:
+            screen_name:
+
+        Returns:
+            tuple:
+                valid - boolean
+                list - of followers id
+                next_cursor - string, returns 0 if there is none
+        """
+        url = r'followers/ids.json'
+        full_url = self.apiUrl + url
+        params = {'count': 5000, 'cursor': cursor}
+
+        if user_id and screen_name:
+            raise RuntimeError("Can not use 'user_id' and 'screen_name' simultaneously")
+        elif user_id:
+            params.update({'user_id': user_id})
+        elif screen_name:
+            params.update({'screen_name': screen_name})
+
+        valid, data = self._make_request(full_url, params=params)
+        next_cursor = str(data['next_cursor_str'])
+        self.logger_api.debug(f"Requesting followers, user_id: {user_id}, screen_name: {screen_name}, "
+                              f"was success: {valid}, next_cursor: {next_cursor}")
+
+        return valid, data, next_cursor
 
     @staticmethod
     def _verify_response(response):
