@@ -4,6 +4,8 @@ import glob
 import csv
 import os
 
+from matplotlib import pyplot as plt
+
 from nltk.stem import LancasterStemmer
 from stop_words import get_stop_words
 
@@ -20,13 +22,13 @@ class Analyzer:
         if data is not None:
             self.data = data
         else:
-            self.data = self.tokenize_file(file_path)
-            self.normalize_text(self.data)
+            self.preprocess()
 
     def preprocess(self):
         print(f"Preprocessing: {self.file_name}")
         self.data = self.tokenize_file(self.file_path)
         self.normalize_text(self.data)
+        self.remove_polish_letters(self.data)
         self.stemming(self.data, 'polish')
         self.drop_short_words(self.data)
 
@@ -45,11 +47,31 @@ class Analyzer:
                 if text.startswith('RT'):
                     continue
                 else:
+                    text = Analyzer.remove_symbols(text)
                     token = tt.tokenize(text)
                     data.append((row[2], token))
 
             data = np.array(data)
             return data
+
+    @staticmethod
+    def remove_symbols(text):
+        symbs = ['-', '_', '=', '.', '#']
+        for sym in symbs:
+            text = text.replace(sym, '')
+        return text
+
+    @staticmethod
+    def remove_polish_letters(data_array: 'list <index, text>'):
+        """Function will replace polish letters in data object"""
+        letters = {'ą': 'a', 'ć': 'c', 'ę': 'e', 'ó': 'o', 'ł': 'l',
+                   'ń': 'n', 'ś': 's', 'ż': 'z', 'ź': 'z'}
+        for pair in data_array:
+            words = pair[1]
+            for ind, wrd in enumerate(words):
+                for pl, normal in letters.items():
+                    wrd = wrd.replace(pl, normal)
+                pair[1][ind] = wrd
 
     @staticmethod
     def normalize_text(data_array: 'list of pair <index, text>'):
@@ -67,7 +89,6 @@ class Analyzer:
         banned_prefix = ['http']
         for pair in data_array:
             text = pair[1]
-            text = set(text)
             # print(text)
             text = [word for word in text for pref in banned_prefix if
                     not word.startswith(pref) and word not in banned_symbols and word not in stop_words]
@@ -77,7 +98,6 @@ class Analyzer:
     def drop_short_words(data_array: 'list of pair <index, text>', min_word_len=2):
         for pair in data_array:
             text = pair[1]
-            text = set(text)
             # print(text)
             text = [word for word in text if len(word) >= min_word_len]
             pair[1] = text
@@ -97,15 +117,23 @@ class Analyzer:
             for pair in data_array:
                 pair[1] = [stemmer.stem(word) for word in pair[1]]
         elif lang == 'polish':
-            common_sufixes = ['łam', 'łem', 'łe', 'ło', 'ować', 'ął',
-                              'ują', 'uję', 'uje', 'uja',
-                              'ęcie', 'ej', 'ę', 'eria',
-                              'iemy', 'emy', 'em', 'ie', 'ia', 'eni',
-                              'ać', 'amy', 'any', 'anie', 'a', 'ą',
-                              'ących',
-                              'aj', 'iłem', 'u', 'ach', 'ch', 'ów', 'y',
-                              'ego', 'owym', 'owe', 'o', 'cie', 'c', 'ć', 'owani',
-                              'mi', 'i']
+            common_sufixes = ['bym',
+                              'lam', 'lem', 'le', 'lo', 'li', 'iel', 'al',
+                              'ja', 'yjna', 'yjnym',
+                              'uja', 'uje', 'uje', 'uja', 'imi',
+                              'ecie', 'ej', 'eria',
+                              'iemy', 'iesz', 'emy', 'em', 'ie', 'ia', 'eni',
+                              'kow', 'ko', 'ka', 'ke', 'ek',
+                              'ac', 'amy', 'any', 'anie', 'a',
+                              'acych', 'e',
+                              'aj', 'ilem', 'u', 'ach', 'ch', 'om',
+                              'ego',
+                              'o', 'owi', 'owani', 'owy', 'owemu', 'owac', 'owym', 'owe', 'owie', 'ow',
+                              'owny', 'ownosc',
+                              'ym', 'emu',
+                              'es', 'as',
+                              'cie', 'ci', 'c',
+                              'ami', 'ach', 'mi', 'im', 'in', 'i', 'y', 'uj']
             for pair in data_array:
                 for sufix in common_sufixes:
                     pair[1] = [word if not word.endswith(sufix) else word[:-len(sufix)] for word in pair[1]]
@@ -151,6 +179,24 @@ class Analyzer:
                 except IndexError:
                     break
 
+    # def word_bag(self):
+    #     words = ['pis', 'duda', 'prezydent', 'wybory']
+
+    def all_words(self):
+        """Returns list of all unique words in this dataset"""
+        all_words = []
+        count = {}
+        for pair in self.data:
+            words = pair[1]
+            for w in words:
+                cur_count = count.get(w, 0)
+                count.update({w: cur_count + 1})
+            all_words += words
+        all_words.sort()
+        count = list(count.items())
+        count.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return all_words, count
+
 
 if __name__ == '__main__':
     directory = os.path.join(
@@ -163,6 +209,12 @@ if __name__ == '__main__':
         print(file)
 
     app = Analyzer(file_path=all_files[-1])
-    app.preprocess()
-    app.show(50)
+    # app.preprocess()
+    app.show(10)
+    all_words, count = app.all_words()
+
+    for key, value in count:
+        if 0 < value <= 1:
+            print(f"{value:<3} {key}")
+    print(f"Word ammount: {len(count)}")
     app.save_data()
