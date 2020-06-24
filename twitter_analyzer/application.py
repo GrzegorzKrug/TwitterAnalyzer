@@ -14,8 +14,6 @@ import webbrowser
 import datetime
 import traceback
 import sys
-import ast
-import time
 
 
 class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
@@ -67,6 +65,17 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_JumpToTweet.clicked.connect(self.jump_to_tweet)
         self.pushButton_open_in_browser.clicked.connect(self.open_in_browser)
         # self.pushButton_drop_current_tweet.clicked.connect(self.trigger_drop_current_tweet)
+
+        'WorkListManage'
+        self.pushButton_add_to_work_list.clicked.connect(self.trigger_add_one_to_work_list)
+        self.pushButton_drop_selection_from_WL.clicked.connect(self.trigger_drop_one_from_work_list)
+
+        self.pushButton_add_selection_to_worklist.clicked.connect(lambda: self.add_to_work_list(self.tweet_list))
+        self.pushButton_drop_current_tweet.clicked.connect(
+                lambda: self.drop_from_work_list(self.tweet_list[self.current_tweet_index]))
+        self.pushButton_save_work_list.clicked.connect(self.save_list_as_work_list)
+        self.pushButton_load_work_list.clicked.connect(self.trigger_load_work_list)
+        self.pushButton_clear_work_list.clicked.connect(self.clear_work_list)
 
         'Filtration Buttons'
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.trigger_filter_by_lang('pl'))
@@ -202,6 +211,32 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
     def show_prev_tweet(self):
         self.current_tweet_index -= 1
+        self.show_current_tweet()
+
+    def trigger_add_one_to_work_list(self):
+        self.add_to_work_list(self.tweet_list[self.current_tweet_index])
+        try:
+            self.tweet_list.pop(self.current_tweet_index)
+        except IndexError:
+            pass
+        self.show_current_tweet()
+
+    def trigger_drop_one_from_work_list(self):
+        self.drop_from_work_list(self.tweet_list[self.current_tweet_index])
+        try:
+            self.tweet_list.pop(self.current_tweet_index)
+        except IndexError:
+            pass
+        self.show_current_tweet()
+
+    def trigger_load_work_list(self):
+        """
+        Loads list from work list and displays tweet
+        Returns:
+
+        """
+        self.load_list_from_work_list()
+        self.current_tweet_index = 0
         self.show_current_tweet()
 
     def display_full_tweet(self, ind):

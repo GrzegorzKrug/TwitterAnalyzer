@@ -28,7 +28,7 @@
       </property>
       <item row="2" column="2" rowspan="3">
        <layout class="QGridLayout" name="grid_Small5">
-        <item row="0" column="0">
+        <item row="3" column="0">
          <widget class="QCheckBox" name="checkBox_wrap_console">
           <property name="text">
            <string>Wrap Info</string>
@@ -38,7 +38,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="4" column="0">
          <spacer name="verticalSpacer_4">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -50,6 +50,51 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="checkBox_HideEmptyValues">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Hide empty values</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Short user info</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="checkBox_DisplayShortQuoteStatus">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Short quote and retweet</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -91,128 +136,17 @@
         <property name="spacing">
          <number>5</number>
         </property>
-        <item row="25" column="1">
-         <widget class="QPushButton" name="pushButton_NextTweet">
+        <item row="27" column="1">
+         <widget class="QPushButton" name="pushButton_load_work_list">
           <property name="toolTip">
-           <string>Show next Tweet from DF</string>
+           <string>Use worklist as current tweet list</string>
           </property>
           <property name="text">
-           <string>Next &gt;&gt;</string>
+           <string>Get WL</string>
           </property>
          </widget>
         </item>
-        <item row="10" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkBox_HideEmptyValues">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Hide empty values</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="25" column="0">
-         <widget class="QPushButton" name="pushButton_PreviousTweet">
-          <property name="toolTip">
-           <string>Show previous Tweet from DF</string>
-          </property>
-          <property name="text">
-           <string>&lt;&lt; Prev</string>
-          </property>
-         </widget>
-        </item>
-        <item row="26" column="0">
-         <widget class="QPushButton" name="pushButton_JumpToTweet">
-          <property name="toolTip">
-           <string>Jumps to tweet from given index.</string>
-          </property>
-          <property name="text">
-           <string>Jump to</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkBox_DisplayShortUserinfo">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Short user info</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="26" column="1">
-         <widget class="QLineEdit" name="lineEdit_JumpToTweet">
-          <property name="toolTip">
-           <string>Input index for Jump button.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkBox_DisplayShortQuoteStatus">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Short quote and retweet</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="18" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_drop_current_tweet">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Drops tweet from current Dataframe only.</string>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(252, 175, 62);</string>
-          </property>
-          <property name="text">
-           <string>Drop tweet from list</string>
-          </property>
-         </widget>
-        </item>
-        <item row="20" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Delete in DB</string>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="1">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -246,29 +180,56 @@
          </widget>
         </item>
         <item row="21" column="0">
-         <spacer name="verticalSpacer_6">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <widget class="QPushButton" name="pushButton_PreviousTweet">
+          <property name="toolTip">
+           <string>Show previous Tweet from DF</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
+          <property name="text">
+           <string>&lt;&lt; Prev</string>
           </property>
-         </spacer>
+         </widget>
         </item>
-        <item row="24" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_open_in_browser">
+        <item row="15" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_ShowTweetAll">
           <property name="styleSheet">
            <string notr="true">background-color: rgb(215, 255, 223);</string>
           </property>
           <property name="text">
-           <string>Open in browser</string>
+           <string>Get full tweet list</string>
           </property>
          </widget>
         </item>
-        <item row="23" column="0" colspan="2">
+        <item row="22" column="0">
+         <widget class="QPushButton" name="pushButton_JumpToTweet">
+          <property name="toolTip">
+           <string>Jumps to tweet from given index.</string>
+          </property>
+          <property name="text">
+           <string>Jump to</string>
+          </property>
+         </widget>
+        </item>
+        <item row="21" column="1">
+         <widget class="QPushButton" name="pushButton_NextTweet">
+          <property name="toolTip">
+           <string>Show next Tweet from DF</string>
+          </property>
+          <property name="text">
+           <string>Next &gt;&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Delete in DB</string>
+          </property>
+         </widget>
+        </item>
+        <item row="16" column="0" colspan="2">
          <widget class="QPushButton" name="pushButton_ShowTweet">
           <property name="toolTip">
            <string>Show first Tweet from DF</string>
@@ -281,13 +242,86 @@
           </property>
          </widget>
         </item>
-        <item row="22" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_ShowTweetAll">
+        <item row="27" column="0">
+         <widget class="QPushButton" name="pushButton_save_work_list">
+          <property name="toolTip">
+           <string>Saves current list as work list</string>
+          </property>
+          <property name="text">
+           <string>Set WL</string>
+          </property>
+         </widget>
+        </item>
+        <item row="22" column="1">
+         <widget class="QLineEdit" name="lineEdit_JumpToTweet">
+          <property name="toolTip">
+           <string>Input index for Jump button.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="31" column="1">
+         <widget class="QPushButton" name="pushButton_drop_current_tweet">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>Drops tweet from current Dataframe only.</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 210, 210);</string>
+          </property>
+          <property name="text">
+           <string>Drop from work list</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_open_in_browser">
           <property name="styleSheet">
            <string notr="true">background-color: rgb(215, 255, 223);</string>
           </property>
           <property name="text">
-           <string>Load tweet list</string>
+           <string>Open in browser</string>
+          </property>
+         </widget>
+        </item>
+        <item row="31" column="0">
+         <widget class="QPushButton" name="pushButton_add_to_work_list">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 202);</string>
+          </property>
+          <property name="text">
+           <string>Add to work List</string>
+          </property>
+         </widget>
+        </item>
+        <item row="30" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_add_selection_to_worklist">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 152);</string>
+          </property>
+          <property name="text">
+           <string>Add all to WL</string>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_drop_selection_from_WL">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 150, 150);</string>
+          </property>
+          <property name="text">
+           <string>Drop all from WL</string>
+          </property>
+         </widget>
+        </item>
+        <item row="34" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_clear_work_list">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 64, 74);</string>
+          </property>
+          <property name="text">
+           <string>Clear work list</string>
           </property>
          </widget>
         </item>
@@ -322,23 +356,23 @@
            <rect>
             <x>10</x>
             <y>10</y>
-            <width>91</width>
-            <height>23</height>
+            <width>191</width>
+            <height>21</height>
            </rect>
           </property>
           <property name="toolTip">
            <string>Save DF to .csv File, Name is optional</string>
           </property>
           <property name="text">
-           <string>Export to csv</string>
+           <string>Export selected tweets to csv</string>
           </property>
          </widget>
          <widget class="QLineEdit" name="lineEdit_DF_comment">
           <property name="geometry">
            <rect>
-            <x>110</x>
-            <y>10</y>
-            <width>161</width>
+            <x>10</x>
+            <y>40</y>
+            <width>191</width>
             <height>23</height>
            </rect>
           </property>
@@ -473,7 +507,7 @@
              <item row="0" column="0" colspan="4">
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>- - - - - - - - Filter DF - - - - - - - - </string>
+                <string>- - - - - - - - Find tweets - - - - - - - - </string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -743,7 +777,7 @@
           </property>
           <property name="geometry">
            <rect>
-            <x>280</x>
+            <x>440</x>
             <y>10</y>
             <width>101</width>
             <height>23</height>
@@ -762,60 +796,6 @@
           </property>
           <property name="text">
            <string>Delete Selected</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_merge_selected">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>40</y>
-            <width>91</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>Merge Selected Files to new file.</string>
-          </property>
-          <property name="toolTipDuration">
-           <number>-1</number>
-          </property>
-          <property name="text">
-           <string>Merge Selected</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_merge_without_duplicates">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="geometry">
-           <rect>
-            <x>110</x>
-            <y>40</y>
-            <width>161</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string>Merge Selected Files to new file.</string>
-          </property>
-          <property name="toolTipDuration">
-           <number>-1</number>
-          </property>
-          <property name="text">
-           <string>Merge without duplicates</string>
           </property>
          </widget>
          <widget class="QCheckBox" name="checkBox_filtration_keep_drop">
@@ -840,9 +820,9 @@
          <widget class="QPushButton" name="pushButton_Request_Status">
           <property name="geometry">
            <rect>
-            <x>660</x>
+            <x>610</x>
             <y>10</y>
-            <width>141</width>
+            <width>151</width>
             <height>23</height>
            </rect>
           </property>
@@ -856,7 +836,7 @@
          <widget class="QLineEdit" name="lineEdit_request_statusId">
           <property name="geometry">
            <rect>
-            <x>660</x>
+            <x>610</x>
             <y>40</y>
             <width>151</width>
             <height>23</height>
@@ -883,6 +863,9 @@
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QPushButton" name="pushButton_analyze_unique_vals">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Display unique vals</string>
              </property>
@@ -898,6 +881,9 @@
           </layout>
          </widget>
          <widget class="QPushButton" name="pushButton_analyze_unique_vals_2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>190</x>

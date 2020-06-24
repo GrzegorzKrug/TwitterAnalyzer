@@ -210,11 +210,30 @@ if __name__ == '__main__':
 
     app = Analyzer(file_path=all_files[-1])
     # app.preprocess()
-    app.show(10)
+    # app.show(10)
     all_words, count = app.all_words()
 
-    for key, value in count:
-        if 0 < value <= 1:
-            print(f"{value:<3} {key}")
+    # for key, value in count:
+    #     if 0 < value <= 1:
+    #         print(f"{value:<3} {key}")
     print(f"Word ammount: {len(count)}")
     app.save_data()
+
+    import networkx as nx
+
+    graf = nx.Graph()
+    for x in range(1, 100):
+        # graf.add_edges_from([(x, x + 1)])
+        graf.add_edges_from([(x, x // 10)])
+
+    A = graf.edges()
+    for a in A:
+        if 5 in a:
+            print(a)
+
+    B = nx.to_dict_of_lists(graf)
+    print(B[5])
+
+    plt.figure(figsize=(16, 9))
+    nx.draw_networkx(graf)
+    # plt.show()

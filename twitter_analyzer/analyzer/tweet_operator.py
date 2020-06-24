@@ -35,6 +35,7 @@ class TwitterOperator(TwitterApi):
         os.makedirs(self._data_dir, exist_ok=True)  # Create folder for files
 
         self.tweet_list = []
+        self.work_list = []
         self.current_tweet_index = 0
         self.threads = []  # Thread reference list
         self.th_num = 0  # Thread counter
@@ -51,6 +52,33 @@ class TwitterOperator(TwitterApi):
         self.logger.debug("Operator debug:")
 
         sys.exit()
+
+    def clear_work_list(self):
+        """Clears work list to empty list"""
+        self.work_list = []
+
+    def save_list_as_work_list(self):
+        self.work_list = self.tweet_list.copy()
+
+    def load_list_from_work_list(self):
+        self.tweet_list = self.work_list.copy()
+
+    def drop_from_work_list(self, indx_arr):
+        if type(indx_arr) is int:
+            indx_arr = [indx_arr]
+
+        for num in indx_arr:
+            try:
+                self.work_list.pop(self.work_list.index(num))
+            except ValueError:
+                pass
+
+    def add_to_work_list(self, indx_arr):
+        if type(indx_arr) is int:
+            indx_arr = [indx_arr]
+        for num in indx_arr:
+            self.work_list.append(num)
+        self.work_list = list(set(self.work_list))
 
     # def __del__(self):
     #     self.Session.session.close_all_sessions()
