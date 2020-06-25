@@ -53,7 +53,7 @@ class Analyzer:
         dict.filter_extremes(no_below=10, no_above=0.2)  # minimum 2 occuraces and no more than 20%
         bow = [dict.doc2bow(text) for text in words]
 
-        lda = gensim.models.LdaMulticore(bow, num_topics=3, id2word=dict, passes=10, iterations=1000)
+        lda = gensim.models.LdaMulticore(bow, num_topics=3, id2word=dict, passes=15, iterations=1000)
         self.lda = lda
 
     def drop_useless_words(self, data_array: 'list of pair <index, text>', min_word_len=2):
@@ -258,7 +258,7 @@ if __name__ == '__main__':
                     os.path.abspath(__file__))),
             'exports')
 
-    all_files = glob.glob(os.path.join(directory, 'pl*.csv'), recursive=True)
+    all_files = glob.glob(os.path.join(directory, 'wybory*.csv'), recursive=True)
     for file in all_files:
         print(file)
 
@@ -272,8 +272,9 @@ if __name__ == '__main__':
     #     if 1000 < value <= 20000:
     #         print(f"{value:<3} {key}")
     # print(f"Word ammount: {len(count)}")
-    a = app.lda.print_topic(-1)
-    print(a)
+    for x in range(5):
+        topics = app.lda.print_topic(x)
+        print(topics)
 
     app.save_data()
     app.save_model()
