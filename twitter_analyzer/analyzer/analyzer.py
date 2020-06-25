@@ -12,12 +12,17 @@ from stop_words import get_stop_words
 
 
 class Analyzer:
-    def __init__(self, file_path):
+    def __init__(self, file_path, model_name, passes=10, iterations=1000, topics=2):
         """Search and load processed .npy file first, if not found, open csv and do processing"""
         self.file_name = os.path.basename(file_path)
+        self.model_name = model_name
         self.file_path = file_path
         self.data_dir = 'data_files'
         self.model_dir = 'model_files'
+
+        self.passes = passes
+        self.iterations = iterations
+        self.topics = topics
 
         os.makedirs(self.data_dir, exist_ok=True)
         os.makedirs(self.model_dir, exist_ok=True)
@@ -34,7 +39,7 @@ class Analyzer:
 
         if lda is None:
             self.lda = None
-            self.create_LDA_movel()
+            self.create_new_LDA_movel()
         else:
             self.lda = lda
 
@@ -46,14 +51,16 @@ class Analyzer:
         self.stemming(self.data, 'polish')
         self.drop_useless_words(self.data, min_word_len=2)
 
-    def create_LDA_movel(self):
+    def create_new_LDA_movel(self):
         print("Creating LDA model")
         words = self.data[:, 1]
         dict = gensim.corpora.Dictionary(words)
-        dict.filter_extremes(no_below=10, no_above=0.2)  # minimum 2 occuraces and no more than 20%
-        bow = [dict.doc2bow(text) for text in words]
+        dict.filter_extremes(no_below=2, no_above=0.5)  # minimum 2 occuraces and no more than 20%
 
-        lda = gensim.models.LdaMulticore(bow, num_topics=3, id2word=dict, passes=15, iterations=1000)
+        print(dict)
+        bow = [dict.doc2bow(text) for text in words]
+        lda = gensim.models.LdaMulticore(bow, num_topics=self.topics, id2word=dict,
+                                         passes=self.passes, iterations=self.iterations)
         self.lda = lda
 
     def drop_useless_words(self, data_array: 'list of pair <index, text>', min_word_len=2):
@@ -96,7 +103,7 @@ class Analyzer:
 
     @staticmethod
     def remove_symbols(text):
-        symbs = ['-', '_', '=', '.', '#']
+        symbs = ['-', '_', '=', '.', '#', '@']
         for sym in symbs:
             text = text.replace(sym, '')
         return text
@@ -153,7 +160,7 @@ class Analyzer:
                               'lam', 'lem', 'le', 'lo', 'li', 'iel', 'al',
                               'ja', 'yjna', 'yjnym',
                               'uja', 'uje', 'uje', 'uja', 'imi',
-                              'ecie', 'ej', 'eria',
+                              'ecie', 'anej', 'ej', 'eria',
                               'iemy', 'iesz', 'emy', 'em', 'ie', 'ia', 'eni',
                               'kow', 'ko', 'ka', 'ke', 'ek',
                               'ac', 'amy', 'any', 'anie', 'a',
@@ -183,7 +190,7 @@ class Analyzer:
         pass
 
     def load_model(self):
-        file_name = self.file_name
+        file_name = self.model_name
         try:
             full_path = os.path.join(self.model_dir, file_name)
             lda = gensim.models.LdaMulticore.load(full_path)
@@ -194,7 +201,7 @@ class Analyzer:
             return None
 
     def save_model(self):
-        file_name = self.file_name
+        file_name = self.model_name
         full_path = os.path.join(self.model_dir, file_name)
         self.lda.save(full_path)
 
@@ -258,21 +265,16 @@ if __name__ == '__main__':
                     os.path.abspath(__file__))),
             'exports')
 
-    all_files = glob.glob(os.path.join(directory, 'wybory*.csv'), recursive=True)
+    all_files = glob.glob(os.path.join(directory, 'duda-trzask*.csv'), recursive=True)
     for file in all_files:
         print(file)
 
-    app = Analyzer(file_path=all_files[-1])
-    # app.create_LDA_movel()
+    topics = 2
+    app = Analyzer(file_path=all_files[-1], model_name='duda-trzask2', passes=100, iterations=1000, topics=topics)
     # app.preprocess()
-    # app.show(10)
+    # app.create_new_LDA_movel()
 
-    # count = app.count
-    # for key, value in count:
-    #     if 1000 < value <= 20000:
-    #         print(f"{value:<3} {key}")
-    # print(f"Word ammount: {len(count)}")
-    for x in range(5):
+    for x in range(topics):
         topics = app.lda.print_topic(x)
         print(topics)
 
