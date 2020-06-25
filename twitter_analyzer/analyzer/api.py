@@ -24,7 +24,7 @@ class TwitterApi:
         if verify:
             valid = self.verify_procedure()
 
-    def _make_request(self, full_url, params=None, header=None, extended=True) \
+    def make_request(self, full_url, params=None, header=None, extended=True) \
             -> "True, Data or False, None":
         """
         Does requests to twitter api and verifies response. Returns 'True' if valid
@@ -118,12 +118,27 @@ class TwitterApi:
         elif screen_name:
             params.update({'screen_name': screen_name})
 
-        valid, data = self._make_request(full_url, params=params)
+        valid, data = self.make_request(full_url, params=params)
         next_cursor = str(data['next_cursor_str'])
         self.logger_api.debug(f"Requesting followers, user_id: {user_id}, screen_name: {screen_name}, "
                               f"was success: {valid}, next_cursor: {next_cursor}")
 
         return valid, data, next_cursor
+
+    def show_user(self, user_id):
+        """
+        Retrieves user object from twitter
+        Rate limit: 900 / 15 min
+        Args:
+            user_id:
+
+        Returns:
+
+        """
+        full_url = self.apiUpload + r'users/show.json'
+        params = {'user_id': user_id}
+        valid, data = self.make_request(full_url, params=params)
+        return data
 
     @staticmethod
     def _verify_response(response):
@@ -155,7 +170,7 @@ class TwitterApi:
         params = {'count': chunk_size}
         full_url = self.apiUrl + r'/statuses/home_timeline.json'
         self.logger_api.debug("Requesting home timeline")
-        valid, data = self._make_request(full_url, params=params)
+        valid, data = self.make_request(full_url, params=params)
         return valid, data
 
     def post_image(self, image: "binary"):
@@ -229,7 +244,7 @@ class TwitterApi:
         full_url = self.apiUrl + r'/statuses/show.json'
         params = {'id': int(status_id)}
         self.logger_api.debug(f"Requesting status: {status_id}")
-        valid, data = self._make_request(full_url, params=params)
+        valid, data = self.make_request(full_url, params=params)
         return data
 
     def verify_procedure(self):

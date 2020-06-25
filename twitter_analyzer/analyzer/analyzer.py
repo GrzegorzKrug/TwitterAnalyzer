@@ -1,4 +1,5 @@
 import numpy as np
+import gensim
 import nltk
 import glob
 import csv
@@ -16,6 +17,7 @@ class Analyzer:
         self.file_name = os.path.basename(file_path)
         self.file_path = file_path
         self.data_dir = 'data_files'
+
         os.makedirs(self.data_dir, exist_ok=True)
         data = self.load_data()
 
@@ -24,13 +26,37 @@ class Analyzer:
         else:
             self.preprocess()
 
+        self.all_words, self.count = self.get_all_words()
+
     def preprocess(self):
         print(f"Preprocessing: {self.file_name}")
         self.data = self.tokenize_file(self.file_path)
         self.normalize_text(self.data)
         self.remove_polish_letters(self.data)
         self.stemming(self.data, 'polish')
-        self.drop_short_words(self.data)
+        self.drop_useless_words(self.data, min_word_len=2)
+
+        words = self.data[:, 1]
+
+        dict = gensim.corpora.Dictionary(words)
+        dict.filter_extremes(no_below=10, no_above=0.2)  # minimum 2 occuraces and no more than 20%
+        bow = [dict.doc2bow(text) for text in words]
+
+    def drop_useless_words(self, data_array: 'list of pair <index, text>', min_word_len=2):
+        """
+        Drops short words, and very rare
+        Args:
+            data_array:
+            min_word_len:
+
+        Returns:
+
+        """
+        for pair in data_array:
+            text = pair[1]
+
+            text = [word for word in text if len(word) >= min_word_len]
+            pair[1] = text
 
     @staticmethod
     def tokenize_file(absolute_file_path):
@@ -92,14 +118,6 @@ class Analyzer:
             # print(text)
             text = [word for word in text for pref in banned_prefix if
                     not word.startswith(pref) and word not in banned_symbols and word not in stop_words]
-            pair[1] = text
-
-    @staticmethod
-    def drop_short_words(data_array: 'list of pair <index, text>', min_word_len=2):
-        for pair in data_array:
-            text = pair[1]
-            # print(text)
-            text = [word for word in text if len(word) >= min_word_len]
             pair[1] = text
 
     @staticmethod
@@ -182,8 +200,12 @@ class Analyzer:
     # def word_bag(self):
     #     words = ['pis', 'duda', 'prezydent', 'wybory']
 
-    def all_words(self):
-        """Returns list of all unique words in this dataset"""
+    def get_all_words(self):
+        """
+        Returns:
+            list of all words in this data set, duplicates can occur in list
+            list - pair <word, number> sorted A..Z
+        """
         all_words = []
         count = {}
         for pair in self.data:
@@ -209,31 +231,12 @@ if __name__ == '__main__':
         print(file)
 
     app = Analyzer(file_path=all_files[-1])
-    # app.preprocess()
+    app.preprocess()
     # app.show(10)
-    all_words, count = app.all_words()
 
+    # count = app.count
     # for key, value in count:
-    #     if 0 < value <= 1:
+    #     if 1000 < value <= 20000:
     #         print(f"{value:<3} {key}")
-    print(f"Word ammount: {len(count)}")
+    # print(f"Word ammount: {len(count)}")
     app.save_data()
-
-    import networkx as nx
-
-    graf = nx.Graph()
-    for x in range(1, 100):
-        # graf.add_edges_from([(x, x + 1)])
-        graf.add_edges_from([(x, x // 10)])
-
-    A = graf.edges()
-    for a in A:
-        if 5 in a:
-            print(a)
-
-    B = nx.to_dict_of_lists(graf)
-    print(B[5])
-
-    plt.figure(figsize=(16, 9))
-    nx.draw_networkx(graf)
-    # plt.show()
