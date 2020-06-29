@@ -1,9 +1,11 @@
 import numpy as np
+import logging
 import gensim
 import nltk
 import glob
 import csv
 import os
+import re
 
 from matplotlib import pyplot as plt
 
@@ -11,57 +13,60 @@ from nltk.stem import LancasterStemmer
 from stop_words import get_stop_words
 
 
-class Analyzer:
-    def __init__(self, file_path, model_name, passes=10, iterations=1000, topics=2):
-        """Search and load processed .npy file first, if not found, open csv and do processing"""
-        self.file_name = os.path.basename(file_path)
-        self.model_name = model_name
-        self.file_path = file_path
-        self.data_dir = 'data_files'
-        self.model_dir = 'model_files'
+def mini_logger(name='analyzer'):
+    logger = logging.getLogger(name=name)
+    logger.setLevel('DEBUG')
 
-        self.passes = passes
-        self.iterations = iterations
-        self.topics = topics
+    fh = logging.FileHandler('analyzer.log', mode='a')
+    ch = logging.StreamHandler()
 
-        os.makedirs(self.data_dir, exist_ok=True)
-        os.makedirs(self.model_dir, exist_ok=True)
+    # Log Formatting
+    formatter = logging.Formatter(f'%(asctime)s - {name} - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
 
-        data = self.load_data()
-        lda = self.load_model()
+    # Add handlers to logger
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    logger.propagate = False
 
-        if data is not None:
-            self.data = data
+    return logger
+
+
+class TextProcessor:
+    """
+    Processes text to `bag of words` (bow), works with text objects, and 2d lists [<id, text>]
+    """
+
+    def __init__(self, lang='polish'):
+        self.lang = lang
+        self.logger = mini_logger('text-processor')
+
+    def full_preprocess(self, input_object):
+        if type(input_object) is str:
+            output = self.process_text(input_object)
+        elif type(input_object) is list or type(input_object) is np.ndarray:
+            if type(input_object[0, 0]) is str or type(input_object[0, 0] is np.str_):
+                output = self.process_list(input_object)
+            else:
+                raise TypeError(f"Input type is unkown to TextProcessor: {type(input_object[0, 1])}")
         else:
-            self.preprocess()
+            raise TypeError(f"Input type is unkown to TextProcessor: {type(input_object)}")
+        return output
 
-        self.all_words, self.count = self.get_all_words()
+    def process_list(self, array):
+        output = []
+        for num, text in array:
+            text_processed = self.process_text(text)
+            output.append((num, text_processed))
+        return output
 
-        if lda is None:
-            self.lda = None
-            self.create_new_LDA_movel()
-        else:
-            self.lda = lda
+    def process_text(self, text):
+        text = text.lower()
+        text = self.remove_polish_letters(text)
+        tokens = self.tokenize_text(text)
 
-    def preprocess(self):
-        print(f"Preprocessing: {self.file_name}")
-        self.data = self.tokenize_file(self.file_path)
-        self.normalize_text(self.data)
-        self.remove_polish_letters(self.data)
-        self.stemming(self.data, 'polish')
-        self.drop_useless_words(self.data, min_word_len=2)
-
-    def create_new_LDA_movel(self):
-        print("Creating LDA model")
-        words = self.data[:, 1]
-        dict = gensim.corpora.Dictionary(words)
-        dict.filter_extremes(no_below=2, no_above=0.5)  # minimum 2 occuraces and no more than 20%
-
-        print(dict)
-        bow = [dict.doc2bow(text) for text in words]
-        lda = gensim.models.LdaMulticore(bow, num_topics=self.topics, id2word=dict,
-                                         passes=self.passes, iterations=self.iterations)
-        self.lda = lda
+        return tokens
 
     def drop_useless_words(self, data_array: 'list of pair <index, text>', min_word_len=2):
         """
@@ -79,70 +84,102 @@ class Analyzer:
             text = [word for word in text if len(word) >= min_word_len]
             pair[1] = text
 
-    @staticmethod
-    def tokenize_file(absolute_file_path):
-        with open(absolute_file_path, 'rt') as file:
-            rider = csv.reader(file, delimiter=',')
-            data = []
-            tt = nltk.tokenize.TweetTokenizer(strip_handles=True, reduce_len=True, preserve_case=False)
-            for index, row in enumerate(rider):
-                text = row[-1]
-                if index == 0:
-                    header = text
-                    continue
+    def tokenize_text(self, text):
+        self.logger.debug(f"Tokenizing: {text}")
+        text = text.replace("’", " ")
+        text = text.replace("'", " ")
+        text = text.replace("“", " ")
+        text = text.replace("”", " ")
+        text = text.replace("„", " ")
+        text = text.replace("_", " ")
+        text = text.replace("\n", " ")
+        text = text.replace(",", " ")
+        text = text.replace("|", " ")
 
-                if text.startswith('RT'):
-                    continue
-                else:
-                    text = Analyzer.remove_symbols(text)
-                    token = tt.tokenize(text)
-                    data.append((row[2], token))
+        # markers '!' '?' '...'
+        text = re.sub(r'\?+', r' _q ', text)
+        text = re.sub(r'\!+', r' _e ', text)
+        text = re.sub(r'\.{3,}', ' _d ', text)
 
-            data = np.array(data)
-            return data
+        # links and users mentions
+        text = re.sub(r'(?<= )https((.*? )|(.*?$))', r' _l ', text)
+        text = re.sub(r' ?@.+?(( )|$)', r' _u ', text)
 
-    @staticmethod
-    def remove_symbols(text):
-        symbs = ['-', '_', '=', '.', '#', '@']
-        for sym in symbs:
-            text = text.replace(sym, '')
-        return text
+        # after hyperlinks
+        text = text.replace("-", " ")
+        text = text.replace("+", " ")
+        text = text.replace("=", " ")
+        text = text.replace('.', ' ')
+        text = text.replace("\"", " ")
 
-    @staticmethod
-    def remove_polish_letters(data_array: 'list <index, text>'):
-        """Function will replace polish letters in data object"""
+        # xd tags
+        text = re.sub(r'😂+', r' _x ', text)
+        text = re.sub(r' ((x+d+ )|(x+d+$)|(x+p+ )|(x+p+$))', r' _x ', text)
+        text = re.sub(r' (([buha]{3,} )|[buha]{3,}$)', r' _x ', text)
+        text = re.sub(r'( (([ha]{2,} )|[ha]{2,}$)|(^[ha]{2,} ))', r' _x ', text)
+
+        # hash tags
+        # text = re.sub(r'#\w+', r' _h ', text)
+
+        # good (happy) tags
+        text = re.sub(r'[❤️😍😁😀🤗🙂]+', r' _g ', text)
+        text = re.sub(r'[8x:;]-?[\)\]\>]+', r' _g ', text)
+        text = re.sub(r'[:;]-?[dp]+', r' _g ', text)
+
+        # sad tags
+        text = re.sub(r'[8x:;]-?[\(\[\<]+', r' _s ', text)
+        text = re.sub(r'[🤮]+', r' _s ', text)
+
+        # mad tags
+        text = re.sub(r'[😡😠]+', r' _b ', text)
+
+
+
+        # numbers
+        text = re.sub(r'\d+', r' _n ', text)
+
+
+        # remove rest of signs
+        text = re.sub(r'[\[\]\(\)\{\}\<\>\\/\:#]', r' ', text)
+
+        text = re.sub(r'  ', r' ', text)
+
+        tokens = text.split()
+        tokens = [tk for tk in tokens if len(tk) > 0]
+
+        self.logger.debug(f"Output tokens: {tokens}")
+        return tokens
+
+    def remove_polish_letters(self, text):
+        """Function will replace polish letters in text"""
         letters = {'ą': 'a', 'ć': 'c', 'ę': 'e', 'ó': 'o', 'ł': 'l',
                    'ń': 'n', 'ś': 's', 'ż': 'z', 'ź': 'z'}
-        for pair in data_array:
-            words = pair[1]
-            for ind, wrd in enumerate(words):
-                for pl, normal in letters.items():
-                    wrd = wrd.replace(pl, normal)
-                pair[1][ind] = wrd
 
-    @staticmethod
-    def normalize_text(data_array: 'list of pair <index, text>'):
-        """
-        Remove stop words, and symbols. Remove every word shorter than min_word_len
-        Args:
-            data_array:
-            min_word_len: int, default 2
+        for pl, normal in letters.items():
+            text = text.replace(pl, normal)
 
-        Returns:
+        return text
 
-        """
-        stop_words = get_stop_words('polish')
-        banned_symbols = [':', '"', "'", '.', '`', '”', '„', '/']
-        banned_prefix = ['http']
-        for pair in data_array:
-            text = pair[1]
-            # print(text)
-            text = [word for word in text for pref in banned_prefix if
-                    not word.startswith(pref) and word not in banned_symbols and word not in stop_words]
-            pair[1] = text
+    # def normalize_text(self, text):
+    #     """
+    #     Remove stop words, and symbols. Remove every word shorter than min_word_len
+    #     Args:
+    #         text: string input
+    #
+    #     Returns:
+    #
+    #     """
+    #     stop_words = get_stop_words(self.lang)  # default polish
+    #     banned_symbols = [':', '"', "'", '.', '`', '”', '„', '/']
+    #     banned_prefix = ['http']
+    #
+    #     text = text.lower()
+    #     text = [word for word in text for pref in banned_prefix if
+    #             not word.startswith(pref) and word not in banned_symbols and word not in stop_words]
+    #
+    #     return text
 
-    @staticmethod
-    def stemming(data_array: 'list of pair <index, text>', lang=None):
+    def stemming(self, data_array: 'list of pair <index, text>', lang=None):
         """
         Removes common prefixes and sufixes
         Args:
@@ -177,10 +214,9 @@ class Analyzer:
                 for sufix in common_sufixes:
                     pair[1] = [word if not word.endswith(sufix) else word[:-len(sufix)] for word in pair[1]]
 
-    @staticmethod
-    def lematizing(list_array: 'list of pair <index, text>'):
+    def lematizing(self, list_array: 'list of pair <index, text>'):
         """
-        Converts words to basic form
+        Lematizing tokens to basic form
         Args:
             list_array:
 
@@ -189,16 +225,89 @@ class Analyzer:
         """
         pass
 
-    def load_model(self):
-        file_name = self.model_name
-        try:
-            full_path = os.path.join(self.model_dir, file_name)
-            lda = gensim.models.LdaMulticore.load(full_path)
-            print("Loaded model")
-            return lda
-        except FileNotFoundError:
-            print(f"Not found this model: {file_name}")
-            return None
+
+class Analyzer:
+    def __init__(self, file_path, model_name,
+                 passes=10, iterations=1000, topics=2, no_below=2, no_above=0.5,
+                 lang='polish'):
+        """Search and load processed .npy file first, if not found, open csv and do processing"""
+        self.file_name = os.path.basename(file_path)
+        self.model_name = model_name
+        self.file_path = file_path
+        self.model_dir = 'models'
+
+        self.textprocessor = TextProcessor(lang=lang)
+        self.logger = mini_logger('analyzer')
+
+        self.passes = passes
+        self.iterations = iterations
+        self.topics = topics
+        self.no_below = no_below
+        self.no_above = no_above
+
+        os.makedirs(self.model_dir, exist_ok=True)
+        os.makedirs(os.path.join(self.model_dir, self.model_name), exist_ok=True)
+
+        data = self.load_data()
+        # lda = self.load_model()
+
+        if data is not None:
+            self.data = data
+        else:
+            data = self.load_raw_data(file_path, ignore_rt=True)
+            data = self.textprocessor.full_preprocess(data)
+        #
+        # self.all_words, self.count = self.get_all_words()
+        #
+        # if lda is None:
+        #     self.lda = None
+        #     self.create_new_LDA_movel()
+        # else:
+        #     self.lda = lda
+
+    @staticmethod
+    def load_raw_data(absolute_file_path, ignore_rt=True):
+        """
+        Loads raw csv with tweets
+        CSV header, delimiter=';'
+        user_id; screen_name; tweet_id; full_text
+        Args:
+            absolute_file_path:
+        Returns:
+        list:
+            pair:
+                <index, text>
+        """
+        with open(absolute_file_path, 'rt') as file:
+            reader = csv.reader(file, delimiter=',')
+            data = []
+            for index, row in enumerate(reader):
+                text = str(row[-1])
+                if index == 0:
+                    header = text
+                    continue
+
+                if ignore_rt and text.startswith('RT'):
+                    continue
+                else:
+                    data.append((row[2], text))
+
+            data = np.array(data)
+            return data
+
+    def create_new_LDA_movel(self):
+        print("Creating LDA model")
+        words = self.data[:, 1]
+        dict = gensim.corpora.Dictionary(words)
+        dict.filter_extremes(no_below=self.no_below, no_above=self.no_above)  # minimum 2 occuraces and no more than 20%
+        print(dict)
+
+        bow = [dict.doc2bow(text) for text in words]
+        self.bow = bow
+
+        lda = gensim.models.LdaMulticore(bow, num_topics=self.topics, id2word=dict,
+                                         passes=self.passes, iterations=self.iterations)
+        self.lda = lda
 
     def save_model(self):
         file_name = self.model_name
@@ -207,22 +316,33 @@ class Analyzer:
 
         print(f"Saved model: {file_name}")
 
+    def load_model(self):
+        file_name = self.model_name
+        try:
+            full_path = os.path.join(self.model_name, file_name)
+            lda = gensim.models.LdaMulticore.load(full_path)
+            print("Loaded model")
+            return lda
+        except FileNotFoundError:
+            print(f"Not found this model: {file_name}")
+            return None
+
     def load_data(self, file_name=None):
         if file_name is None:
             file_name = self.file_name
         try:
-            data = np.load(os.path.join(self.data_dir, file_name + '.npy'), allow_pickle=True)
-            print(f"Loaded data: {file_name}")
+            data = np.load(os.path.join(self.model_name, file_name + '.npy'), allow_pickle=True)
+            print(f"Loaded work data: {file_name}")
             return data
         except FileNotFoundError:
-            print(f"Not found file: {file_name}")
+            print(f"Not found work data: {file_name}")
             return None
 
     def save_data(self, file_name=None):
         if file_name is None:
             file_name = self.file_name
         if self.data is not None:
-            np.save(os.path.join(self.data_dir, file_name), self.data)
+            np.save(os.path.join(self.model_dir, file_name), self.data)
             print(f"Saved data: {file_name}")
 
     def show(self, num):
@@ -265,18 +385,25 @@ if __name__ == '__main__':
                     os.path.abspath(__file__))),
             'exports')
 
-    all_files = glob.glob(os.path.join(directory, 'duda-trzask*.csv'), recursive=True)
-    for file in all_files:
-        print(file)
+    all_files = glob.glob(os.path.join(directory, 'short*.csv'), recursive=True)
+    file = all_files[-1]
+    print(f"Selected file: {file}")
 
     topics = 2
-    app = Analyzer(file_path=all_files[-1], model_name='duda-trzask2', passes=100, iterations=1000, topics=topics)
-    # app.preprocess()
+    app = Analyzer(file_path=all_files[-1], model_name='tp-3', passes=10, iterations=100, topics=topics,
+                   no_below=15, no_above=0.7)
+
     # app.create_new_LDA_movel()
-
-    for x in range(topics):
-        topics = app.lda.print_topic(x)
-        print(topics)
-
-    app.save_data()
-    app.save_model()
+    #
+    # for x in range(topics):
+    #     topics = app.lda.print_topic(x, 5)
+    #     print(topics)
+    #
+    # for x in range(10):
+    #     tweet = app.bow[x]
+    #
+    #     topics = app.lda[tweet]
+    #     print(topics, tweet)
+    #
+    # app.save_data()
+    # app.save_model()
