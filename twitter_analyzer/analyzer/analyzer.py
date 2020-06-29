@@ -17,7 +17,7 @@ def mini_logger(name='analyzer'):
     logger = logging.getLogger(name=name)
     logger.setLevel('DEBUG')
 
-    fh = logging.FileHandler('analyzer.log', mode='a')
+    fh = logging.FileHandler('analyzer.log', mode='w')
     ch = logging.StreamHandler()
 
     # Log Formatting
@@ -91,7 +91,6 @@ class TextProcessor:
         text = text.replace("“", " ")
         text = text.replace("”", " ")
         text = text.replace("„", " ")
-        text = text.replace("_", " ")
         text = text.replace("\n", " ")
         text = text.replace(",", " ")
         text = text.replace("|", " ")
@@ -103,7 +102,7 @@ class TextProcessor:
 
         # links and users mentions
         text = re.sub(r'(?<= )https((.*? )|(.*?$))', r' _l ', text)
-        text = re.sub(r' ?@.+?(( )|$)', r' _u ', text)
+        text = re.sub(r'@\w+(?:(?: )|$)', r' _u ', text)
 
         # after hyperlinks
         text = text.replace("-", " ")
@@ -113,7 +112,7 @@ class TextProcessor:
         text = text.replace("\"", " ")
 
         # xd tags
-        text = re.sub(r'😂+', r' _x ', text)
+        text = re.sub(r'[😂🤣😅]+', r' _x ', text)
         text = re.sub(r' ((x+d+ )|(x+d+$)|(x+p+ )|(x+p+$))', r' _x ', text)
         text = re.sub(r' (([buha]{3,} )|[buha]{3,}$)', r' _x ', text)
         text = re.sub(r'( (([ha]{2,} )|[ha]{2,}$)|(^[ha]{2,} ))', r' _x ', text)
@@ -122,24 +121,24 @@ class TextProcessor:
         # text = re.sub(r'#\w+', r' _h ', text)
 
         # good (happy) tags
-        text = re.sub(r'[❤️😍😁😀🤗🙂]+', r' _g ', text)
+        text = re.sub(r'[❤️😍😁🎉😀🤗🙂💪✌👍]+', r' _g ', text)
         text = re.sub(r'[8x:;]-?[\)\]\>]+', r' _g ', text)
         text = re.sub(r'[:;]-?[dp]+', r' _g ', text)
-
         # sad tags
         text = re.sub(r'[8x:;]-?[\(\[\<]+', r' _s ', text)
         text = re.sub(r'[🤮]+', r' _s ', text)
-
+        text = re.sub(r'[😱🤦]+', r' _s ', text)
         # mad tags
         text = re.sub(r'[😡😠]+', r' _b ', text)
 
         # numbers
         text = re.sub(r'\d+', r' _n ', text)
 
-        # remove rest of signs
-        text = re.sub(r'[\[\]\(\)\{\}\<\>\\/\:#]', r' ', text)
+        # remove rest non words symbols
+        text = re.sub(r'[\W]+', r' ', text)
 
-        text = re.sub(r'  ', r' ', text)
+        # remove multi spaces
+        text = re.sub(r'  +', r' ', text)
 
         tokens = text.split()
         tokens = [tk for tk in tokens if len(tk) > 0]
@@ -382,7 +381,7 @@ if __name__ == '__main__':
                     os.path.abspath(__file__))),
             'exports')
 
-    all_files = glob.glob(os.path.join(directory, 'short*.csv'), recursive=True)
+    all_files = glob.glob(os.path.join(directory, '*.csv'), recursive=True)
     file = all_files[-1]
     print(f"Selected file: {file}")
 
