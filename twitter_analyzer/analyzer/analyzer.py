@@ -133,11 +133,8 @@ class TextProcessor:
         # mad tags
         text = re.sub(r'[😡😠]+', r' _b ', text)
 
-
-
         # numbers
         text = re.sub(r'\d+', r' _n ', text)
-
 
         # remove rest of signs
         text = re.sub(r'[\[\]\(\)\{\}\<\>\\/\:#]', r' ', text)
