@@ -57,18 +57,22 @@ class TextProcessor:
     def process_list(self, array):
         output = []
         for num, text in array:
-            text_processed = self.process_text(text)
-            output.append((num, text_processed))
+            tokens = self.process_text(text)
+            output.append([num, tokens])
+            self.logger.debug(f"output: {num}, {tokens}")
+        output = np.array(output)
         return output
 
     def process_text(self, text):
         text = text.lower()
         text = self.remove_polish_letters(text)
         tokens = self.tokenize_text(text)
-
+        tokens = self.drop_useless_words(tokens)
+        tokens = self.stemming(tokens)
         return tokens
 
-    def drop_useless_words(self, data_array: 'list of pair <index, text>', min_word_len=2):
+    @staticmethod
+    def drop_useless_words(tokens: 'list of strings'):
         """
         Drops short words, and very rare
         Args:
@@ -78,14 +82,17 @@ class TextProcessor:
         Returns:
 
         """
-        for pair in data_array:
-            text = pair[1]
-
-            text = [word for word in text if len(word) >= min_word_len]
-            pair[1] = text
+        temp = tokens
+        tokens = []
+        for tk in temp:
+            if len(tk) > 2:
+                tokens.append(tk)
+            elif len(tk) == 2 and tk.startswith("_"):
+                tokens.append(tk)
+        return tokens
 
     def tokenize_text(self, text):
-        self.logger.debug(f"Tokenizing: {text}")
+        # self.logger.debug(f"Tokenizing: {text}")
         text = text.replace("’", " ")
         text = text.replace("'", " ")
         text = text.replace("“", " ")
@@ -102,7 +109,7 @@ class TextProcessor:
 
         # links and users mentions
         text = re.sub(r'(?<= )https((.*? )|(.*?$))', r' _l ', text)
-        text = re.sub(r'@\w+(?:(?: )|$)', r' _u ', text)
+        # text = re.sub(r'@\w+(?:(?: )|$)', r' _u ', text)
 
         # after hyperlinks
         text = text.replace("-", " ")
@@ -136,6 +143,7 @@ class TextProcessor:
 
         # remove rest non words symbols
         text = re.sub(r'[\W]+', r' ', text)
+        text = re.sub(r'_+(( +)|($))', r' ', text)  # underline is part of 'word'
 
         # remove multi spaces
         text = re.sub(r'  +', r' ', text)
@@ -143,10 +151,11 @@ class TextProcessor:
         tokens = text.split()
         tokens = [tk for tk in tokens if len(tk) > 0]
 
-        self.logger.debug(f"Output tokens: {tokens}")
+        # self.logger.debug(f"Output tokens: {tokens}")
         return tokens
 
-    def remove_polish_letters(self, text):
+    @staticmethod
+    def remove_polish_letters(text):
         """Function will replace polish letters in text"""
         letters = {'ą': 'a', 'ć': 'c', 'ę': 'e', 'ó': 'o', 'ł': 'l',
                    'ń': 'n', 'ś': 's', 'ż': 'z', 'ź': 'z'}
@@ -175,7 +184,7 @@ class TextProcessor:
     #
     #     return text
 
-    def stemming(self, data_array: 'list of pair <index, text>', lang=None):
+    def stemming(self, tokens):
         """
         Removes common prefixes and sufixes
         Args:
@@ -184,18 +193,17 @@ class TextProcessor:
         Returns:
 
         """
-        if lang == 'english' or lang is None:
+        if self.lang == 'english' or self.lang is None:
             stemmer = LancasterStemmer()
-            for pair in data_array:
-                pair[1] = [stemmer.stem(word) for word in pair[1]]
-        elif lang == 'polish':
+            tokens = [stemmer.stem(word) for word in tokens]
+        elif self.lang == 'polish':
             common_sufixes = ['bym',
                               'lam', 'lem', 'le', 'lo', 'li', 'iel', 'al',
                               'ja', 'yjna', 'yjnym',
                               'uja', 'uje', 'uje', 'uja', 'imi',
                               'ecie', 'anej', 'ej', 'eria',
                               'iemy', 'iesz', 'emy', 'em', 'ie', 'ia', 'eni',
-                              'kow', 'ko', 'ka', 'ke', 'ek',
+                              'kow', 'ko', 'ka', 'ke', 'ek', 'kim',
                               'ac', 'amy', 'any', 'anie', 'a',
                               'acych', 'e',
                               'aj', 'ilem', 'u', 'ach', 'ch', 'om',
@@ -205,10 +213,21 @@ class TextProcessor:
                               'ym', 'emu',
                               'es', 'as',
                               'cie', 'ci', 'c',
+                              'czne', 'czny', 'czna', 'cznie', 'czni',
                               'ami', 'ach', 'mi', 'im', 'in', 'i', 'y', 'uj']
-            for pair in data_array:
-                for sufix in common_sufixes:
-                    pair[1] = [word if not word.endswith(sufix) else word[:-len(sufix)] for word in pair[1]]
+            common_sufixes.sort(key=lambda x: -len(x))
+            temp = tokens
+            tokens = []
+            for word in temp:
+                if len(word) == 2:
+                    tokens.append(word)
+                else:
+                    for sufix in common_sufixes:
+                        if word.endswith(sufix):
+                            word = word[:-len(sufix)]
+                    if len(word) > 0:
+                        tokens.append(word)
+        return tokens
 
     def lematizing(self, list_array: 'list of pair <index, text>'):
         """
@@ -245,21 +264,21 @@ class Analyzer:
         os.makedirs(os.path.join(self.model_dir, self.model_name), exist_ok=True)
 
         data = self.load_data()
-        # lda = self.load_model()
+        lda = self.load_model()
 
         if data is not None:
             self.data = data
         else:
             data = self.load_raw_data(file_path, ignore_rt=True)
-            data = self.textprocessor.full_preprocess(data)
+            self.data = self.textprocessor.full_preprocess(data)
         #
         # self.all_words, self.count = self.get_all_words()
         #
-        # if lda is None:
-        #     self.lda = None
-        #     self.create_new_LDA_movel()
-        # else:
-        #     self.lda = lda
+        if lda is None:
+            self.lda = None
+            self.create_new_LDA_movel()
+        else:
+            self.lda = lda
 
     @staticmethod
     def load_raw_data(absolute_file_path, ignore_rt=True):
@@ -355,6 +374,14 @@ class Analyzer:
     # def word_bag(self):
     #     words = ['pis', 'duda', 'prezydent', 'wybory']
 
+    def print_topics(self, n=-1):
+        for x in range(self.topics):
+            if n < 1:
+                topics = self.lda.print_topic(x)
+            else:
+                topics = self.lda.print_topic(x, n)
+            print(topics)
+
     def get_all_words(self):
         """
         Returns:
@@ -386,14 +413,12 @@ if __name__ == '__main__':
     print(f"Selected file: {file}")
 
     topics = 2
-    app = Analyzer(file_path=all_files[-1], model_name='tp-3', passes=10, iterations=100, topics=topics,
+    app = Analyzer(file_path=all_files[-1], model_name='tp-3', passes=50, iterations=1000, topics=topics,
                    no_below=15, no_above=0.7)
-
+    app.print_topics()
     # app.create_new_LDA_movel()
     #
-    # for x in range(topics):
-    #     topics = app.lda.print_topic(x, 5)
-    #     print(topics)
+
     #
     # for x in range(10):
     #     tweet = app.bow[x]
