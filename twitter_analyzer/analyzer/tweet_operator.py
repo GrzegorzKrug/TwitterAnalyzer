@@ -644,9 +644,9 @@ class TwitterOperator(TwitterApi):
             self.logger.debug(f"Received no tweets.")
         return tweets
 
-    def get_tweets_by_phrases(self, words):
+    def get_tweets_by_phrases(self, phrase):
         # self.logger.debug(f"Requesting tweets from database (phrases == '{words}')")
-        tweets = filter_db_search_phrases(self.Session, words)
+        tweets = filter_db_search_phrases(self.Session, phrase)
         self.logger.debug(f"Received {len(tweets)} tweets from db.")
         return tweets
 

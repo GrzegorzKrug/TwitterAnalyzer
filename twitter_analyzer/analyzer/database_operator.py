@@ -397,9 +397,9 @@ def filter_db_search_words(Session, input_string):
         return None
 
 
-def filter_db_search_phrases(Session, words):
+def filter_db_search_phrases(Session, phrases):
     """
-
+    Searching exact phrase with case sensitive
     Args:
         Session:
         words:
@@ -408,9 +408,9 @@ def filter_db_search_phrases(Session, words):
 
     """
     try:
-        stages = re.split(r'[,.!;?]', words)  # Separating stages
+        stages = re.split(r'[;]', phrases)  # Separating stages
         for i, word in enumerate(stages):
-            word = ''.join(letter for letter in word if letter not in "'\\\"()@#$%^&*()_)+_-[]")
+            # word = ''.join(letter for letter in word if letter not in "'\\\"()@#$%^&*()_)+_-[]")
             word = word.lstrip(" ").rstrip(" ")
             stages[i] = word
         phrases = [phrases for phrases in stages if len(phrases) > 0]
@@ -420,7 +420,7 @@ def filter_db_search_phrases(Session, words):
         logger.debug(f"Searching tweets, phrases: {phrases}")
         for phrase in phrases:
             output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
-                      phrase.lower() in tweet[1].lower()]
+                      phrase in tweet[1]]
             tweets += output
         session.close()
         return tweets

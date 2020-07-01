@@ -24,6 +24,7 @@ def mini_logger(name='analyzer'):
     formatter = logging.Formatter(f'%(asctime)s - {name} - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
+    ch.setLevel('INFO')
 
     # Add handlers to logger
     logger.addHandler(fh)
@@ -59,7 +60,7 @@ class TextProcessor:
         for num, text in array:
             tokens = self.process_text(text)
             output.append([num, tokens])
-            self.logger.debug(f"output: {num}, {tokens}")
+            # self.logger.debug(f"output: {num}, {tokens}")
         output = np.array(output)
         return output
 
@@ -143,7 +144,7 @@ class TextProcessor:
 
         # remove rest non words symbols
         text = re.sub(r'[\W]+', r' ', text)
-        text = re.sub(r'_+(( +)|($))', r' ', text)  # underline is part of 'word'
+        text = re.sub(r'(_+(( +)|($)))', r' ', text)  # remove '_' when word is ending
 
         # remove multi spaces
         text = re.sub(r'  +', r' ', text)
@@ -199,22 +200,29 @@ class TextProcessor:
         elif self.lang == 'polish':
             common_sufixes = ['bym',
                               'lam', 'lem', 'le', 'lo', 'li', 'iel', 'al',
-                              'ja', 'yjna', 'yjnym',
+                              'ij', 'ja', 'ic',
                               'uja', 'uje', 'uje', 'uja', 'imi',
                               'ecie', 'anej', 'ej', 'eria',
-                              'iemy', 'iesz', 'emy', 'em', 'ie', 'ia', 'eni',
+                              'iemy', 'iesz', 'emy', 'em', 'ie', 'ia', 'eni', 'iego', 'iemu',
                               'kow', 'ko', 'ka', 'ke', 'ek', 'kim',
                               'ac', 'amy', 'any', 'anie', 'a',
                               'acych', 'e',
                               'aj', 'ilem', 'u', 'ach', 'ch', 'om',
+                              'alne', 'alna', 'anie', 'aniu',
                               'ego',
                               'o', 'owi', 'owani', 'owy', 'owemu', 'owac', 'owym', 'owe', 'owie', 'ow',
                               'owny', 'ownosc',
                               'ym', 'emu',
                               'es', 'as',
+                              'cyjna', 'cyjnego', 'cyjny', 'cyjnym', 'cyjnymi', 'cyjne', 'cyjnej', 'cyjnie', 'cyjnych',
+                              'czne', 'czny', 'czna', 'cznie', 'czni', 'czenie', 'czeniu',
                               'cie', 'ci', 'c',
-                              'czne', 'czny', 'czna', 'cznie', 'czni',
-                              'ami', 'ach', 'mi', 'im', 'in', 'i', 'y', 'uj']
+                              'ami', 'ach', 'mi', 'im', 'in', 'i', 'y', 'uj',
+                              'wskie', 'wski', 'wskim',
+                              'osc',
+                              'tor', 'cja',
+                              'yjna', 'yjnym', 'yjnych',
+                              ]
             common_sufixes.sort(key=lambda x: -len(x))
             temp = tokens
             tokens = []
@@ -273,7 +281,7 @@ class Analyzer:
             self.data = self.textprocessor.full_preprocess(data)
         #
         # self.all_words, self.count = self.get_all_words()
-        #
+
         if lda is None:
             self.lda = None
             self.create_new_LDA_movel()
@@ -408,14 +416,20 @@ if __name__ == '__main__':
                     os.path.abspath(__file__))),
             'exports')
 
-    all_files = glob.glob(os.path.join(directory, '*.csv'), recursive=True)
+    all_files = glob.glob(os.path.join(directory, 'short*.csv'), recursive=True)
     file = all_files[-1]
     print(f"Selected file: {file}")
 
     topics = 2
-    app = Analyzer(file_path=all_files[-1], model_name='tp-3', passes=50, iterations=1000, topics=topics,
-                   no_below=15, no_above=0.7)
+    app = Analyzer(file_path=all_files[-1], model_name='tp-3', passes=100, iterations=1000, topics=topics,
+                   no_below=2, no_above=0.5, lang='polish')
     app.print_topics()
+
+    all_words, count = app.get_all_words()
+    for ind in range(len(count)):
+        word, num = count[ind]
+        app.logger.debug(f"{num:>4}: {word}")
+    app.logger.info(f"All unique words: {len(count)}")
     # app.create_new_LDA_movel()
     #
 

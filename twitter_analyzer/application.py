@@ -396,8 +396,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.show_current_tweet()
 
     def trigger_filter_by_search_phrases(self):
-        words = self.lineEdit_filter_words.text()
-        tweets = self.get_tweets_by_phrases(words)
+        phrase = self.lineEdit_filter_words.text()
+        tweets = self.get_tweets_by_phrases(phrase)
         self.set_tweet_list(tweets)
         self.show_current_tweet()
 
