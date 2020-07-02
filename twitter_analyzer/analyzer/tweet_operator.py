@@ -399,7 +399,7 @@ class TwitterOperator(TwitterApi):
             if continuous:
                 is_in_list = []
                 is_not_in_list = []
-                
+
                 for current_num in self.tweet_list:
                     if current_num in tweet_list:
                         is_in_list.append(current_num)
@@ -407,9 +407,15 @@ class TwitterOperator(TwitterApi):
                         is_not_in_list.append(current_num)
 
                 if keep_found:
-                    self.tweet_list = is_in_list
+                    if len(is_in_list) > 0:
+                        self.tweet_list = is_in_list
+                    else:
+                        return False
                 else:
-                    self.tweet_list = is_not_in_list
+                    if len(is_not_in_list) > 0:
+                        self.tweet_list = is_not_in_list
+                    else:
+                        return False
 
             else:
                 self.tweet_list = tweet_list

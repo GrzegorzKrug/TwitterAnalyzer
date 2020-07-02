@@ -316,7 +316,9 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         try:
             num = int(text)
         except ValueError:
-            self.logger.error(f"Can not show tweet, this is not number {text}")
+            msg = f"Can not request tweet, this is not number '{text}'"
+            self.pop_window(msg)
+            self.logger.error(msg)
             return None
         collect_status_list.delay([num])
 
@@ -431,10 +433,13 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.show_current_tweet()
 
     def trigger_filter_by_tweet_id(self):
-        tweet_id = int(self.lineEdit_tweet_id.text())
+        try:
+            tweet_id = int(self.lineEdit_tweet_id.text())
+        except ValueError:
+            self.pop_window("This is not correct number")
+            return None
         tweets = self.get_tweet_by_id(tweet_id)
-        if tweets:
-            cont, keep = self.check_filtration_settings()
+        cont, keep = self.check_filtration_settings()
         valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
         if not valid:
             self.pop_window("New list is empty")

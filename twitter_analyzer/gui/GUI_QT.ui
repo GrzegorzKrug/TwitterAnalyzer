@@ -610,11 +610,6 @@
              </item>
              <item row="2" column="5">
               <widget class="QLabel" name="label_5">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
                <property name="text">
                 <string>Hour</string>
                </property>
@@ -640,11 +635,6 @@
              </item>
              <item row="2" column="4">
               <widget class="QLabel" name="label_4">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
                <property name="text">
                 <string>Day</string>
                </property>
@@ -655,11 +645,6 @@
              </item>
              <item row="2" column="6">
               <widget class="QLabel" name="label_7">
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
                <property name="text">
                 <string>Min</string>
                </property>
@@ -842,7 +827,7 @@
            <string>Continuous Filtration</string>
           </property>
           <property name="checked">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </widget>
