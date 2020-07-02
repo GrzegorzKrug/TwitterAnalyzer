@@ -713,7 +713,7 @@
                 <string>Save DF to .csv File</string>
                </property>
                <property name="text">
-                <string>Find tweets in age:</string>
+                <string>Tweet Age</string>
                </property>
               </widget>
              </item>

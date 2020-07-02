@@ -743,7 +743,6 @@ class TwitterOperator(TwitterApi):
     def timestamp_offset(timestamp=None, year=0, month=0, day=0, hour=0, minute=0):
         if not timestamp:
             timestamp = int(datetime.datetime.now().timestamp())
-            timestamp = int(time.time())
 
         date = datetime.date.fromtimestamp(timestamp)
         date_rest = timestamp % (3600 * 24)  # Capture rest from day 3600 second * 24 hours
