@@ -392,8 +392,8 @@
            <rect>
             <x>10</x>
             <y>70</y>
-            <width>521</width>
-            <height>271</height>
+            <width>581</width>
+            <height>279</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="Vertical_Filters" stretch="1,0,1">
@@ -579,13 +579,26 @@
             </spacer>
            </item>
            <item>
-            <layout class="QGridLayout" name="gridLayout_TimeFilters" rowstretch="4,4,0" columnstretch="2,0,1,1,1,1,1">
+            <layout class="QGridLayout" name="gridLayout_TimeFilters" rowstretch="4,4,0,0" columnstretch="2,0,1,1,1,1,1,0">
              <property name="sizeConstraint">
               <enum>QLayout::SetMinimumSize</enum>
              </property>
              <property name="spacing">
               <number>5</number>
              </property>
+             <item row="3" column="2">
+              <widget class="QSpinBox" name="spinBox_timezone">
+               <property name="minimum">
+                <number>-12</number>
+               </property>
+               <property name="maximum">
+                <number>12</number>
+               </property>
+               <property name="value">
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="4">
               <widget class="QSpinBox" name="spinBox_timefilter_from_day">
                <property name="maximum">
@@ -694,7 +707,7 @@
              <item row="0" column="0">
               <widget class="QPushButton" name="pushButton_filter_by_Age">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="toolTip">
                 <string>Save DF to .csv File</string>
@@ -707,7 +720,7 @@
              <item row="1" column="0">
               <widget class="QPushButton" name="pushButton_filter_by_Date">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="toolTip">
                 <string>Save DF to .csv File</string>
@@ -759,6 +772,33 @@
                </property>
               </widget>
              </item>
+             <item row="3" column="3">
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Timezone</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="7">
+              <widget class="QPushButton" name="pushButton_set_current_time">
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(255, 210, 210);</string>
+               </property>
+               <property name="text">
+                <string>Current time</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="7">
+              <widget class="QPushButton" name="pushButton_reset_time">
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(255, 210, 210);</string>
+               </property>
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>
@@ -769,7 +809,7 @@
           </property>
           <property name="geometry">
            <rect>
-            <x>550</x>
+            <x>640</x>
             <y>150</y>
             <width>161</width>
             <height>23</height>
@@ -814,7 +854,7 @@
          <widget class="QCheckBox" name="checkBox_filtration_continuous">
           <property name="geometry">
            <rect>
-            <x>550</x>
+            <x>640</x>
             <y>130</y>
             <width>161</width>
             <height>21</height>

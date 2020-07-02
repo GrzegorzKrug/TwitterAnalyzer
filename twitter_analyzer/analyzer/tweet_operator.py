@@ -15,7 +15,7 @@ from .api import TwitterApi
 from .api import Unauthorized, TweetNotFoundError, TooManyRequests
 from .database_operator import (
     get_database_connectors, add_tweet_with_user,
-    filter_db_search_words, filter_db_search_phrases, filter_by_lang,
+    filter_db_search_words, filter_db_search_phrases, filter_by_lang, filter_by_timestamp,
     get_db_full_tweet_with_user, get_db_all_tweet_list
 )
 
@@ -597,18 +597,10 @@ class TwitterOperator(TwitterApi):
         self.th_num += 1
         return subprocess
 
-    # def filter_df_by_timestamp(self, time_stamp_min, time_stamp_max):
-    #     if self.DF is not None:
-    #         df = self.DF.loc[lambda _df: self.check_series_time_condition(
-    #             _df['created_at'],
-    #             time_stamp_min,
-    #             time_stamp_max)]
-    #         if self.filter_conditions(df):
-    #             self.DF = df
-    #             self.logger.debug(f"Successfully filtered tweets in time range")
-    #             return True
-    #     else:
-    #         self.logger.warning('DF is empty. Load some tweets first.')
+    def filter_tweets_by_timestamp(self, tmps_min, tmps_max):
+        tweets = filter_by_timestamp(self.Session, tmps_min, tmps_max)
+        self.logger.debug(f"Filter tweets by timestamp: {tmps_min}, {tmps_max}")
+        return tweets
 
     def get_tweet_by_id(self, tweet_id):
         self.logger.debug(f"Requesting tweets from database (tweet_id == {tweet_id})")
@@ -734,8 +726,15 @@ class TwitterOperator(TwitterApi):
     @staticmethod
     def timestamp_from_date(year=1990, month=1, day=1, hour=0, minute=0):
         # Get timestamp within days
+
+        # self.logger.debug("Args: {}, {}, {}, {}, {}, {}".format(year, month, day, hour, minute, timezone))
+
         new_date = datetime.date(year=year, month=month, day=day)
         new_timestamp = calendar.timegm(new_date.timetuple())
+        # deb_time = int(time.time())
+        # self.logger.debug(f"Time now:  {deb_time}")
+        # self.logger.debug(f"Timestamp: {new_timestamp}")
+        # self.logger.debug(f"diff: {new_timestamp - deb_time}")
 
         # Add minutes, hours, day offset and rest from timestamp
         return new_timestamp + minute * 60 + hour * 3600
@@ -744,6 +743,7 @@ class TwitterOperator(TwitterApi):
     def timestamp_offset(timestamp=None, year=0, month=0, day=0, hour=0, minute=0):
         if not timestamp:
             timestamp = int(datetime.datetime.now().timestamp())
+            timestamp = int(time.time())
 
         date = datetime.date.fromtimestamp(timestamp)
         date_rest = timestamp % (3600 * 24)  # Capture rest from day 3600 second * 24 hours

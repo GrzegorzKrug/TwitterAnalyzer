@@ -85,8 +85,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.trigger_filter_by_lang)
         # self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.trigger_filter_by_non_empty_key)
         self.pushButton_FilterDF_TweetID.clicked.connect(self.trigger_filter_by_tweet_id)
-        # self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_by_age)
-        # self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_by_date)
+        self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_by_age)
+        self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_by_date)
         self.pushButton_filter_search_words.clicked.connect(
                 lambda: self.trigger_filter_by_search_words())
         self.pushButton_filter_search_words_anywhere.clicked.connect(
@@ -94,6 +94,10 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         # self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
         # self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
         # self.pushButton_FilterDF_user.clicked.connect(self.trigger_filter_by_user)
+
+        'Time spinboxes'
+        self.pushButton_reset_time.clicked.connect(self.time_spinboxes_reset_time)
+        self.pushButton_set_current_time.clicked.connect(self.time_spinboxes_set_current_time)
 
         'Analyze Buttons'
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
@@ -347,50 +351,104 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     #         self.currTweetDF_ind = 0
     #         self.show_current_tweet_from_df()
 
-    # def trigger_filter_by_age(self):
-    #     """Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration"""
-    #     year = self.spinBox_timefilter_from_year.value()
-    #     month = self.spinBox_timefilter_from_month.value()
-    #     day = self.spinBox_timefilter_from_day.value()
-    #     hour = self.spinBox_timefilter_from_hour.value()
-    #     minute = self.spinBox_timefilter_from_min.value()
-    #     timestamp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
-    #
-    #     year = self.spinBox_timefilter_to_year.value()
-    #     month = self.spinBox_timefilter_to_month.value()
-    #     day = self.spinBox_timefilter_to_day.value()
-    #     hour = self.spinBox_timefilter_to_hour.value()
-    #     minute = self.spinBox_timefilter_to_min.value()
-    #     timestamp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
-    #
-    #     valid = self.filter_df_by_timestamp(timestamp_min, timestamp_max)
-    #     if valid:
-    #         self.currTweetDF_ind = 0
-    #         self.show_current_tweet_from_df()
+    def trigger_filter_by_age(self):
+        """Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration"""
+        try:
+            year = self.spinBox_timefilter_from_year.value()
+            month = self.spinBox_timefilter_from_month.value()
+            day = self.spinBox_timefilter_from_day.value()
+            hour = self.spinBox_timefilter_from_hour.value()
+            minute = self.spinBox_timefilter_from_min.value()
+            timestamp_min = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
 
-    # def trigger_filter_by_date(self):
-    #     try:
-    #         year = self.spinBox_timefilter_from_year.value()
-    #         month = self.spinBox_timefilter_from_month.value()
-    #         day = self.spinBox_timefilter_from_day.value()
-    #         hour = self.spinBox_timefilter_from_hour.value()
-    #         minute = self.spinBox_timefilter_from_min.value()
-    #         timestamp_min = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
-    #
-    #         year = self.spinBox_timefilter_to_year.value()
-    #         month = self.spinBox_timefilter_to_month.value()
-    #         day = self.spinBox_timefilter_to_day.value()
-    #         hour = self.spinBox_timefilter_to_hour.value()
-    #         minute = self.spinBox_timefilter_to_min.value()
-    #         timestamp_max = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
-    #
-    #         valid = self.filter_df_by_timestamp(timestamp_min, timestamp_max)
-    #         if valid:
-    #             self.currTweetDF_ind = 0
-    #             self.show_current_tweet_from_df()
-    #
-    #     except ValueError as ve:
-    #         self.add_log(f"Value Error: {ve}")
+            year = self.spinBox_timefilter_to_year.value()
+            month = self.spinBox_timefilter_to_month.value()
+            day = self.spinBox_timefilter_to_day.value()
+            hour = self.spinBox_timefilter_to_hour.value()
+            minute = self.spinBox_timefilter_to_min.value()
+            timestamp_max = self.timestamp_offset(year=-year, month=-month, day=-day, hour=-hour, minute=-minute)
+
+            if timestamp_min > timestamp_max:
+                timestamp_max, timestamp_min = timestamp_min, timestamp_max
+
+            tweets = self.filter_tweets_by_timestamp(timestamp_min, timestamp_max)
+            cont, keep = self.check_filtration_settings()
+            valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+            if not valid:
+                self.pop_window("New list is empty")
+            self.show_current_tweet()
+
+        except ValueError as ve:
+            self.pop_window(str(ve))
+            self.logger.error(str(ve))
+
+    def trigger_filter_by_date(self):
+        try:
+            timezone = int(self.spinBox_timezone.value())
+
+            year = self.spinBox_timefilter_from_year.value()
+            month = self.spinBox_timefilter_from_month.value()
+            day = self.spinBox_timefilter_from_day.value()
+            hour = self.spinBox_timefilter_from_hour.value()
+            minute = self.spinBox_timefilter_from_min.value()
+            timestamp_min = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+
+            year = self.spinBox_timefilter_to_year.value()
+            month = self.spinBox_timefilter_to_month.value()
+            day = self.spinBox_timefilter_to_day.value()
+            hour = self.spinBox_timefilter_to_hour.value()
+            minute = self.spinBox_timefilter_to_min.value()
+            timestamp_max = self.timestamp_from_date(year=year, month=month, day=day, hour=hour, minute=minute)
+
+            timestamp_min -= (timezone + 1) * 3600  # offset to match twitter time
+            timestamp_max -= (timezone + 1) * 3600  # offset to match twitter time
+
+            if timestamp_min > timestamp_max:
+                timestamp_max, timestamp_min = timestamp_min, timestamp_max
+
+            tweets = self.filter_tweets_by_timestamp(timestamp_min, timestamp_max)
+            cont, keep = self.check_filtration_settings()
+            valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+            if not valid:
+                self.pop_window("New list is empty")
+            self.show_current_tweet()
+
+        except ValueError as ve:
+            self.pop_window(f"{ve}")
+            self.logger.error(f"Value Error: {ve}")
+
+    def time_spinboxes_set_current_time(self):
+        now = datetime.datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+        hour = now.hour
+        minute = now.minute
+
+        self.spinBox_timefilter_from_year.setValue(year)
+        self.spinBox_timefilter_from_month.setValue(month)
+        self.spinBox_timefilter_from_day.setValue(day)
+        self.spinBox_timefilter_from_hour.setValue(hour)
+        self.spinBox_timefilter_from_min.setValue(minute)
+
+        self.spinBox_timefilter_to_year.setValue(year)
+        self.spinBox_timefilter_to_month.setValue(month)
+        self.spinBox_timefilter_to_day.setValue(day)
+        self.spinBox_timefilter_to_hour.setValue(hour)
+        self.spinBox_timefilter_to_min.setValue(minute)
+
+    def time_spinboxes_reset_time(self):
+        self.spinBox_timefilter_from_year.setValue(0)
+        self.spinBox_timefilter_from_month.setValue(0)
+        self.spinBox_timefilter_from_day.setValue(0)
+        self.spinBox_timefilter_from_hour.setValue(0)
+        self.spinBox_timefilter_from_min.setValue(0)
+
+        self.spinBox_timefilter_to_year.setValue(0)
+        self.spinBox_timefilter_to_month.setValue(0)
+        self.spinBox_timefilter_to_day.setValue(0)
+        self.spinBox_timefilter_to_hour.setValue(0)
+        self.spinBox_timefilter_to_min.setValue(10)
 
     # def trigger_filter_by_non_empty_key(self):
     #     text = self.lineEdit_filterKeyinput.text()

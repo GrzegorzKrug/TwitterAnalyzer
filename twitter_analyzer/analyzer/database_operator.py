@@ -322,6 +322,30 @@ def filter_by_lang(Session, lang, inverted=False):
         return None
 
 
+def filter_by_timestamp(Session, tstmp_min, tstmp_max):
+    """
+
+    Args:
+        lang: language to filter
+        inverted:
+
+    Returns:
+
+    """
+    try:
+        tstmp_min = int(tstmp_min)
+        tstmp_max = int(tstmp_max)
+        session = Session()
+        tweets = session.query(Tweet.tweet_id, Tweet.lang) \
+            .filter(Tweet.created_at >= tstmp_min) \
+            .filter(Tweet.created_at <= tstmp_max).all()
+        session.close()
+        return tweets
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None
+
+
 # def filter_by_existing_key(Session, key, inverted=False):
 #     """
 #     Filter db, to get all tweets with key
