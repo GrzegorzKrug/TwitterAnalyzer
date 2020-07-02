@@ -381,16 +381,44 @@ class TwitterOperator(TwitterApi):
     #             pass
     #     self.logger.debug(f'Done removing')
 
-    def set_tweet_list(self, tweet_array):
+    def set_tweet_list(self, tweet_array, continuous=False, keep_found=True):
+        """
+        Updates tweet list if is correct. Returns true if valid
+        Args:
+            tweet_array:
+
+        Returns:
+
+        """
         if tweet_array:
             try:
-                self.tweet_list = [tweet.tweet_id for tweet in tweet_array]
+                tweet_list = [tweet.tweet_id for tweet in tweet_array]
             except AttributeError:
-                self.tweet_list = [tweet.Tweet.tweet_id for tweet in tweet_array]
+                tweet_list = [tweet.Tweet.tweet_id for tweet in tweet_array]
+
+            if continuous:
+                is_in_list = []
+                is_not_in_list = []
+                
+                for current_num in self.tweet_list:
+                    if current_num in tweet_list:
+                        is_in_list.append(current_num)
+                    else:
+                        is_not_in_list.append(current_num)
+
+                if keep_found:
+                    self.tweet_list = is_in_list
+                else:
+                    self.tweet_list = is_not_in_list
+
+            else:
+                self.tweet_list = tweet_list
 
             self.current_tweet_index = 0
+            return True
         else:
             self.logger.warning(f"Can not set tweet list, new list is empty")
+            return False
 
     def get_all_tweets(self):
         self.logger.debug(f"Requesting all tweets")
@@ -650,12 +678,9 @@ class TwitterOperator(TwitterApi):
         self.logger.debug(f"Received {len(tweets)} tweets from db.")
         return tweets
 
-    def get_tweets_by_lang(self, lang, inverted=False):
-        if not inverted:
-            self.logger.debug(f"Requesting tweets from database(lang == {lang})")
-        else:
-            self.logger.debug(f"Requesting tweets from database(lang != {lang})")
-        tweets = filter_by_lang(self.Session, lang, inverted)
+    def get_tweets_by_lang(self, lang):
+        self.logger.debug(f"Requesting tweets from database(lang == {lang})")
+        tweets = filter_by_lang(self.Session, lang)
         self.logger.debug(f"Received {len(tweets)} tweets from db.")
         return tweets
 
@@ -739,8 +764,4 @@ class TwitterOperator(TwitterApi):
 
 if __name__ == "__main__":
     app = TwitterOperator(auto_login=False)
-    app.load_df(['unittest_auto.csv'])
-    app.filter_df_search_phrases(["tweet1"], only_in_text=True)
-    # app.load_df(['Auto_Merge_20200308_21-31-23.csv'])
-    # app.filter_df_search_phrases(["tweet1"], only_in_text=False)
     print('End...')

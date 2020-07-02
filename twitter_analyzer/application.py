@@ -50,8 +50,10 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         ))
 
         'Settings'
-        self.checkBox_wrap_console.clicked.connect(self.change_info_settings)
+        self.checkBox_wrap_console.clicked.connect(self.text_box_update_settings)
+        self.checkBox_filtration_continuous.clicked.connect(self.update_chk_box_filtration)
         self.checkBox_filtration_keep_drop.clicked.connect(self.change_box_text)
+        self.checkBox_show_only_text.clicked.connect(self.show_current_tweet)
 
         'File Buttons'
         self.pushButton_export_DF.clicked.connect(
@@ -97,7 +99,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
 
     def _init_settings(self):
-        self.change_info_settings()
+        self.text_box_update_settings()
+        self.update_chk_box_filtration()
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -109,17 +112,28 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         timestamp = str(h).rjust(2, '0') + '-' + str(m).rjust(2, '0') + '-' + str(s).rjust(2, '0') + ': '
         return timestamp + text
 
-    def check_settings_inverted(self):
-        return False if self.checkBox_filtration_keep_drop.checkState() == 2 else True
+    def check_filtration_settings(self):
+        cont_checked = True if self.checkBox_filtration_continuous.checkState() == 2 else False
+        keep_checked = True if self.checkBox_filtration_keep_drop.checkState() == 2 else False
+        return cont_checked, keep_checked
 
     def change_box_text(self):
         checked = True if self.checkBox_filtration_keep_drop.checkState() == 2 else False
         if checked:
-            self.checkBox_filtration_keep_drop.setText("Filtration: keep")
+            self.checkBox_filtration_keep_drop.setText("Keep found")
         else:
-            self.checkBox_filtration_keep_drop.setText("Filtration: drop")
+            self.checkBox_filtration_keep_drop.setText("Drop found")
 
-    def change_info_settings(self):
+    def update_chk_box_filtration(self):
+        """Enables child checkbox if this is enabled"""
+        checked = True if self.checkBox_filtration_continuous.checkState() == 2 else False
+        self.change_check_box_settings(checked)
+
+    def change_check_box_settings(self, enable=True):
+        """Turns on and off checkbox"""
+        self.checkBox_filtration_keep_drop.setEnabled(enable)
+
+    def text_box_update_settings(self):
         """
         Wrap text box if checkbox has tick
         Returns:
@@ -194,7 +208,9 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
     def show_all_tweets(self):
         tweets = self.get_all_tweets()
-        self.set_tweet_list(tweets)
+        valid = self.set_tweet_list(tweets)
+        if not valid:
+            self.pop_window("New list is empty")
         self.show_current_tweet()
 
     def show_current_tweet(self):
@@ -252,6 +268,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         flag_hide_empty = True if self.checkBox_HideEmptyValues.checkState() == 2 else False
         flag_short_user = True if self.checkBox_DisplayShortUserinfo.checkState() == 2 else False
         flag_short_quote = True if self.checkBox_DisplayShortQuoteStatus.checkState() == 2 else False
+        flag_text_only = True if self.checkBox_show_only_text.checkState() == 2 else False
 
         if ind < 0:
             ind = 0
@@ -260,29 +277,33 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         self.current_tweet_index = ind
         tweet = self.get_full_tweet(self.tweet_list[ind])
-        text = f"Index: {ind} of {len(self.tweet_list) - 1}\n"
-
-        text += "id".ljust(25) + f"{tweet.Tweet.tweet_id}\n"
-        text += "timestamp".ljust(25) + f"{tweet.Tweet.timestamp}\n"
-        text += "contributors".ljust(25) + f"{tweet.Tweet.contributors}\n"
-        text += "coordinates".ljust(25) + f"{tweet.Tweet.coordinates}\n"
-        text += "created_at".ljust(25) + f"{tweet.Tweet.created_at}\n"
-        text += "current_user_retweet".ljust(25) + f"{tweet.Tweet.current_user_retweet}\n"
-        text += "favorite_count".ljust(25) + f"{tweet.Tweet.favorite_count}\n"
-        text += "favorited".ljust(25) + f"{tweet.Tweet.favorited}\n"
         tweet_full_text = tweet.Tweet.full_text.replace('\n', '')
-        text += "full_text".ljust(25) + f"{tweet_full_text}\n"
-        text += "hashtags".ljust(25) + f"{tweet.Tweet.hashtags}\n"
-        text += "in_reply_to_status_id".ljust(25) + f"{tweet.Tweet.in_reply_to_status_id}\n"
-        text += "in_reply_to_user_id".ljust(25) + f"{tweet.Tweet.in_reply_to_user_id}\n"
-        text += "location".ljust(25) + f"{tweet.Tweet.location}\n"
-        text += "quoted_status_id".ljust(25) + f"{tweet.Tweet.quoted_status_id}\n"
-        text += "retweet_count".ljust(25) + f"{tweet.Tweet.retweet_count}\n"
-        text += "retweeted_status_id".ljust(25) + f"{tweet.Tweet.retweeted_status_id}\n"
-        text += "source_status_id".ljust(25) + f"{tweet.Tweet.source_status_id}\n"
-        text += "user_id".ljust(25) + f"{tweet.Tweet.user_id}\n"
-        text += "user_mentions".ljust(25) + f"{tweet.Tweet.user_mentions}\n"
-        text += "screen_name".ljust(25) + f"{tweet.User.screen_name}\n"
+
+        text = f"Index: {ind} of {len(self.tweet_list) - 1}\n"
+        if flag_text_only:
+            text += "id:".ljust(15) + f"{tweet.Tweet.tweet_id}\n"
+            text += f"{tweet_full_text}\n"
+        else:
+            text += "id".ljust(25) + f"{tweet.Tweet.tweet_id}\n"
+            text += "timestamp".ljust(25) + f"{tweet.Tweet.timestamp}\n"
+            text += "contributors".ljust(25) + f"{tweet.Tweet.contributors}\n"
+            text += "coordinates".ljust(25) + f"{tweet.Tweet.coordinates}\n"
+            text += "created_at".ljust(25) + f"{tweet.Tweet.created_at}\n"
+            text += "current_user_retweet".ljust(25) + f"{tweet.Tweet.current_user_retweet}\n"
+            text += "favorite_count".ljust(25) + f"{tweet.Tweet.favorite_count}\n"
+            text += "favorited".ljust(25) + f"{tweet.Tweet.favorited}\n"
+            text += "full_text".ljust(25) + f"{tweet_full_text}\n"
+            text += "hashtags".ljust(25) + f"{tweet.Tweet.hashtags}\n"
+            text += "in_reply_to_status_id".ljust(25) + f"{tweet.Tweet.in_reply_to_status_id}\n"
+            text += "in_reply_to_user_id".ljust(25) + f"{tweet.Tweet.in_reply_to_user_id}\n"
+            text += "location".ljust(25) + f"{tweet.Tweet.location}\n"
+            text += "quoted_status_id".ljust(25) + f"{tweet.Tweet.quoted_status_id}\n"
+            text += "retweet_count".ljust(25) + f"{tweet.Tweet.retweet_count}\n"
+            text += "retweeted_status_id".ljust(25) + f"{tweet.Tweet.retweeted_status_id}\n"
+            text += "source_status_id".ljust(25) + f"{tweet.Tweet.source_status_id}\n"
+            text += "user_id".ljust(25) + f"{tweet.Tweet.user_id}\n"
+            text += "user_mentions".ljust(25) + f"{tweet.Tweet.user_mentions}\n"
+            text += "screen_name".ljust(25) + f"{tweet.User.screen_name}\n"
         self.display(text)
 
     def request_status_from_box(self):
@@ -384,29 +405,40 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         if lang == '':
             self.logger.error('Lang box is empty!')
             return None
-        inverted = self.check_settings_inverted()
-        tweets = self.get_tweets_by_lang(lang, inverted)
-        self.set_tweet_list(tweets)
+        tweets = self.get_tweets_by_lang(lang)
+        cont, keep = self.check_filtration_settings()
+        valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+        if not valid:
+            self.pop_window("New list is empty")
         self.show_current_tweet()
 
     def trigger_filter_by_search_words(self):
         words = self.lineEdit_filter_words.text()
         tweets = self.get_tweets_by_words(words)
-        self.set_tweet_list(tweets)
+        cont, keep = self.check_filtration_settings()
+        valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+        if not valid:
+            self.pop_window("New list is empty")
         self.show_current_tweet()
 
     def trigger_filter_by_search_phrases(self):
         phrase = self.lineEdit_filter_words.text()
         tweets = self.get_tweets_by_phrases(phrase)
-        self.set_tweet_list(tweets)
+        cont, keep = self.check_filtration_settings()
+        valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+        if not valid:
+            self.pop_window("New list is empty")
         self.show_current_tweet()
 
     def trigger_filter_by_tweet_id(self):
         tweet_id = int(self.lineEdit_tweet_id.text())
         tweets = self.get_tweet_by_id(tweet_id)
         if tweets:
-            self.set_tweet_list(tweets)
-            self.show_current_tweet()
+            cont, keep = self.check_filtration_settings()
+        valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+        if not valid:
+            self.pop_window("New list is empty")
+        self.show_current_tweet()
 
     # def trigger_filter_by_user(self):
     #     user_text = self.lineEdit_user_input.text()

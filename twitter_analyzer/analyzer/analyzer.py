@@ -66,7 +66,8 @@ class TextProcessor:
 
     def process_text(self, text):
         text = text.lower()
-        text = self.remove_polish_letters(text)
+        if self.lang.lower() == 'polish':
+            text = self.remove_polish_letters(text)
         tokens = self.tokenize_text(text)
         tokens = self.drop_useless_words(tokens)
         tokens = self.stemming(tokens)
@@ -92,8 +93,7 @@ class TextProcessor:
                 tokens.append(tk)
         return tokens
 
-    def tokenize_text(self, text):
-        # self.logger.debug(f"Tokenizing: {text}")
+    def tokenize_text(self, text, simplyfy=True):
         text = text.replace("’", " ")
         text = text.replace("'", " ")
         text = text.replace("“", " ")
@@ -110,10 +110,11 @@ class TextProcessor:
 
         # links and users mentions
         text = re.sub(r'(?<= )https((.*? )|(.*?$))', r' _l ', text)
-        # text = re.sub(r'@\w+(?:(?: )|$)', r' _u ', text)
 
         # after hyperlinks
+        text = re.sub(f'(?<=[a-z])[-_](?=[a-z])', '', text)
         text = text.replace("-", " ")
+
         text = text.replace("+", " ")
         text = text.replace("=", " ")
         text = text.replace('.', ' ')
@@ -124,9 +125,6 @@ class TextProcessor:
         text = re.sub(r' ((x+d+ )|(x+d+$)|(x+p+ )|(x+p+$))', r' _x ', text)
         text = re.sub(r' (([buha]{3,} )|[buha]{3,}$)', r' _x ', text)
         text = re.sub(r'( (([ha]{2,} )|[ha]{2,}$)|(^[ha]{2,} ))', r' _x ', text)
-
-        # hash tags
-        # text = re.sub(r'#\w+', r' _h ', text)
 
         # good (happy) tags
         text = re.sub(r'[❤️😍😁🎉😀🤗🙂💪✌👍]+', r' _g ', text)
@@ -142,9 +140,9 @@ class TextProcessor:
         # numbers
         text = re.sub(r'\d+', r' _n ', text)
 
-        # remove rest non words symbols
+        # remove rest non words  symbols
         text = re.sub(r'[\W]+', r' ', text)
-        text = re.sub(r'(_+(( +)|($)))', r' ', text)  # remove '_' when word is ending
+        text = re.sub(r'(_+(( +)|($)))', r' ', text)  # remove '_' in: end and start
 
         # remove multi spaces
         text = re.sub(r'  +', r' ', text)
@@ -272,21 +270,21 @@ class Analyzer:
         os.makedirs(os.path.join(self.model_dir, self.model_name), exist_ok=True)
 
         data = self.load_data()
-        lda = self.load_model()
+        self.lda = self.load_model()
 
         if data is not None:
             self.data = data
         else:
             data = self.load_raw_data(file_path, ignore_rt=True)
             self.data = self.textprocessor.full_preprocess(data)
-        #
-        # self.all_words, self.count = self.get_all_words()
 
-        if lda is None:
-            self.lda = None
-            self.create_new_LDA_movel()
-        else:
-            self.lda = lda
+        self.all_words, self.count = self.get_all_words()
+
+        # if lda is None:
+        #     self.lda = None
+        #     self.create_new_LDA_movel()
+        # else:
+        #     self.lda = lda
 
     @staticmethod
     def load_raw_data(absolute_file_path, ignore_rt=True):
@@ -406,7 +404,7 @@ class Analyzer:
             all_words += words
         all_words.sort()
         count = list(count.items())
-        count.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        count.sort(key=lambda x: (x[0], x[1]), reverse=False)
         return all_words, count
 
 
@@ -416,24 +414,24 @@ if __name__ == '__main__':
                     os.path.abspath(__file__))),
             'exports')
 
-    all_files = glob.glob(os.path.join(directory, 'short*.csv'), recursive=True)
+    all_files = glob.glob(os.path.join(directory, 'en*.csv'), recursive=True)
     file = all_files[-1]
     print(f"Selected file: {file}")
 
     topics = 2
     app = Analyzer(file_path=all_files[-1], model_name='tp-3', passes=100, iterations=1000, topics=topics,
-                   no_below=2, no_above=0.5, lang='polish')
-    app.print_topics()
+                   no_below=2, no_above=0.5, lang='english')
 
-    all_words, count = app.get_all_words()
-    for ind in range(len(count)):
-        word, num = count[ind]
-        app.logger.debug(f"{num:>4}: {word}")
-    app.logger.info(f"All unique words: {len(count)}")
-    # app.create_new_LDA_movel()
-    #
+    if app.lda:
+        app.print_topics()
 
-    #
+    if app.data is not None:
+        all_words, count = app.get_all_words()
+        for ind in range(len(count)):
+            word, num = count[ind]
+            app.logger.debug(f"{num:>4}: {word}")
+        app.logger.info(f"All unique words: {len(count)}")
+
     # for x in range(10):
     #     tweet = app.bow[x]
     #
