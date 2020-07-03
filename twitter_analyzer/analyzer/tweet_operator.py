@@ -16,7 +16,8 @@ from .api import Unauthorized, TweetNotFoundError, TooManyRequests
 from .database_operator import (
     get_database_connectors, add_tweet_with_user,
     filter_db_search_words, filter_db_search_phrases, filter_by_lang, filter_by_timestamp,
-    get_db_full_tweet_with_user, get_db_all_tweet_list
+    get_db_full_tweet_with_user, get_db_all_tweet_list,
+    filter_retweets, filter_quotes
 )
 
 except_logger = define_logger("Operator_exception")
@@ -419,12 +420,32 @@ class TwitterOperator(TwitterApi):
 
             else:
                 self.tweet_list = tweet_list
-
+            self.logger.debug(f"New tweet list lenght: {len(self.tweet_list)}")
             self.current_tweet_index = 0
             return True
         else:
             self.logger.warning(f"Can not set tweet list, new list is empty")
             return False
+
+    def get_retweets(self):
+        self.logger.debug(f"Requesting retweets")
+        tweets = filter_retweets(self.Session)
+        if tweets:
+            self.logger.debug(f"Received retweets: {len(tweets)}")
+            return tweets
+        else:
+            self.logger.error(f"Received not tweet: {tweets}")
+            return None
+
+    def get_quotes(self):
+        self.logger.debug(f"Requesting retweets")
+        tweets = filter_quotes(self.Session)
+        if tweets:
+            self.logger.debug(f"Received retweets: {len(tweets)}")
+            return tweets
+        else:
+            self.logger.error(f"Received not tweet: {tweets}")
+            return None
 
     def get_all_tweets(self):
         self.logger.debug(f"Requesting all tweets")
@@ -661,19 +682,20 @@ class TwitterOperator(TwitterApi):
     #     unique = self.DF[key].unique()
     #     return unique
 
-    def get_tweets_by_words(self, words):
-        # self.logger.debug(f"Requesting tweets from database (words == '{words}')")
-        tweets = filter_db_search_words(self.Session, words)
+    def get_tweets_by_words(self, words, case_sens=False):
+        tweets = filter_db_search_words(self.Session, words, case_sens=case_sens)
         if tweets:
             self.logger.debug(f"Received {len(tweets)} tweets from db.")
         else:
             self.logger.debug(f"Received no tweets.")
         return tweets
 
-    def get_tweets_by_phrases(self, phrase):
-        # self.logger.debug(f"Requesting tweets from database (phrases == '{words}')")
-        tweets = filter_db_search_phrases(self.Session, phrase)
-        self.logger.debug(f"Received {len(tweets)} tweets from db.")
+    def get_tweets_by_phrases(self, phrase, case_sens=False):
+        tweets = filter_db_search_phrases(self.Session, phrase, case_sens=case_sens)
+        if tweets:
+            self.logger.debug(f"Received {len(tweets)} tweets from db.")
+        else:
+            self.logger.debug(f"Received no tweets.")
         return tweets
 
     def get_tweets_by_lang(self, lang):

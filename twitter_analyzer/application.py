@@ -91,7 +91,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                 lambda: self.trigger_filter_by_search_words())
         self.pushButton_filter_search_words_anywhere.clicked.connect(
                 lambda: self.trigger_filter_by_search_phrases())
-        # self.pushButton_drop_new_duplicates.clicked.connect(self.trigger_drop_new_duplicates)
+        self.pushButton_find_retweets.clicked.connect(self.trigger_filter_retweets)
+        self.pushButton_filter_quoted_tweets.clicked.connect(self.trigger_filter_quotes)
         # self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
         # self.pushButton_FilterDF_user.clicked.connect(self.trigger_filter_by_user)
 
@@ -234,16 +235,16 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.show_current_tweet()
 
     def trigger_add_one_to_work_list(self):
-        self.add_to_work_list(self.tweet_list[self.current_tweet_index])
         try:
+            self.add_to_work_list(self.tweet_list[self.current_tweet_index])
             self.tweet_list.pop(self.current_tweet_index)
         except IndexError:
             pass
         self.show_current_tweet()
 
     def trigger_drop_one_from_work_list(self):
-        self.drop_from_work_list(self.tweet_list[self.current_tweet_index])
         try:
+            self.drop_from_work_list(self.tweet_list[self.current_tweet_index])
             self.tweet_list.pop(self.current_tweet_index)
         except IndexError:
             pass
@@ -285,7 +286,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         text = f"Index: {ind} of {len(self.tweet_list) - 1}\n"
         if flag_text_only:
-            text += "id:".ljust(15) + f"{tweet.Tweet.tweet_id}\n"
+            text += "id:".ljust(8) + f"{tweet.Tweet.tweet_id}\n"
             text += f"{tweet_full_text}\n"
         else:
             text += "id".ljust(25) + f"{tweet.Tweet.tweet_id}\n"
@@ -296,11 +297,11 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             text += "current_user_retweet".ljust(25) + f"{tweet.Tweet.current_user_retweet}\n"
             text += "favorite_count".ljust(25) + f"{tweet.Tweet.favorite_count}\n"
             text += "favorited".ljust(25) + f"{tweet.Tweet.favorited}\n"
-            text += "full_text".ljust(25) + f"{tweet_full_text}\n"
             text += "hashtags".ljust(25) + f"{tweet.Tweet.hashtags}\n"
             text += "in_reply_to_status_id".ljust(25) + f"{tweet.Tweet.in_reply_to_status_id}\n"
             text += "in_reply_to_user_id".ljust(25) + f"{tweet.Tweet.in_reply_to_user_id}\n"
             text += "location".ljust(25) + f"{tweet.Tweet.location}\n"
+            text += "lang".ljust(25) + f"{tweet.Tweet.lang}\n"
             text += "quoted_status_id".ljust(25) + f"{tweet.Tweet.quoted_status_id}\n"
             text += "retweet_count".ljust(25) + f"{tweet.Tweet.retweet_count}\n"
             text += "retweeted_status_id".ljust(25) + f"{tweet.Tweet.retweeted_status_id}\n"
@@ -308,6 +309,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             text += "user_id".ljust(25) + f"{tweet.Tweet.user_id}\n"
             text += "user_mentions".ljust(25) + f"{tweet.Tweet.user_mentions}\n"
             text += "screen_name".ljust(25) + f"{tweet.User.screen_name}\n"
+            text += "full_text".ljust(25) + f"{tweet_full_text}\n"
         self.display(text)
 
     def request_status_from_box(self):
@@ -450,14 +452,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.spinBox_timefilter_to_hour.setValue(0)
         self.spinBox_timefilter_to_min.setValue(10)
 
-    # def trigger_filter_by_non_empty_key(self):
-    #     text = self.lineEdit_filterKeyinput.text()
-    #     inverted = self.check_settings_inverted()
-    #     valid = self.filter_by_existing_key(text, inverted=inverted)
-    #     if valid:
-    #         self.currTweetDF_ind = 0
-    #         self.show_current_tweet_from_df()
-
     def trigger_filter_by_lang(self, lang=None):
         if not lang:
             lang = self.lineEdit_FilterLangOther.text()
@@ -472,9 +466,18 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             self.pop_window("New list is empty")
         self.show_current_tweet()
 
+    # def trigger_filter_by_non_empty_key(self):
+    #     text = self.lineEdit_filterKeyinput.text()
+    #     inverted = self.check_settings_inverted()
+    #     valid = self.filter_by_existing_key(text, inverted=inverted)
+    #     if valid:
+    #         self.currTweetDF_ind = 0
+    #         self.show_current_tweet_from_df()
+
     def trigger_filter_by_search_words(self):
         words = self.lineEdit_filter_words.text()
-        tweets = self.get_tweets_by_words(words)
+        case_sens = True if self.checkBox_case_sensitivity.checkState() == 2 else False
+        tweets = self.get_tweets_by_words(words, case_sens=case_sens)
         cont, keep = self.check_filtration_settings()
         valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
         if not valid:
@@ -483,7 +486,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
     def trigger_filter_by_search_phrases(self):
         phrase = self.lineEdit_filter_words.text()
-        tweets = self.get_tweets_by_phrases(phrase)
+        case_sens = True if self.checkBox_case_sensitivity.checkState() == 2 else False
+        tweets = self.get_tweets_by_phrases(phrase, case_sens=case_sens)
         cont, keep = self.check_filtration_settings()
         valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
         if not valid:
@@ -497,6 +501,22 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             self.pop_window("This is not correct number")
             return None
         tweets = self.get_tweet_by_id(tweet_id)
+        cont, keep = self.check_filtration_settings()
+        valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+        if not valid:
+            self.pop_window("New list is empty")
+        self.show_current_tweet()
+
+    def trigger_filter_retweets(self):
+        tweets = self.get_retweets()
+        cont, keep = self.check_filtration_settings()
+        valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
+        if not valid:
+            self.pop_window("New list is empty")
+        self.show_current_tweet()
+
+    def trigger_filter_quotes(self):
+        tweets = self.get_quotes()
         cont, keep = self.check_filtration_settings()
         valid = self.set_tweet_list(tweets, continuous=cont, keep_found=keep)
         if not valid:

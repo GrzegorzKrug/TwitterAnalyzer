@@ -365,7 +365,7 @@ def filter_by_timestamp(Session, tstmp_min, tstmp_max):
 #     return tweets
 
 
-def filter_db_search_words(Session, input_string):
+def filter_db_search_words(Session, input_string, case_sens=False):
     """
 
     Args:
@@ -375,42 +375,74 @@ def filter_db_search_words(Session, input_string):
     Returns:
 
     """
-    try:
+    if not case_sens:
         input_string = input_string.lower()
-        stages = re.split(r"[;]", input_string)
 
-        for stage_ind, stage in enumerate(stages):
-            words = re.split(r"[,. !@#$%^&*]", stage)
-            for i, word in enumerate(words):
-                word = ''.join(letter for letter in word if letter not in "!?,. ;'\\\"()!@#$%^&*()_)+_-[]")
-                word = word.lstrip(" ").rstrip(" ")
-                words[i] = word
-            words = [word for word in words if len(word) > 0]
-            stages[stage_ind] = words
-        stages = [stage for stage in stages if len(stage) > 0]
+    stages = re.split(r"[;]", input_string)
 
-        if len(stages) < 1:
-            return None
+    for stage_ind, stage in enumerate(stages):
+        words = re.split(r"[,. !@#$%^&*]", stage)
+        for i, word in enumerate(words):
+            "Drop symbols"
+            word = ''.join(letter for letter in word if letter not in "!?,. ;'\\\"()!@#$%^&*()_)+_-[]")
+            word = word.lstrip(" ").rstrip(" ")
+            words[i] = word
+        words = [word for word in words if len(word) > 0]
+        stages[stage_ind] = words
+    stages = [stage for stage in stages if len(stage) > 0]
 
+    if len(stages) < 1:
+        return None
+
+    tweets = filter_db_by_text_stages(Session, stages, case_sens=case_sens)
+    return tweets
+
+
+def filter_db_by_text_stages(Session, stages, case_sens=False):
+    """
+    Filters database using 2d list of text
+    Args:
+        Session:
+        stages:
+            2d list containing lists of text to be found in each consecutive stage
+            Example:
+                stages = [['Hello', 'Sir'], ['today']]
+                Example output will be all tweets containing words: 'Hello' and 'Sir',
+                next it is filtered by next stage and droped if there is no word 'today'
+
+        case_sense:
+
+    Returns:
+    tweet index list
+    """
+    try:
         session = Session()
 
         tweets = []
         logger.debug(f"Searching tweets, staged: {stages}")
 
+        "Initial search creates array"
         words = stages[0]
         for word in words:
-            output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
-                      word.lower() in tweet[1].lower()]
+            if case_sens:
+                output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
+                          word in tweet[1]]
+            else:
+                output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
+                          word.lower() in tweet[1].lower()]
             tweets += output
 
+        "Filter results"
         tweets = set(tweets)  # drop duplicates
-        for run_ind in range(1, len(stages)):
-            stage = stages[run_ind]
-            old_tweets = tweets.copy()
+        for stage_id in range(1, len(stages)):
+            curr_st = stages[stage_id]
+            temp_tweets = tweets.copy()
             tweets = []
-            for tweet in old_tweets:
-                for word in stage:
-                    if word in tweet[1].lower():
+            for tweet in temp_tweets:
+                for text in curr_st:
+                    if case_sens and text in tweet[1]:
+                        tweets.append(tweet)
+                    elif text in tweet[1].lower():
                         tweets.append(tweet)
                         break
 
@@ -421,7 +453,7 @@ def filter_db_search_words(Session, input_string):
         return None
 
 
-def filter_db_search_phrases(Session, phrases):
+def filter_db_search_phrases(Session, phrases, case_sens=False):
     """
     Searching exact phrase with case sensitive
     Args:
@@ -431,21 +463,34 @@ def filter_db_search_phrases(Session, phrases):
     Returns:
 
     """
-    try:
-        stages = re.split(r'[;]', phrases)  # Separating stages
-        for i, word in enumerate(stages):
-            # word = ''.join(letter for letter in word if letter not in "'\\\"()@#$%^&*()_)+_-[]")
-            word = word.lstrip(" ").rstrip(" ")
-            stages[i] = word
-        phrases = [phrases for phrases in stages if len(phrases) > 0]
+    if not case_sens:
+        phrases = phrases.lower()
 
+    stages = re.split(r'[;]', phrases)  # Separating stages
+    for i, word in enumerate(stages):
+        word = word.lstrip(" ").rstrip(" ")
+        stages[i] = word
+    phrases = [[phrases] for phrases in stages if len(phrases) > 0]
+
+    tweets = filter_db_by_text_stages(Session, phrases, case_sens=case_sens)
+    return tweets
+
+
+def filter_retweets(Session):
+    try:
         session = Session()
-        tweets = []
-        logger.debug(f"Searching tweets, phrases: {phrases}")
-        for phrase in phrases:
-            output = [tweet for tweet in session.query(Tweet.tweet_id, Tweet.full_text).all() if
-                      phrase in tweet[1]]
-            tweets += output
+        tweets = session.query(Tweet.tweet_id).filter(Tweet.retweeted_status_id != 'None').all()
+        session.close()
+        return tweets
+    except OperationalError as oe:
+        logger.error(f"Operational error: is database running?")
+        return None
+
+
+def filter_quotes(Session):
+    try:
+        session = Session()
+        tweets = session.query(Tweet.tweet_id).filter(Tweet.quoted_status_id != 'None').all()
         session.close()
         return tweets
     except OperationalError as oe:
