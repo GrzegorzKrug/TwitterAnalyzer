@@ -45,26 +45,26 @@ class TextProcessor:
 
     def full_preprocess(self, input_object):
         if type(input_object) is str:
-            output = self.process_text(input_object)
+            output = self._process_text(input_object)
         elif type(input_object) is list or type(input_object) is np.ndarray:
             if type(input_object[0, 0]) is str or type(input_object[0, 0] is np.str_):
-                output = self.process_list(input_object)
+                output = self._process_list(input_object)
             else:
                 raise TypeError(f"Input type is unkown to TextProcessor: {type(input_object[0, 1])}")
         else:
             raise TypeError(f"Input type is unkown to TextProcessor: {type(input_object)}")
         return output
 
-    def process_list(self, array):
+    def _process_list(self, array):
         output = []
         for num, text in array:
-            tokens = self.process_text(text)
+            tokens = self._process_text(text)
             output.append([num, tokens])
             # self.logger.debug(f"output: {num}, {tokens}")
         output = np.array(output)
         return output
 
-    def process_text(self, text):
+    def _process_text(self, text):
         text = text.lower()
         if self.lang.lower() == 'polish':
             text = self.remove_polish_letters(text)
@@ -316,6 +316,23 @@ class Analyzer:
             data = np.array(data)
             return data
 
+    def create_bag_of_word(self, counted_words, minimum=3000, max_fraction=0.3):
+        counted_words.sort(key=lambda x: x[1], reverse=True)
+        mx_frac = int(len(counted_words) * max_fraction)
+        words = [word for word, number in counted_words]
+        if minimum > mx_frac:
+            bow = words[:minimum]
+        else:
+            bow = words[:mx_frac]
+
+        self.logger.info(f"Bag of words size: {len(bow)}, min: {minimum}, mx_frac: {mx_frac}")
+        self.bow = bow
+        return bow.copy()
+
+    def get_bag(self, tokens):
+        out = [1 if word in tokens else 0 for word in self.bow]
+        return out
+
     def create_new_LDA_movel(self):
         print("Creating LDA model")
         words = self.data[:, 1]
@@ -324,7 +341,6 @@ class Analyzer:
         print(dict)
 
         bow = [dict.doc2bow(text) for text in words]
-        self.bow = bow
 
         lda = gensim.models.LdaMulticore(bow, num_topics=self.topics, id2word=dict,
                                          passes=self.passes, iterations=self.iterations)
@@ -414,13 +430,13 @@ if __name__ == '__main__':
                     os.path.abspath(__file__))),
             'exports')
 
-    all_files = glob.glob(os.path.join(directory, 'en*.csv'), recursive=True)
+    all_files = glob.glob(os.path.join(directory, 'pl*.csv'), recursive=True)
     file = all_files[-1]
     print(f"Selected file: {file}")
 
     topics = 2
     app = Analyzer(file_path=all_files[-1], model_name='tp-3', passes=100, iterations=1000, topics=topics,
-                   no_below=2, no_above=0.5, lang='english')
+                   no_below=2, no_above=0.5, lang='polish')
 
     if app.lda:
         app.print_topics()
@@ -431,6 +447,11 @@ if __name__ == '__main__':
             word, num = count[ind]
             app.logger.debug(f"{num:>4}: {word}")
         app.logger.info(f"All unique words: {len(count)}")
+
+        app.create_bag_of_word(count)
+        tokens = ['trz', '_l', 'cz']
+        bag = app.get_bag(tokens)
+        print(bag)
 
     # for x in range(10):
     #     tweet = app.bow[x]

@@ -26,7 +26,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         self._init_triggers()
         self._init_settings()
-
+        self._init_table_widget()
         self._loaded_files = []  # Last loaded files, for reloading
         self.current_tweet_selected = -1  # Current tweet index from DF
 
@@ -83,7 +83,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.trigger_filter_by_lang('pl'))
         self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.trigger_filter_by_lang('en'))
         self.pushButton_FilterDF_Lang_Other.clicked.connect(self.trigger_filter_by_lang)
-        # self.pushButton_FilterDF_by_NonEmptyKey.clicked.connect(self.trigger_filter_by_non_empty_key)
         self.pushButton_FilterDF_TweetID.clicked.connect(self.trigger_filter_by_tweet_id)
         self.pushButton_filter_by_Age.clicked.connect(self.trigger_filter_by_age)
         self.pushButton_filter_by_Date.clicked.connect(self.trigger_filter_by_date)
@@ -93,8 +92,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
                 lambda: self.trigger_filter_by_search_phrases())
         self.pushButton_find_retweets.clicked.connect(self.trigger_filter_retweets)
         self.pushButton_filter_quoted_tweets.clicked.connect(self.trigger_filter_quotes)
-        # self.pushButton_drop_old_duplicates.clicked.connect(self.trigger_drop_old_duplicates)
-        # self.pushButton_FilterDF_user.clicked.connect(self.trigger_filter_by_user)
 
         'Time spinboxes'
         self.pushButton_reset_time.clicked.connect(self.time_spinboxes_reset_time)
@@ -102,10 +99,17 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         'Analyze Buttons'
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
+        'Labeling'
+        self.pushButton_add_label1.clicked.connect(lambda: self.dataset_add_row())
+        self.pushButton_add_label2.clicked.connect(lambda: self.dataset_read_row(5))
 
     def _init_settings(self):
         self.text_box_update_settings()
         self.update_chk_box_filtration()
+
+    def _init_table_widget(self):
+        self.tableWidget_labeled_data.horizontalHeaderItem(0).setText("tweet_id")
+        self.tableWidget_labeled_data.horizontalHeaderItem(1).setText("label")
 
     @staticmethod
     def add_timestamp_to_text(text):
@@ -311,6 +315,32 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             text += "screen_name".ljust(25) + f"{tweet.User.screen_name}\n"
             text += "full_text".ljust(25) + f"{tweet_full_text}\n"
         self.display(text)
+
+    def dataset_add_row(self, id=5, label=10):
+        for x in range(100):
+            row_id = self.tableWidget_labeled_data.rowCount()
+            self.tableWidget_labeled_data.insertRow(row_id)
+
+            item = QtWidgets.QTableWidgetItem()
+            self.tableWidget_labeled_data.setItem(row_id, 0, item)
+            item.setText(f"{row_id}")
+
+            item = QtWidgets.QTableWidgetItem()
+            self.tableWidget_labeled_data.setItem(row_id, 1, item)
+            item.setText(f"{label}")
+
+            self.tableWidget_labeled_data.selectRow(row_id)
+
+    def dataset_read_row(self, row_id):
+        for row_id in range(self.tableWidget_labeled_data.rowCount()):
+            try:
+                item1 = self.tableWidget_labeled_data.item(row_id, 0)
+                item2 = self.tableWidget_labeled_data.item(row_id, 1)
+
+                self.logger.info(f"reading row: {row_id}")
+                self.logger.info(f"item1: {item1.text()}. item2: {item2.text()}")
+            except AttributeError as ae:
+                self.logger.error(f"{ae}")
 
     def request_status_from_box(self):
         """
