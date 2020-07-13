@@ -316,31 +316,38 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             text += "full_text".ljust(25) + f"{tweet_full_text}\n"
         self.display(text)
 
-    def dataset_add_row(self, id=5, label=10):
-        for x in range(100):
-            row_id = self.tableWidget_labeled_data.rowCount()
-            self.tableWidget_labeled_data.insertRow(row_id)
+    def dataset_add_row(self, tweet_id=0, label=0):
+        row_id = self.tableWidget_labeled_data.rowCount()
+        self.tableWidget_labeled_data.insertRow(row_id)
+        self.dataset_set_row(row_id, row_id, row_id * 2)
 
-            item = QtWidgets.QTableWidgetItem()
-            self.tableWidget_labeled_data.setItem(row_id, 0, item)
-            item.setText(f"{row_id}")
+    def dataset_set_row(self, row_id, tweet_id, label):
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget_labeled_data.setItem(row_id, 0, item)
+        item.setText(f"{tweet_id}")
 
-            item = QtWidgets.QTableWidgetItem()
-            self.tableWidget_labeled_data.setItem(row_id, 1, item)
-            item.setText(f"{label}")
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget_labeled_data.setItem(row_id, 1, item)
+        item.setText(f"{label}")
 
-            self.tableWidget_labeled_data.selectRow(row_id)
+        self.tableWidget_labeled_data.selectRow(row_id)
+
+    def dataset_read_all_rows(self):
+        for row_id in range(self.tableWidget_labeled_data.rowCount()):
+            yield self.dataset_read_row(row_id)
 
     def dataset_read_row(self, row_id):
-        for row_id in range(self.tableWidget_labeled_data.rowCount()):
-            try:
-                item1 = self.tableWidget_labeled_data.item(row_id, 0)
-                item2 = self.tableWidget_labeled_data.item(row_id, 1)
+        try:
+            item1 = self.tableWidget_labeled_data.item(row_id, 0)
+            item2 = self.tableWidget_labeled_data.item(row_id, 1)
 
-                self.logger.info(f"reading row: {row_id}")
-                self.logger.info(f"item1: {item1.text()}. item2: {item2.text()}")
-            except AttributeError as ae:
-                self.logger.error(f"{ae}")
+            t1 = item1.text()
+            t2 = item2.text()
+            return t1, t2
+
+        except AttributeError as ae:
+            self.logger.error(f"{ae}")
+            return None, None
 
     def request_status_from_box(self):
         """
