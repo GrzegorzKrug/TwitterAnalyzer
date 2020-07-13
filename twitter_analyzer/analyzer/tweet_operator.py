@@ -47,7 +47,7 @@ class TwitterOperator(TwitterApi):
 
         if auto_login:
             valid = self.verify_procedure()
-            self.logger.debug(f"Credentials are valid: '{valid}'")
+            self.logger.info(f"Credentials are valid: '{valid}'")
 
     def debug(self):
         self.logger.debug("Operator debug:")
@@ -113,7 +113,7 @@ class TwitterOperator(TwitterApi):
                 self.collect_tweets_on_home_tab(chunk_size=chunk_size)
 
             except TooManyRequests as e:
-                self.logger.warning(f"Too many requests: {e}")
+                self.logger.debug(f"Too many requests: {e}")
                 self.logger.debug('Repeating chunk {} / {} after 21s.'.format(ch, n))
                 time.sleep(21)
                 continue
@@ -122,7 +122,7 @@ class TwitterOperator(TwitterApi):
                 self.logger.critical(str(e))
                 return False
 
-            self.logger.debug(f"Tweets chunk saved: {ch} / {n}")
+            self.logger.info(f"Tweets chunk saved: {ch} / {n}")
 
             if ch >= n:
                 break
@@ -275,7 +275,7 @@ class TwitterOperator(TwitterApi):
                 for th in threads:
                     th.join()
                 threads = []
-                self.logger.debug(f"Fetching status progress: {st / n * 100:^2.2f}% ({st:>4} / {n})")
+                self.logger.info(f"Fetching status progress: {st / n * 100:^2.2f}% ({st:>4} / {n})")
 
             th = self.fork_method(
                     method_to_fork=self.collect_status_list_thread,
@@ -286,7 +286,7 @@ class TwitterOperator(TwitterApi):
         for th in threads:
             th.join()
 
-        self.logger.debug(f"Tweet list download has finished. Length: {n}")
+        self.logger.info(f"Tweet list download has finished. Length: {n}")
         return True
 
     @staticmethod
@@ -304,8 +304,8 @@ class TwitterOperator(TwitterApi):
                     return None
 
             except TooManyRequests as tmr:
-                _app.logger.warning(f"Collect status list: {tmr}")
-                time.sleep(120)
+                _app.logger.debug(f"Too many requests: {tmr}")
+                time.sleep(60)
 
             except TweetNotFoundError as nf:
                 _app.logger.error(f"TweetNotFoundError: {tweet_id}, {nf}")
@@ -420,7 +420,7 @@ class TwitterOperator(TwitterApi):
 
             else:
                 self.tweet_list = tweet_list
-            self.logger.debug(f"New tweet list lenght: {len(self.tweet_list)}")
+            self.logger.info(f"New tweet list length: {len(self.tweet_list)}")
             self.current_tweet_index = 0
             return True
         else:
@@ -438,6 +438,7 @@ class TwitterOperator(TwitterApi):
             return None
 
     def get_quotes(self):
+        """Find tweets that have quoted other tweets"""
         self.logger.debug(f"Requesting retweets")
         tweets = filter_quotes(self.Session)
         if tweets:

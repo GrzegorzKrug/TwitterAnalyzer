@@ -3,7 +3,7 @@ version: '3.3'
 services:
   postgres_db:
     image: postgres:10.0-alpine
-    command: postgres -c 'max_connections=500'
+    command: postgres -c max_connections=500
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     environment:
@@ -12,6 +12,7 @@ services:
       - POSTGRES_PASSWORD=docker
     ports:
       - 5432:5432
+    restart: always
 
   db_initiator:
     build:

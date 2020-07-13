@@ -40,6 +40,7 @@ def define_logger(name="Logger", log_level="DEBUG", combined=True, add_timestamp
                                  mode='a')
 
     ch = logging.StreamHandler()
+    ch.setLevel("INFO")
 
     # Log Formatting
     formatter = logging.Formatter(
