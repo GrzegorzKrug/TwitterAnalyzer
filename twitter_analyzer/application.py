@@ -326,9 +326,9 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     def dataset_add_row(self, tweet_id=0, label=0):
         row_id = self.tableWidget_labeled_data.rowCount()
         self.tableWidget_labeled_data.insertRow(row_id)
-        self.dataset_set_row(row_id, tweet_id, label)
+        self.dataset_change_row(row_id, tweet_id, label)
 
-    def dataset_set_row(self, row_id, tweet_id, label):
+    def dataset_change_row(self, row_id, tweet_id, label):
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget_labeled_data.setItem(row_id, 0, item)
         item.setText(f"{tweet_id}")
