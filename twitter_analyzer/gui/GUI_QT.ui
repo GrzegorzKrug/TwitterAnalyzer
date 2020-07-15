@@ -870,7 +870,7 @@
            </rect>
           </property>
           <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
+           <set>QAbstractItemView::DoubleClicked</set>
           </property>
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectRows</enum>
@@ -896,13 +896,29 @@
           <property name="geometry">
            <rect>
             <x>160</x>
-            <y>40</y>
+            <y>10</y>
             <width>141</width>
             <height>21</height>
            </rect>
           </property>
           <property name="text">
            <string>Clear Table</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="button_clear_selected_labels">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>40</y>
+            <width>141</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 180, 180);</string>
+          </property>
+          <property name="text">
+           <string>Remove Selected rows</string>
           </property>
          </widget>
         </widget>

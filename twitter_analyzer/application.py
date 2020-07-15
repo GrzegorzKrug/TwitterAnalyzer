@@ -101,12 +101,12 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         'Analyze Buttons'
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
-        
+
         'Labeling'
         self.button_save_labeled_data.clicked.connect(self.trigger_save_labeled_data)
         self.button_load_labeled_data.clicked.connect(self.trigger_load_labeled_data)
         self.button_clear_labels_table.clicked.connect(self.dataset_clear_data)
-
+        self.button_clear_selected_labels.clicked.connect(self.trigger_remove_selection_labeled_data)
         self.pushButton_add_label1.clicked.connect(lambda: self.dataset_add_row())
         self.pushButton_add_label2.clicked.connect(lambda: self.dataset_read_row(5))
 
@@ -326,7 +326,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
     def dataset_add_row(self, tweet_id=0, label=0):
         row_id = self.tableWidget_labeled_data.rowCount()
         self.tableWidget_labeled_data.insertRow(row_id)
-        self.dataset_set_row(row_id, row_id, row_id * 2)
+        self.dataset_set_row(row_id, tweet_id, label)
 
     def dataset_set_row(self, row_id, tweet_id, label):
         item = QtWidgets.QTableWidgetItem()
@@ -339,6 +339,17 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         self.tableWidget_labeled_data.selectRow(row_id)
 
+    def trigger_remove_selection_labeled_data(self):
+        sel = self.tableWidget_labeled_data.selectedIndexes()
+        to_remove = list(set(ob.row() for ob in sel))
+        to_remove.sort(reverse=True)
+        self.logger.info(f"Deleting table indexes: {to_remove}")
+        for num in to_remove:
+            self.data_set_remove_row(num)
+
+    def data_set_remove_row(self, row):
+        self.tableWidget_labeled_data.removeRow(row)
+
     def trigger_save_labeled_data(self):
         f_name = "labels"
         data = [(tweet, label) for tweet, label in self.dataset_read_all_rows()]
@@ -346,13 +357,12 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
     def trigger_load_labeled_data(self):
         f_name = "labels.npy"
-        # data = [(tweet, label) for tweet, label in self.dataset_read_all_rows()]
         if os.path.isfile(f_name):
             data = np.load(f_name, allow_pickle=True)
             self.dataset_clear_data()
 
-            for id, label in data:
-                self.dataset_add_row(id, label)
+            for num, label in data:
+                self.dataset_add_row(num, label)
         else:
             self.logger.warning(f"Can not load labels, file not found")
 
