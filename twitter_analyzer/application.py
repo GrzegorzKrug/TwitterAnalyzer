@@ -10,10 +10,12 @@ from analyzer.tasks import (
     download_parent_tweets, collect_status_list, export_tweets_to_csv
 )
 
+import numpy as np
 import webbrowser
 import datetime
 import traceback
 import sys
+import os
 
 
 class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
@@ -99,7 +101,12 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
 
         'Analyze Buttons'
         # self.pushButton_analyze_unique_vals.clicked.connect(self.trigger_analyze_unique)
+        
         'Labeling'
+        self.button_save_labeled_data.clicked.connect(self.trigger_save_labeled_data)
+        self.button_load_labeled_data.clicked.connect(self.trigger_load_labeled_data)
+        self.button_clear_labels_table.clicked.connect(self.dataset_clear_data)
+
         self.pushButton_add_label1.clicked.connect(lambda: self.dataset_add_row())
         self.pushButton_add_label2.clicked.connect(lambda: self.dataset_read_row(5))
 
@@ -331,6 +338,27 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         item.setText(f"{label}")
 
         self.tableWidget_labeled_data.selectRow(row_id)
+
+    def trigger_save_labeled_data(self):
+        f_name = "labels"
+        data = [(tweet, label) for tweet, label in self.dataset_read_all_rows()]
+        np.save(f_name, data)
+
+    def trigger_load_labeled_data(self):
+        f_name = "labels.npy"
+        # data = [(tweet, label) for tweet, label in self.dataset_read_all_rows()]
+        if os.path.isfile(f_name):
+            data = np.load(f_name, allow_pickle=True)
+            self.dataset_clear_data()
+
+            for id, label in data:
+                self.dataset_add_row(id, label)
+        else:
+            self.logger.warning(f"Can not load labels, file not found")
+
+    def dataset_clear_data(self):
+        self.tableWidget_labeled_data.clearContents()
+        self.tableWidget_labeled_data.setRowCount(0)
 
     def dataset_read_all_rows(self):
         for row_id in range(self.tableWidget_labeled_data.rowCount()):

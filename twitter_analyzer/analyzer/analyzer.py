@@ -317,6 +317,8 @@ class Analyzer:
             return data
 
     def create_bag_of_word(self, counted_words, minimum=3000, max_fraction=0.3):
+        if type(counted_words) is dict:
+            counted_words = list(counted_words.items())
         counted_words.sort(key=lambda x: x[1], reverse=True)
         mx_frac = int(len(counted_words) * max_fraction)
         words = [word for word, number in counted_words]
@@ -329,7 +331,7 @@ class Analyzer:
         self.bow = bow
         return bow.copy()
 
-    def get_bag(self, tokens):
+    def get_bow_features(self, tokens):
         out = [1 if word in tokens else 0 for word in self.bow]
         return out
 
@@ -407,21 +409,23 @@ class Analyzer:
     def get_all_words(self):
         """
         Returns:
+
             list of all words in this data set, duplicates can occur in list
-            list - pair <word, number> sorted A..Z
+
+            dictionary - pair <word, number> sorted A..Z
         """
-        all_words = []
+        word_list = []
         count = {}
         for pair in self.data:
             words = pair[1]
             for w in words:
                 cur_count = count.get(w, 0)
                 count.update({w: cur_count + 1})
-            all_words += words
-        all_words.sort()
-        count = list(count.items())
-        count.sort(key=lambda x: (x[0], x[1]), reverse=False)
-        return all_words, count
+            word_list += words
+        word_list.sort()
+        # count = list(count.items())
+        # count.sort(key=lambda x: (x[0], x[1]), reverse=False)
+        return word_list, count
 
 
 if __name__ == '__main__':
@@ -442,16 +446,15 @@ if __name__ == '__main__':
         app.print_topics()
 
     if app.data is not None:
-        all_words, count = app.get_all_words()
-        for ind in range(len(count)):
-            word, num = count[ind]
+        word_list, count = app.get_all_words()
+        for word, num in count.items():
             app.logger.debug(f"{num:>4}: {word}")
         app.logger.info(f"All unique words: {len(count)}")
 
         app.create_bag_of_word(count)
         tokens = ['trz', '_l', 'cz']
-        bag = app.get_bag(tokens)
-        print(bag)
+        print(count['trz'])
+        features = app.get_bow_features(tokens)
 
     # for x in range(10):
     #     tweet = app.bow[x]
