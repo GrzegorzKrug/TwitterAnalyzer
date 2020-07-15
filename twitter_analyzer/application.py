@@ -121,6 +121,12 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_add_label4.clicked.connect(self.trigger_dataset_label4)
         self.pushButton_add_label5.clicked.connect(self.trigger_dataset_label5)
 
+        self.pushButton_add_label1_aslist.clicked.connect(self.trigger_dataset_label_list1)
+        self.pushButton_add_label2_aslist.clicked.connect(self.trigger_dataset_label_list2)
+        self.pushButton_add_label3_aslist.clicked.connect(self.trigger_dataset_label_list3)
+        self.pushButton_add_label4_aslist.clicked.connect(self.trigger_dataset_label_list4)
+        self.pushButton_add_label5_aslist.clicked.connect(self.trigger_dataset_label_list5)
+
     def _init_settings(self):
         self.text_box_update_settings()
         self.update_chk_box_filtration()
@@ -219,13 +225,17 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         return wrapper
 
     @staticmethod
-    def pop_window(text):
+    def pop_window(text, error=False):
         """Window popup with customizable text"""
         if len(text) > 0:
             msg = QtWidgets.QMessageBox()
             msg.setText(text)
-            msg.setWindowTitle("Warning!")
-            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            if error:
+                msg.setWindowTitle("Error!")
+                msg.setIcon(QMessageBox.Critical)
+            else:
+                msg.setWindowTitle("Warning!")
+                msg.setIcon(QMessageBox.Warning)
             msg.exec()
 
     @staticmethod
@@ -363,10 +373,14 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         try:
             ind = int(ind)
         except ValueError:
-            self.logger.error(f"Can not show tweet, this is not number {ind}")
+            err = f"Can not show tweet, this is not number {ind}"
+            self.logger.error(err)
+            self.pop_window(err, error=True)
             return None
+
         if len(self.tweet_list) < 1:
             self.logger.warning(f"Tweet list is empty. Can not display tweet")
+            self.display("Tweet list is empty. Can not display tweet")
             return None
 
         flag_hide_empty = True if self.checkBox_HideEmptyValues.checkState() == 2 else False
@@ -415,6 +429,30 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         row_id = self.tableWidget_labeled_data.rowCount()
         self.tableWidget_labeled_data.insertRow(row_id)
         self.dataset_change_row(row_id, tweet_id, label)
+
+    def trigger_add_label_to_list(self, label):
+        if self.tweet_list:
+            for tweet in self.tweet_list:
+                self.dataset_add_row(tweet, label)
+            self.tweet_list = []
+            self.show_current_tweet()
+        else:
+            self.pop_window("Tweet list is empty!", error=True)
+
+    def trigger_dataset_label_list1(self):
+        self.trigger_add_label_to_list(1)
+
+    def trigger_dataset_label_list2(self):
+        self.trigger_add_label_to_list(2)
+
+    def trigger_dataset_label_list3(self):
+        self.trigger_add_label_to_list(3)
+
+    def trigger_dataset_label_list4(self):
+        self.trigger_add_label_to_list(4)
+
+    def trigger_dataset_label_list5(self):
+        self.trigger_add_label_to_list(5)
 
     def trigger_dataset_label1(self):
         self.trigger_add_tweet_label(1)
@@ -568,8 +606,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             self.show_current_tweet()
 
         except ValueError as ve:
-            self.pop_window(str(ve))
             self.logger.error(str(ve))
+            self.pop_window(f"{ve}", error=True)
 
     def trigger_filter_by_date(self):
         try:
@@ -603,8 +641,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             self.show_current_tweet()
 
         except ValueError as ve:
-            self.pop_window(f"{ve}")
             self.logger.error(f"Value Error: {ve}")
+            self.pop_window(f"{ve}", error=True)
 
     def time_spinboxes_set_current_time(self):
         now = datetime.datetime.now()
