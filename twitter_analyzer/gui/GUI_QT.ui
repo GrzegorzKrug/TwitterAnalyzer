@@ -946,6 +946,9 @@
             <height>41</height>
            </rect>
           </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 207, 207);</string>
+          </property>
           <property name="text">
            <string>Add list as</string>
           </property>
@@ -958,6 +961,9 @@
             <width>101</width>
             <height>41</height>
            </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 207, 207);</string>
           </property>
           <property name="text">
            <string>Add list as</string>
@@ -972,6 +978,9 @@
             <height>41</height>
            </rect>
           </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 207, 207);</string>
+          </property>
           <property name="text">
            <string>Add list as</string>
           </property>
@@ -984,6 +993,9 @@
             <width>101</width>
             <height>41</height>
            </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 207, 207);</string>
           </property>
           <property name="text">
            <string>Add list as</string>
@@ -998,8 +1010,27 @@
             <height>41</height>
            </rect>
           </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 207, 207);</string>
+          </property>
           <property name="text">
            <string>Add list as</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButton_show_labeled_tweets">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>310</x>
+            <y>10</y>
+            <width>111</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Show tweet</string>
           </property>
          </widget>
         </widget>

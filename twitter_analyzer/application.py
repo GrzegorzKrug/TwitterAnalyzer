@@ -126,6 +126,7 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_add_label3_aslist.clicked.connect(self.trigger_dataset_label_list3)
         self.pushButton_add_label4_aslist.clicked.connect(self.trigger_dataset_label_list4)
         self.pushButton_add_label5_aslist.clicked.connect(self.trigger_dataset_label_list5)
+        self.pushButton_show_labeled_tweets.clicked.connect(self.trigger_show_labeled_tweets)
 
     def _init_settings(self):
         self.text_box_update_settings()
@@ -492,6 +493,14 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         item.setText(f"{label}")
 
         self.tableWidget_labeled_data.selectRow(row_id)
+
+    def trigger_show_labeled_tweets(self):
+        sel = self.tableWidget_labeled_data.selectedIndexes()
+        rows = list(set(ob.row() for ob in sel))
+        new_list = [int(self.dataset_read_row(row)[0]) for row in rows]
+
+        self.set_tweet_list(new_list)
+        self.show_current_tweet()
 
     def trigger_remove_selection_labeled_data(self):
         sel = self.tableWidget_labeled_data.selectedIndexes()
