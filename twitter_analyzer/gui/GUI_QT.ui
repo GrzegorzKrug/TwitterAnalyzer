@@ -776,7 +776,7 @@
            </rect>
           </property>
           <property name="plainText">
-           <string>Negative</string>
+           <string>Neutral</string>
           </property>
          </widget>
          <widget class="QPlainTextEdit" name="plainTextEdit_3">
@@ -789,7 +789,7 @@
            </rect>
           </property>
           <property name="plainText">
-           <string>Neutral</string>
+           <string>Negative</string>
           </property>
          </widget>
          <widget class="QPlainTextEdit" name="plainTextEdit_4">
@@ -865,8 +865,8 @@
            <rect>
             <x>10</x>
             <y>70</y>
-            <width>291</width>
-            <height>261</height>
+            <width>410</width>
+            <height>281</height>
            </rect>
           </property>
           <property name="editTriggers">
@@ -881,6 +881,9 @@
           <property name="columnCount">
            <number>2</number>
           </property>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>200</number>
+          </attribute>
           <column>
            <property name="text">
             <string>tweet_index</string>
@@ -919,6 +922,19 @@
           </property>
           <property name="text">
            <string>Remove Selected rows</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButton_check_label_duplicates">
+          <property name="geometry">
+           <rect>
+            <x>310</x>
+            <y>40</y>
+            <width>111</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Check duplicates</string>
           </property>
          </widget>
         </widget>
@@ -1177,6 +1193,26 @@
           </property>
           <property name="text">
            <string>Add to work List</string>
+          </property>
+         </widget>
+        </item>
+        <item row="28" column="0">
+         <widget class="QPushButton" name="pushButton_export_work_list_to_file">
+          <property name="toolTip">
+           <string>Save worklist to file</string>
+          </property>
+          <property name="text">
+           <string>Export WL</string>
+          </property>
+         </widget>
+        </item>
+        <item row="28" column="1">
+         <widget class="QPushButton" name="pushButton_import_work_list_from_file">
+          <property name="toolTip">
+           <string>Import worklist from file</string>
+          </property>
+          <property name="text">
+           <string>Import WL</string>
           </property>
          </widget>
         </item>

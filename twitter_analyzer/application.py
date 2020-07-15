@@ -2,6 +2,7 @@
 # Grzegorz Krug
 
 from PyQt5 import QtCore, QtWidgets  # QtGui
+from PyQt5.QtWidgets import QMessageBox
 
 from twitter_analyzer.analyzer.tweet_operator import TwitterOperator
 from twitter_analyzer.gui.gui import Ui_MainWindow
@@ -31,6 +32,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self._init_table_widget()
         self._loaded_files = []  # Last loaded files, for reloading
         self.current_tweet_selected = -1  # Current tweet index from DF
+        self.app_dir = 'app-files'
+        os.makedirs(self.app_dir, exist_ok=True)
 
     def _init_triggers(self):
         self.actionLogin.triggered.connect(self.validate_credentials)
@@ -39,7 +42,8 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.actionRestart.triggered.connect(lambda: self.__init__(*self.args))
 
         "Debug Actions"
-        self.actionDebugUsers.triggered.connect(lambda: self.request_followers())
+        # self.actionDebugUsers.triggered.connect(lambda: self.request_followers())
+        self.actionAction1.triggered.connect(self.pop_window_with_buttons)
 
         'Requesting methods'
         self.pushButton_Request_Status.clicked.connect(self.request_status_from_box)
@@ -81,6 +85,9 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.pushButton_load_work_list.clicked.connect(self.trigger_load_work_list)
         self.pushButton_clear_work_list.clicked.connect(self.clear_work_list)
 
+        self.pushButton_export_work_list_to_file.clicked.connect(self.trigger_export_worklist)
+        self.pushButton_import_work_list_from_file.clicked.connect(self.trigger_import_worklist)
+
         'Filtration Buttons'
         self.pushButton_FilterDF_Lang_Polish.clicked.connect(lambda: self.trigger_filter_by_lang('pl'))
         self.pushButton_FilterDF_Lang_English.clicked.connect(lambda: self.trigger_filter_by_lang('en'))
@@ -107,8 +114,12 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.button_load_labeled_data.clicked.connect(self.trigger_load_labeled_data)
         self.button_clear_labels_table.clicked.connect(self.dataset_clear_data)
         self.button_clear_selected_labels.clicked.connect(self.trigger_remove_selection_labeled_data)
-        self.pushButton_add_label1.clicked.connect(lambda: self.dataset_add_row())
-        self.pushButton_add_label2.clicked.connect(lambda: self.dataset_read_row(5))
+        self.pushButton_check_label_duplicates.clicked.connect(self.trigger_check_duplicates_in_labels)
+        self.pushButton_add_label1.clicked.connect(self.trigger_dataset_label1)
+        self.pushButton_add_label2.clicked.connect(self.trigger_dataset_label2)
+        self.pushButton_add_label3.clicked.connect(self.trigger_dataset_label3)
+        self.pushButton_add_label4.clicked.connect(self.trigger_dataset_label4)
+        self.pushButton_add_label5.clicked.connect(self.trigger_dataset_label5)
 
     def _init_settings(self):
         self.text_box_update_settings()
@@ -213,7 +224,33 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         if len(text) > 0:
             msg = QtWidgets.QMessageBox()
             msg.setText(text)
+            msg.setWindowTitle("Warning!")
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
             msg.exec()
+
+    @staticmethod
+    def pop_window_with_buttons(text='none', informative_text=None, details=None, title=None):
+        """Window popup with customizable text and three buttons"""
+        msg = QtWidgets.QMessageBox()
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+        msg.setDefaultButton(QMessageBox.Yes)
+        msg.setIcon(QMessageBox.Question)
+        msg.setText(f"{text}")
+        if title:
+            msg.setWindowTitle(str(title))
+        if informative_text:
+            msg.setInformativeText(f"{informative_text}")
+        if details:
+            msg.setDetailedText(f"{details}")
+        click = msg.exec()
+        if click == QMessageBox.Yes:
+            return "YES"
+        elif click == QMessageBox.No:
+            return "NO"
+        elif click == QMessageBox.Cancel:
+            return "CANCEL"
+        else:
+            raise NotImplementedError
 
     def show_me(self):
         if self.me:
@@ -252,6 +289,57 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         except IndexError:
             pass
         self.show_current_tweet()
+
+    def trigger_check_duplicates_in_labels(self):
+        tweets = [tweet_id for tweet_id, label in self.dataset_read_all_rows()]
+        temp = set(tweets)
+        if len(tweets) == len(temp):
+            self.pop_window("No duplicates found")
+        else:
+            count = {}
+            dups = []
+            for row, tw_id in enumerate(tweets):
+                tweet = count.get(tw_id, {'row': row, 'count': 0})
+                tweet['count'] += 1
+                count.update({tw_id: tweet})
+
+                if tweet['count'] == 2:
+                    dups.append((count[tw_id]['row'], tw_id))
+                    dups.append((row, tw_id))
+                elif tweet['count'] > 2:
+                    dups.append((row, tw_id))
+            dups.sort(key=lambda x: (x[1], x[0]))
+            text = "Fix required !"
+            title = 'Duplicates found'
+            info_text = "Do you want to fix it manually?\n" \
+                        "'Yes' current tweet list will be replaced\n" \
+                        "'No' will drop newer tweets"
+            details = "Duplicates:\n" + '\n'.join([f"{row:>04}-{tw}" for row, tw in dups])
+            click = self.pop_window_with_buttons(text=text, title=title, details=details,
+                                                 informative_text=info_text)
+            if click == "CANCEL":
+                pass
+            elif click == "YES":
+                dups.sort(key=lambda x: x[0], reverse=True)
+                for row, tweet_id in dups:
+                    self.dataset_remove_row(row)
+                new_list = list(set(int(tweet_id) for row, tweet_id in dups))
+                self.set_tweet_list(new_list)
+                self.show_current_tweet()
+            elif click == "NO":
+                to_remove = []
+                to_keep = []
+                for row, tw_id in dups:
+                    if tw_id in to_keep:
+                        to_remove.append(row)
+                    else:
+                        to_keep.append(tw_id)
+                to_remove.sort(reverse=True)
+                self.logger.debug(f"Removing duplicated labels: {to_remove}")
+                for num in to_remove:
+                    self.dataset_remove_row(int(num))
+            else:
+                raise NotImplementedError("This button is not implemented")
 
     def trigger_drop_one_from_work_list(self):
         try:
@@ -328,6 +416,34 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.tableWidget_labeled_data.insertRow(row_id)
         self.dataset_change_row(row_id, tweet_id, label)
 
+    def trigger_dataset_label1(self):
+        self.trigger_add_tweet_label(1)
+
+    def trigger_dataset_label2(self):
+        self.trigger_add_tweet_label(2)
+
+    def trigger_dataset_label3(self):
+        self.trigger_add_tweet_label(3)
+
+    def trigger_dataset_label4(self):
+        self.trigger_add_tweet_label(4)
+
+    def trigger_dataset_label5(self):
+        self.trigger_add_tweet_label(5)
+
+    def trigger_add_tweet_label(self, label):
+        try:
+            tweet_id = self.tweet_list[self.current_tweet_index]
+            self.dataset_add_row(tweet_id, label)
+            try:
+                self.tweet_list.pop(self.current_tweet_index)
+            except IndexError:
+                pass
+            self.show_current_tweet()
+
+        except IndexError as ie:
+            self.logger.error(f"{ie}")
+
     def dataset_change_row(self, row_id, tweet_id, label):
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget_labeled_data.setItem(row_id, 0, item)
@@ -345,26 +461,47 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         to_remove.sort(reverse=True)
         self.logger.info(f"Deleting table indexes: {to_remove}")
         for num in to_remove:
-            self.data_set_remove_row(num)
+            self.dataset_remove_row(num)
 
-    def data_set_remove_row(self, row):
+    def dataset_remove_row(self, row):
         self.tableWidget_labeled_data.removeRow(row)
 
     def trigger_save_labeled_data(self):
         f_name = "labels"
+        file_path = os.path.join(self.app_dir, f_name)
         data = [(tweet, label) for tweet, label in self.dataset_read_all_rows()]
-        np.save(f_name, data)
+        np.save(file_path, data)
 
     def trigger_load_labeled_data(self):
         f_name = "labels.npy"
-        if os.path.isfile(f_name):
-            data = np.load(f_name, allow_pickle=True)
+        file_path = os.path.join(self.app_dir, f_name)
+        if os.path.isfile(file_path):
+            data = np.load(file_path, allow_pickle=True)
             self.dataset_clear_data()
 
             for num, label in data:
                 self.dataset_add_row(num, label)
         else:
             self.logger.warning(f"Can not load labels, file not found")
+
+    def trigger_export_worklist(self):
+        f_name = "worklist"
+        file_path = os.path.join(self.app_dir, f_name)
+        if self.work_list:
+            self.logger.info(f"Exported work list to file: {file_path}")
+            np.save(file_path, self.work_list)
+
+    def trigger_import_worklist(self):
+        f_name = "worklist.npy"
+        file_path = os.path.join(self.app_dir, f_name)
+        if os.path.isfile(file_path):
+            data = np.load(file_path, allow_pickle=True)
+            if data is not None:
+                self.work_list = list(data)
+                self.load_list_from_work_list()
+            self.logger.info(f"Imported work list from file: {file_path}")
+        else:
+            self.logger.warning(f"Can not load worklist, file not found")
 
     def dataset_clear_data(self):
         self.tableWidget_labeled_data.clearContents()
@@ -402,31 +539,6 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
             self.logger.error(msg)
             return None
         collect_status_list.delay([num])
-
-    # def trigger_analyze_unique(self):
-    #     key = self.lineEdit_analyze_unique_key.text()
-    #     unique = self.get_distinct_values_from_df(key)
-    #     text = f"Unique values [{key}]:\n"
-    #     if unique is None:
-    #         return False
-    #     else:
-    #         for val in unique:
-    #             text += f"'{val}'\n"
-    #     print(f"'{text}'")
-    #     self.display(text)
-
-    #
-    # def trigger_drop_new_duplicates(self):
-    #     valid = self.drop_duplicates_from_df(keep_new=False)
-    #     if valid:
-    #         self.currTweetDF_ind = 0
-    #         self.show_current_tweet_from_df()
-    #
-    # def trigger_drop_old_duplicates(self):
-    #     valid = self.drop_duplicates_from_df(keep_new=True)
-    #     if valid:
-    #         self.currTweetDF_ind = 0
-    #         self.show_current_tweet_from_df()
 
     def trigger_filter_by_age(self):
         """Function is reading input from gui spinboxes and translates it to timestamp, later calls filtration"""

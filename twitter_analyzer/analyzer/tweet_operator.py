@@ -65,7 +65,7 @@ class TwitterOperator(TwitterApi):
         self.tweet_list = self.work_list.copy()
 
     def drop_from_work_list(self, indx_arr):
-        if type(indx_arr) is int:
+        if type(indx_arr) is not list:
             indx_arr = [indx_arr]
 
         for num in indx_arr:
@@ -391,6 +391,15 @@ class TwitterOperator(TwitterApi):
         Returns:
 
         """
+
+        try:
+            if type(tweet_array[0]) is int:
+                self.tweet_list = tweet_array
+                self.current_tweet_index = 0
+                return True
+        except TypeError:
+            pass
+
         if tweet_array:
             try:
                 tweet_list = [tweet.tweet_id for tweet in tweet_array]
