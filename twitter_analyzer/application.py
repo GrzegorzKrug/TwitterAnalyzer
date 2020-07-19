@@ -514,8 +514,18 @@ class TwitterAnalyzerGUI(TwitterOperator, Ui_MainWindow):
         self.tableWidget_labeled_data.removeRow(row)
 
     def trigger_save_labeled_data(self):
-        f_name = "labels"
+        f_name = "labels.npy"
         file_path = os.path.join(self.app_dir, f_name)
+        if os.path.isfile(file_path):
+            text = "File exists!"
+            title = "Overwrite?"
+            info_text = "Do you want to overwrite?"
+            click = self.pop_window_with_buttons(text=text, title=title, informative_text=info_text)
+            if click == "YES":
+                pass
+            else:
+                return False
+
         data = [(tweet, label) for tweet, label in self.dataset_read_all_rows()]
         np.save(file_path, data)
 
