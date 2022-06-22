@@ -1,4 +1,4 @@
-numpy==1.18.2
+numpy==1.22.0
 PyQt5==5.14.2
 request==2019.4.13
 requests==2.23.0
